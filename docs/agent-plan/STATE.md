@@ -43,6 +43,7 @@ All tests passed: 14/14
 - Added OpenGSD Core reference plan and product completion plan.
 - Completed Phase 01 login polish: branded two-column login, inline validation, role hints, Java2D coffee visual, and Exit action.
 - Started Phase 02 app shell: added shared AppShell header/sidebar/logout and applied it to Cashier, Kitchen, and Admin views.
+- Completed Phase 03 Cashier POS polish baseline: menu card grid, category toggles, clearer cart summary, grouped order/payment actions.
 
 ## Known gaps
 
@@ -55,7 +56,7 @@ All tests passed: 14/14
 
 ## Next recommended phase
 
-Polish the Cashier POS screen with stronger menu cards/cart layout and reduce remaining default Swing controls.
+Improve payment dialog/QR flow or upgrade Kitchen board to Pending/Preparing/Ready columns.
 
 ## Last updated
 

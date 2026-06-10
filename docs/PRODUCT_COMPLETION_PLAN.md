@@ -75,6 +75,8 @@ Status: shared AppShell header/sidebar/logout completed on 2026-06-10; deeper pe
 
 Muc tieu: day la man hinh quan trong nhat khi demo, can nhin giong POS that va thao tac nhanh.
 
+Status: baseline polish completed on 2026-06-10; menu is now card-grid based, cart/actions are clearer. Payment dialog and custom cart rows remain future polish.
+
 ### Viec can lam
 
 - Menu area:
@@ -82,6 +84,7 @@ Muc tieu: day la man hinh quan trong nhat khi demo, can nhin giong POS that va t
   - Category chips: All, Coffee, Tea, Matcha, Smoothie.
   - Menu card co icon do uong, ten, gia, category.
   - Hien badge `Available` hoac `Low stock`.
+- Done: search, category toggles, card-style menu with generated icons, price, category, and add button.
 - Order/cart area:
   - Hien danh sach item theo dong.
   - Moi dong co ten mon, topping, so luong, gia.
