@@ -60,7 +60,7 @@ public final class AppShell {
 
     private static JPanel sidebar(String role, String[] navItems) {
         JPanel sidebar = new JPanel(new BorderLayout());
-        sidebar.setPreferredSize(new Dimension(210, 0));
+        sidebar.setPreferredSize(new Dimension(176, 0));
         sidebar.setBackground(AppTheme.CREAM);
         sidebar.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, AppTheme.BORDER));
 
@@ -71,7 +71,7 @@ public final class AppShell {
 
         JLabel app = new JLabel("PurrCoffee");
         app.setForeground(AppTheme.TEXT);
-        app.setFont(app.getFont().deriveFont(Font.BOLD, 24f));
+        app.setFont(app.getFont().deriveFont(Font.BOLD, 21f));
         JLabel pos = new JLabel("POS System");
         pos.setForeground(AppTheme.ACCENT);
         pos.setFont(pos.getFont().deriveFont(Font.BOLD, 14f));
