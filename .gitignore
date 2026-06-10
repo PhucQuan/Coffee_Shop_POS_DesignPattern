@@ -1,0 +1,9 @@
+build/
+*.class
+.codex/
+.idea/
+.vscode/
+*.log
+*.tmp
+Thumbs.db
+.DS_Store
