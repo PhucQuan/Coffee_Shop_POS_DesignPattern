@@ -44,6 +44,7 @@ All tests passed: 14/14
 - Completed Phase 01 login polish: branded two-column login, inline validation, role hints, Java2D coffee visual, and Exit action.
 - Started Phase 02 app shell: added shared AppShell header/sidebar/logout and applied it to Cashier, Kitchen, and Admin views.
 - Completed Phase 03 Cashier POS polish baseline: menu card grid, category toggles, clearer cart summary, grouped order/payment actions.
+- Added PaymentDialog with QR simulation, async gateway status, transaction display, and cleaner checkout flow.
 
 ## Known gaps
 
@@ -56,7 +57,7 @@ All tests passed: 14/14
 
 ## Next recommended phase
 
-Improve payment dialog/QR flow or upgrade Kitchen board to Pending/Preparing/Ready columns.
+Upgrade Kitchen board to Pending/Preparing/Ready columns or continue polishing cart rows.
 
 ## Last updated
 

@@ -376,28 +376,16 @@ public class POSView extends JFrame {
 
     private void pay(PaymentGateway gateway) {
         paymentStatusLabel.setText("Payment: processing " + gateway.getGatewayName() + "...");
-        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        SwingWorker<PaymentResult, Void> worker = new SwingWorker<>() {
-            protected PaymentResult doInBackground() throws Exception {
-                Thread.sleep(900);
-                return context.paymentService.pay(currentOrder, gateway);
-            }
-
-            protected void done() {
-                setCursor(Cursor.getDefaultCursor());
-                try {
-                    PaymentResult result = get();
-                    paymentStatusLabel.setText(result.isSuccess() ? "Payment: success" : "Payment: failed");
-                    JOptionPane.showMessageDialog(POSView.this, result.getMessage() + "\n" + result.getTransactionCode());
-                    refreshBill();
-                    if (result.isSuccess()) showReceipt();
-                } catch (Exception ex) {
-                    paymentStatusLabel.setText("Payment: error");
-                    JOptionPane.showMessageDialog(POSView.this, ex.getCause() == null ? ex.getMessage() : ex.getCause().getMessage());
-                }
-            }
-        };
-        worker.execute();
+        PaymentDialog dialog = new PaymentDialog(this, currentOrder, gateway, context.paymentService);
+        dialog.setVisible(true);
+        PaymentResult result = dialog.getResult();
+        if (result == null) {
+            paymentStatusLabel.setText("Payment: cancelled");
+            return;
+        }
+        paymentStatusLabel.setText(result.isSuccess() ? "Payment: success" : "Payment: failed");
+        refreshBill();
+        if (result.isSuccess()) showReceipt();
     }
 
     private void showReceipt() {

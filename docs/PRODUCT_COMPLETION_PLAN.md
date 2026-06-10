@@ -201,6 +201,8 @@ Muc tieu: admin nhin duoc tong quan quan cafe va quan ly du lieu co ban.
 
 Muc tieu: bill/thanh toan nhin thuyet phuc hon khi demo.
 
+Status: payment dialog baseline completed on 2026-06-10 with QR simulation, async status, and transaction result.
+
 ### Viec can lam
 
 - Payment dialog:
@@ -209,6 +211,7 @@ Muc tieu: bill/thanh toan nhin thuyet phuc hon khi demo.
   - QR simulation cho Momo/VNPay.
   - Loading state khi xu ly payment async.
   - Success/fail result.
+- Done: modal `PaymentDialog` for Momo/VNPay with QR, loading progress, status, and transaction code.
 - Receipt preview:
   - Ten quan.
   - Order ID.
