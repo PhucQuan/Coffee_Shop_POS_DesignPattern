@@ -16,6 +16,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -24,6 +25,7 @@ public class POSView extends JFrame {
     private Order currentOrder;
     private final DefaultListModel<String> billModel = new DefaultListModel<>();
     private final JList<String> billList = new JList<>(billModel);
+    private final List<OrderItem> billItems = new ArrayList<>();
     private final JPanel menuGrid = new JPanel(new WrapLayout(FlowLayout.LEFT, 14, 14));
     private final JTextField searchField = new JTextField();
     private final ButtonGroup categoryGroup = new ButtonGroup();
@@ -36,6 +38,19 @@ public class POSView extends JFrame {
     private final JLabel discountLabel = new JLabel();
     private final JLabel totalLabel = new JLabel();
     private final JLabel paymentStatusLabel = new JLabel("Payment: idle");
+    private final JLabel selectedIconLabel = new JLabel();
+    private final JLabel selectedNameLabel = new JLabel("Select a drink");
+    private final JLabel selectedCategoryLabel = new JLabel("Pick from menu");
+    private final JLabel selectedPriceLabel = new JLabel(AppTheme.money(0));
+    private JButton increaseQtyButton;
+    private JButton decreaseQtyButton;
+    private JButton removeItemButton;
+    private JButton cancelOrderButton;
+    private JButton sendKitchenButton;
+    private JButton readyButton;
+    private JButton momoButton;
+    private JButton vnpayButton;
+    private JButton applyDiscountButton;
     private MenuItemRecord selectedMenuItem;
     private String selectedCategory = "ALL";
 
@@ -43,13 +58,13 @@ public class POSView extends JFrame {
         this.context = context;
         this.currentOrder = context.orderService.createOrder();
         setTitle("Coffee Shop POS - Cashier");
-        setSize(1280, 760);
-        setMinimumSize(new Dimension(1180, 700));
+        setSize(1460, 800);
+        setMinimumSize(new Dimension(1280, 720));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setContentPane(AppShell.wrap(this, context, "Cashier",
                 "Select drinks, customize toppings, send to kitchen, and process payment.",
-                buildContent(), "POS", "Orders", "Receipt"));
+                buildContent(), "POS"));
         installShortcuts();
         refreshMenu();
         refreshBill();
@@ -59,14 +74,81 @@ public class POSView extends JFrame {
         JPanel root = new JPanel(new BorderLayout(16, 16));
         root.setOpaque(false);
 
+        root.add(buildSelectedPanel(), BorderLayout.WEST);
         root.add(buildMenuPanel(), BorderLayout.CENTER);
         root.add(buildBillPanel(), BorderLayout.EAST);
         return root;
     }
 
+    private JPanel buildSelectedPanel() {
+        JPanel panel = AppTheme.roundedPanel(new BorderLayout(0, 14),
+                new Color(84, 55, 41), new Color(74, 46, 35), 16, new Insets(18, 18, 18, 18));
+        panel.setPreferredSize(new Dimension(250, 0));
+        panel.setMinimumSize(new Dimension(230, 0));
+
+        JPanel title = new JPanel();
+        title.setOpaque(false);
+        title.setLayout(new BoxLayout(title, BoxLayout.Y_AXIS));
+        JLabel eyebrow = new JLabel("CURRENT DRINK");
+        eyebrow.setForeground(new Color(233, 205, 174));
+        eyebrow.setFont(eyebrow.getFont().deriveFont(Font.BOLD, 11f));
+        selectedNameLabel.setForeground(Color.WHITE);
+        selectedNameLabel.setFont(selectedNameLabel.getFont().deriveFont(Font.BOLD, 22f));
+        selectedCategoryLabel.setForeground(new Color(232, 218, 202));
+        selectedCategoryLabel.setFont(selectedCategoryLabel.getFont().deriveFont(Font.PLAIN, 13f));
+        title.add(eyebrow);
+        title.add(Box.createVerticalStrut(10));
+        title.add(selectedNameLabel);
+        title.add(Box.createVerticalStrut(4));
+        title.add(selectedCategoryLabel);
+        panel.add(title, BorderLayout.NORTH);
+
+        JPanel middle = new JPanel();
+        middle.setOpaque(false);
+        middle.setLayout(new BoxLayout(middle, BoxLayout.Y_AXIS));
+        selectedIconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        selectedIconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        selectedPriceLabel.setForeground(Color.WHITE);
+        selectedPriceLabel.setFont(selectedPriceLabel.getFont().deriveFont(Font.BOLD, 20f));
+        selectedPriceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        middle.add(Box.createVerticalGlue());
+        middle.add(selectedIconLabel);
+        middle.add(Box.createVerticalStrut(18));
+        middle.add(selectedPriceLabel);
+        middle.add(Box.createVerticalGlue());
+        panel.add(middle, BorderLayout.CENTER);
+
+        JPanel bottom = new JPanel();
+        bottom.setOpaque(false);
+        bottom.setLayout(new BoxLayout(bottom, BoxLayout.Y_AXIS));
+        bottom.add(optionCheck(pearl));
+        bottom.add(Box.createVerticalStrut(8));
+        bottom.add(optionCheck(large));
+        bottom.add(Box.createVerticalStrut(8));
+        bottom.add(optionCheck(shot));
+        bottom.add(Box.createVerticalStrut(18));
+        JButton add = AppTheme.ghostButton("Add to cart  (F1)");
+        add.setAlignmentX(Component.LEFT_ALIGNMENT);
+        add.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
+        add.addActionListener(e -> addSelectedItem());
+        bottom.add(add);
+        panel.add(bottom, BorderLayout.SOUTH);
+
+        updateSelectedPanel();
+        return panel;
+    }
+
+    private JCheckBox optionCheck(JCheckBox checkBox) {
+        checkBox.setOpaque(false);
+        checkBox.setForeground(Color.WHITE);
+        checkBox.setFont(checkBox.getFont().deriveFont(Font.BOLD, 13f));
+        checkBox.setFocusPainted(false);
+        return checkBox;
+    }
+
     private JPanel buildMenuPanel() {
         JPanel panel = card(new BorderLayout(14, 14));
-        panel.setMinimumSize(new Dimension(680, 0));
+        panel.setMinimumSize(new Dimension(520, 0));
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
         top.add(sectionHeader("Menu", "Search and select a beverage"), BorderLayout.WEST);
@@ -88,9 +170,9 @@ public class POSView extends JFrame {
         filters.add(searchField, BorderLayout.CENTER);
         filters.add(right, BorderLayout.EAST);
 
-        JPanel categories = new JPanel(new GridLayout(1, 5, 10, 0));
+        JPanel categories = new JPanel(new GridLayout(1, 5, 8, 0));
         categories.setOpaque(false);
-        categories.setPreferredSize(new Dimension(0, 78));
+        categories.setPreferredSize(new Dimension(0, 58));
         addCategoryButton(categories, "ALL", "All", "16 items");
         addCategoryButton(categories, "COFFEE", "Coffee", "10 items");
         addCategoryButton(categories, "TEA", "Tea", "4 items");
@@ -108,19 +190,6 @@ public class POSView extends JFrame {
         menuScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         menuScroll.getVerticalScrollBar().setUnitIncrement(18);
 
-        JPanel options = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 4));
-        options.setOpaque(false);
-        options.setBorder(BorderFactory.createTitledBorder("Options"));
-        options.add(pearl);
-        options.add(large);
-        options.add(shot);
-
-        JButton add = primaryButton("Add to order  (F1)");
-        JPanel bottom = new JPanel(new BorderLayout(8, 8));
-        bottom.setOpaque(false);
-        bottom.add(options, BorderLayout.CENTER);
-        bottom.add(add, BorderLayout.SOUTH);
-
         JPanel center = new JPanel(new BorderLayout(10, 10));
         center.setOpaque(false);
         center.add(filters, BorderLayout.NORTH);
@@ -129,99 +198,160 @@ public class POSView extends JFrame {
         menuBody.add(categories, BorderLayout.NORTH);
         menuBody.add(menuScroll, BorderLayout.CENTER);
         center.add(menuBody, BorderLayout.CENTER);
-        center.add(bottom, BorderLayout.SOUTH);
         panel.add(center, BorderLayout.CENTER);
 
         refresh.addActionListener(e -> refreshMenu());
-        add.addActionListener(e -> addSelectedItem());
         searchField.getDocument().addDocumentListener((SimpleDocumentListener) this::refreshMenu);
         return panel;
     }
 
     private JPanel buildBillPanel() {
-        JPanel panel = card(new BorderLayout(14, 14));
-        panel.setPreferredSize(new Dimension(430, 0));
-        panel.setMinimumSize(new Dimension(410, 0));
-        JPanel top = new JPanel();
+        JPanel panel = card(new BorderLayout(0, 12));
+        panel.setPreferredSize(new Dimension(450, 0));
+        panel.setMinimumSize(new Dimension(420, 0));
+
+        JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
-        top.setLayout(new BoxLayout(top, BoxLayout.Y_AXIS));
         JLabel cartTitle = new JLabel("Cart");
         cartTitle.setForeground(AppTheme.TEXT);
         cartTitle.setFont(cartTitle.getFont().deriveFont(Font.BOLD, 22f));
         JLabel cartSubtitle = AppTheme.muted("Review selected drinks and checkout");
-        cartTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-        cartSubtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-        top.add(cartTitle);
-        top.add(Box.createVerticalStrut(4));
-        top.add(cartSubtitle);
+        JPanel titleStack = new JPanel();
+        titleStack.setOpaque(false);
+        titleStack.setLayout(new BoxLayout(titleStack, BoxLayout.Y_AXIS));
+        titleStack.add(cartTitle);
+        titleStack.add(Box.createVerticalStrut(4));
+        titleStack.add(cartSubtitle);
+        top.add(titleStack, BorderLayout.WEST);
         panel.add(top, BorderLayout.NORTH);
+
+        JPanel center = new JPanel();
+        center.setOpaque(false);
+        center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
 
         billList.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
         billList.setCellRenderer(new BillRenderer());
         JScrollPane billScroll = new JScrollPane(billList);
         billScroll.setBorder(BorderFactory.createLineBorder(AppTheme.BORDER));
-        billScroll.setPreferredSize(new Dimension(0, 150));
+        billScroll.setPreferredSize(new Dimension(410, 106));
+        billScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 106));
+        billScroll.setAlignmentX(Component.LEFT_ALIGNMENT);
+        center.add(billScroll);
+        center.add(Box.createVerticalStrut(6));
 
-        JPanel summary = new JPanel(new GridLayout(3, 1, 0, 8));
+        JPanel itemActions = new JPanel(new GridLayout(1, 3, 8, 0));
+        itemActions.setOpaque(false);
+        itemActions.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        itemActions.setAlignmentX(Component.LEFT_ALIGNMENT);
+        decreaseQtyButton = secondaryButton("- Qty");
+        increaseQtyButton = secondaryButton("+ Qty");
+        removeItemButton = secondaryButton("Remove");
+        itemActions.add(decreaseQtyButton);
+        itemActions.add(increaseQtyButton);
+        itemActions.add(removeItemButton);
+        center.add(itemActions);
+        center.add(Box.createVerticalStrut(6));
+
+        JPanel summary = new JPanel(new GridLayout(3, 1, 0, 4));
         summary.setOpaque(false);
+        summary.setAlignmentX(Component.LEFT_ALIGNMENT);
+        summary.setMaximumSize(new Dimension(Integer.MAX_VALUE, 76));
         summary.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(1, 0, 1, 0, AppTheme.BORDER),
-                new EmptyBorder(12, 0, 12, 0)
+                new EmptyBorder(6, 0, 6, 0)
         ));
         summary.add(summaryLine("Subtotal", subtotalLabel));
         summary.add(summaryLine("Discount", discountLabel));
-        totalLabel.setFont(totalLabel.getFont().deriveFont(Font.BOLD, 22f));
+        totalLabel.setFont(totalLabel.getFont().deriveFont(Font.BOLD, 20f));
         totalLabel.setForeground(AppTheme.ACCENT);
         summary.add(summaryLine("Total", totalLabel));
+        center.add(summary);
+        center.add(Box.createVerticalStrut(6));
 
-        JPanel actions = new JPanel(new GridLayout(0, 1, 8, 8));
-        actions.setOpaque(false);
         JButton newOrder = secondaryButton("New order");
-        JButton apply = secondaryButton("Apply discount");
-        JButton sendKitchen = actionButton("Send kitchen", new Color(184, 111, 20));
-        JButton ready = actionButton("Mark ready", new Color(19, 132, 76));
-        JButton momo = primaryButton("Pay Momo  (F2)");
-        JButton vnpay = primaryButton("Pay VNPay");
+        applyDiscountButton = secondaryButton("Apply discount");
+        sendKitchenButton = actionButton("Send kitchen", new Color(184, 111, 20));
+        readyButton = actionButton("Mark ready", new Color(19, 132, 76));
+        momoButton = primaryButton("Pay Momo  (F2)");
+        vnpayButton = primaryButton("Pay VNPay");
         JButton receipt = secondaryButton("Receipt preview");
-        JLabel discountTitle = actionGroupLabel("Discount");
-        JLabel flowTitle = actionGroupLabel("Order flow");
-        JLabel paymentTitle = actionGroupLabel("Payment");
+
+        JPanel discountBlock = new JPanel(new BorderLayout(0, 6));
+        discountBlock.setOpaque(false);
+        discountBlock.setAlignmentX(Component.LEFT_ALIGNMENT);
+        discountBlock.setMaximumSize(new Dimension(Integer.MAX_VALUE, 62));
+        discountBlock.add(actionGroupLabel("Discount"), BorderLayout.NORTH);
         JPanel discountRow = new JPanel(new GridLayout(1, 2, 8, 0));
         discountRow.setOpaque(false);
-        discountRow.setPreferredSize(new Dimension(0, 44));
+        discountRow.setPreferredSize(new Dimension(0, 36));
         discountRow.add(discountBox);
-        discountRow.add(apply);
-        actions.add(discountTitle);
-        actions.add(discountRow);
-        actions.add(flowTitle);
-        actions.add(newOrder);
-        actions.add(sendKitchen);
-        actions.add(ready);
-        actions.add(receipt);
-        actions.add(paymentTitle);
-        actions.add(momo);
-        actions.add(vnpay);
+        discountRow.add(applyDiscountButton);
+        discountBlock.add(discountRow, BorderLayout.CENTER);
+        center.add(discountBlock);
+        center.add(Box.createVerticalStrut(6));
 
-        JPanel bottom = new JPanel(new BorderLayout(10, 10));
-        bottom.setOpaque(false);
+        JPanel orderRows = new JPanel();
+        orderRows.setOpaque(false);
+        orderRows.setLayout(new BoxLayout(orderRows, BoxLayout.Y_AXIS));
+        orderRows.setAlignmentX(Component.LEFT_ALIGNMENT);
+        orderRows.setMaximumSize(new Dimension(Integer.MAX_VALUE, 126));
+        cancelOrderButton = secondaryButton("Cancel order");
+        JPanel row1 = new JPanel(new GridLayout(1, 2, 8, 0));
+        row1.setOpaque(false);
+        row1.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
+        row1.add(newOrder);
+        row1.add(cancelOrderButton);
+        JPanel row2 = new JPanel(new GridLayout(1, 2, 8, 0));
+        row2.setOpaque(false);
+        row2.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
+        row2.add(sendKitchenButton);
+        row2.add(readyButton);
+        receipt.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
+        orderRows.add(row1);
+        orderRows.add(Box.createVerticalStrut(6));
+        orderRows.add(row2);
+        orderRows.add(Box.createVerticalStrut(6));
+        orderRows.add(receipt);
+
+        JPanel payment = new JPanel(new GridLayout(2, 1, 0, 6));
+        payment.setOpaque(false);
+        payment.setAlignmentX(Component.LEFT_ALIGNMENT);
+        payment.setMaximumSize(new Dimension(Integer.MAX_VALUE, 78));
+        payment.add(momoButton);
+        payment.add(vnpayButton);
+
+        center.add(actionGroupLabel("Order flow"));
+        center.add(Box.createVerticalStrut(4));
+        center.add(orderRows);
+        center.add(Box.createVerticalStrut(6));
+        center.add(actionGroupLabel("Payment"));
+        center.add(Box.createVerticalStrut(4));
+        center.add(payment);
+
         paymentStatusLabel.setForeground(new Color(100, 112, 125));
-        paymentStatusLabel.setBorder(new EmptyBorder(6, 0, 0, 0));
-        JPanel lower = new JPanel(new BorderLayout(0, 12));
-        lower.setOpaque(false);
-        lower.add(summary, BorderLayout.NORTH);
-        lower.add(actions, BorderLayout.CENTER);
-        bottom.add(lower, BorderLayout.CENTER);
-        bottom.add(paymentStatusLabel, BorderLayout.SOUTH);
+        paymentStatusLabel.setBorder(new EmptyBorder(4, 0, 0, 0));
+        paymentStatusLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        center.add(paymentStatusLabel);
 
-        panel.add(billScroll, BorderLayout.CENTER);
-        panel.add(bottom, BorderLayout.SOUTH);
+        JScrollPane centerScroll = new JScrollPane(center);
+        centerScroll.setBorder(null);
+        centerScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        centerScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        centerScroll.getVerticalScrollBar().setUnitIncrement(16);
+        centerScroll.getViewport().setBackground(AppTheme.PANEL);
+        panel.add(centerScroll, BorderLayout.CENTER);
 
         newOrder.addActionListener(e -> newOrder());
-        apply.addActionListener(e -> applyDiscount());
-        sendKitchen.addActionListener(e -> changeState(() -> context.orderService.sendToKitchen(currentOrder)));
-        ready.addActionListener(e -> changeState(() -> context.orderService.markReady(currentOrder)));
-        momo.addActionListener(e -> pay(new MomoAdapter(new Random(1))));
-        vnpay.addActionListener(e -> pay(new VnpayAdapter(new Random(1))));
+        cancelOrderButton.addActionListener(e -> changeState(() -> context.orderService.cancel(currentOrder)));
+        applyDiscountButton.addActionListener(e -> applyDiscount());
+        decreaseQtyButton.addActionListener(e -> changeSelectedItemQuantity(-1));
+        increaseQtyButton.addActionListener(e -> changeSelectedItemQuantity(1));
+        removeItemButton.addActionListener(e -> removeSelectedBillItem());
+        billList.addListSelectionListener(e -> updateActionState());
+        sendKitchenButton.addActionListener(e -> changeState(() -> context.orderService.sendToKitchen(currentOrder)));
+        readyButton.addActionListener(e -> changeState(() -> context.orderService.markReady(currentOrder)));
+        momoButton.addActionListener(e -> pay(new MomoAdapter(new Random(1))));
+        vnpayButton.addActionListener(e -> pay(new VnpayAdapter(new Random(1))));
         receipt.addActionListener(e -> showReceipt());
         return panel;
     }
@@ -234,14 +364,8 @@ public class POSView extends JFrame {
     }
 
     private void addCategoryButton(JPanel parent, String key, String title, String subtitle) {
-        JToggleButton button = new JToggleButton("<html><b>" + title + "</b><br><span style='font-size:9px'>" + subtitle + "</span></html>");
-        button.setFocusPainted(false);
-        button.setHorizontalAlignment(SwingConstants.LEFT);
-        button.setBorder(new EmptyBorder(10, 12, 10, 12));
-        button.setForeground(AppTheme.TEXT);
-        button.setBackground(AppTheme.PANEL);
-        button.setFont(button.getFont().deriveFont(Font.BOLD, 12f));
-        button.setPreferredSize(new Dimension(0, 62));
+        JToggleButton button = AppTheme.toggleButton("<html><b>" + title + "</b><br><span style='font-size:9px'>" + subtitle + "</span></html>");
+        button.setPreferredSize(new Dimension(0, 52));
         button.addActionListener(e -> {
             selectedCategory = key;
             refreshMenu();
@@ -264,13 +388,7 @@ public class POSView extends JFrame {
     }
 
     private JPanel card(LayoutManager layout) {
-        JPanel panel = new JPanel(layout);
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(224, 229, 235)),
-                new EmptyBorder(14, 14, 14, 14)
-        ));
-        return panel;
+        return AppTheme.roundedPanel(layout, AppTheme.PANEL, AppTheme.BORDER, 14, new Insets(14, 14, 14, 14));
     }
 
     private JButton primaryButton(String text) {
@@ -278,26 +396,11 @@ public class POSView extends JFrame {
     }
 
     private JButton secondaryButton(String text) {
-        JButton button = new JButton(text);
-        button.setFocusPainted(false);
-        button.setBackground(AppTheme.CREAM);
-        button.setForeground(AppTheme.TEXT);
-        button.setFont(button.getFont().deriveFont(Font.BOLD, 13f));
-        button.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(AppTheme.BORDER),
-                new EmptyBorder(10, 12, 10, 12)
-        ));
-        return button;
+        return AppTheme.ghostButton(text);
     }
 
     private JButton actionButton(String text, Color color) {
-        JButton button = new JButton(text);
-        button.setFocusPainted(false);
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFont(button.getFont().deriveFont(Font.BOLD, 13f));
-        button.setBorder(new EmptyBorder(11, 14, 11, 14));
-        return button;
+        return AppTheme.button(text, color);
     }
 
     private JPanel summaryLine(String label, JLabel value) {
@@ -331,6 +434,10 @@ public class POSView extends JFrame {
                 .filter(item -> "ALL".equals(selectedCategory) || item.getCategory().equals(selectedCategory))
                 .filter(item -> query.isEmpty() || item.getName().toLowerCase().contains(query))
                 .toList();
+        if (selectedMenuItem == null || filtered.stream().noneMatch(item -> item.getId() == selectedMenuItem.getId())) {
+            selectedMenuItem = filtered.isEmpty() ? null : filtered.get(0);
+        }
+        updateSelectedPanel();
         for (MenuItemRecord item : filtered) menuGrid.add(menuCard(item));
         menuGrid.revalidate();
         menuGrid.repaint();
@@ -344,7 +451,23 @@ public class POSView extends JFrame {
         shot.setSelected(false);
         discountBox.setSelectedItem("No discount");
         paymentStatusLabel.setText("Payment: idle");
+        selectedMenuItem = null;
         refreshBill();
+        refreshMenu();
+    }
+
+    private void updateSelectedPanel() {
+        if (selectedMenuItem == null) {
+            selectedIconLabel.setIcon(null);
+            selectedNameLabel.setText("Select a drink");
+            selectedCategoryLabel.setText("Pick from menu");
+            selectedPriceLabel.setText(AppTheme.money(0));
+            return;
+        }
+        selectedIconLabel.setIcon(DrinkIconFactory.create(selectedMenuItem.getCategory(), selectedMenuItem.getName(), 112));
+        selectedNameLabel.setText(selectedMenuItem.getName());
+        selectedCategoryLabel.setText(selectedMenuItem.getCategory());
+        selectedPriceLabel.setText(AppTheme.money(selectedMenuItem.getBasePrice()));
     }
 
     private void addSelectedItem() {
@@ -401,31 +524,87 @@ public class POSView extends JFrame {
         }
     }
 
+    private void changeSelectedItemQuantity(int delta) {
+        OrderItem item = selectedBillItem();
+        if (item == null) {
+            JOptionPane.showMessageDialog(this, "Please select an item in the cart first.");
+            return;
+        }
+        try {
+            context.orderService.updateItemQuantity(currentOrder, item.getId(), item.getQuantity() + delta);
+            refreshBill();
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+    }
+
+    private void removeSelectedBillItem() {
+        OrderItem item = selectedBillItem();
+        if (item == null) {
+            JOptionPane.showMessageDialog(this, "Please select an item in the cart first.");
+            return;
+        }
+        try {
+            context.orderService.removeItem(currentOrder, item.getId());
+            refreshBill();
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+    }
+
+    private OrderItem selectedBillItem() {
+        int index = billList.getSelectedIndex();
+        if (index < 0 || index >= billItems.size()) return null;
+        return billItems.get(index);
+    }
+
     private void refreshBill() {
         billModel.clear();
+        billItems.clear();
         if (currentOrder.getItems().isEmpty()) {
             billModel.addElement("No items yet");
             billModel.addElement("Select a drink card from the menu.");
         } else {
-            for (OrderItem item : currentOrder.getItems()) billModel.addElement(item.toString());
+            for (OrderItem item : currentOrder.getItems()) {
+                billItems.add(item);
+                billModel.addElement(item.toString());
+            }
         }
         orderStatusLabel.setText("Order #" + currentOrder.getId() + " - " + currentOrder.getStatus());
         subtotalLabel.setText(AppTheme.money(currentOrder.getSubtotal()));
         discountLabel.setText("-" + AppTheme.money(currentOrder.getDiscountAmount()));
         totalLabel.setText(AppTheme.money(currentOrder.getTotalAmount()));
+        updateActionState();
+    }
+
+    private void updateActionState() {
+        boolean pending = "PENDING".equals(currentOrder.getStatus());
+        boolean preparing = "PREPARING".equals(currentOrder.getStatus());
+        boolean ready = "READY".equals(currentOrder.getStatus());
+        boolean hasItems = !currentOrder.getItems().isEmpty();
+        boolean itemSelected = selectedBillItem() != null;
+
+        if (decreaseQtyButton != null) decreaseQtyButton.setEnabled(pending && itemSelected);
+        if (increaseQtyButton != null) increaseQtyButton.setEnabled(pending && itemSelected);
+        if (removeItemButton != null) removeItemButton.setEnabled(pending && itemSelected);
+        if (applyDiscountButton != null) applyDiscountButton.setEnabled(pending && hasItems);
+        if (sendKitchenButton != null) sendKitchenButton.setEnabled(pending && hasItems);
+        if (readyButton != null) readyButton.setEnabled(preparing);
+        if (momoButton != null) momoButton.setEnabled(ready);
+        if (vnpayButton != null) vnpayButton.setEnabled(ready);
+        if (cancelOrderButton != null) cancelOrderButton.setEnabled((pending || preparing || ready) && !"PAID".equals(currentOrder.getStatus()));
     }
 
     private JPanel menuCard(MenuItemRecord item) {
         boolean selected = selectedMenuItem != null && selectedMenuItem.getId() == item.getId();
-        JPanel card = new JPanel(new BorderLayout(10, 10));
-        card.setBackground(selected ? new Color(255, 241, 225) : AppTheme.PANEL);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(selected ? AppTheme.ACCENT : new Color(232, 220, 207), selected ? 2 : 1),
-                new EmptyBorder(14, 14, 14, 14)
-        ));
-        card.setPreferredSize(new Dimension(185, 196));
+        JPanel card = AppTheme.roundedPanel(new BorderLayout(8, 8),
+                selected ? new Color(255, 241, 225) : AppTheme.PANEL,
+                selected ? AppTheme.ACCENT : new Color(232, 220, 207),
+                16, new Insets(12, 12, 12, 12));
+        card.setPreferredSize(new Dimension(180, 208));
+        card.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        JLabel icon = new JLabel(DrinkIconFactory.create(item.getCategory(), item.getName(), 66));
+        JLabel icon = new JLabel(DrinkIconFactory.create(item.getCategory(), item.getName(), 62));
         icon.setHorizontalAlignment(SwingConstants.CENTER);
         card.add(icon, BorderLayout.NORTH);
 
@@ -445,27 +624,21 @@ public class POSView extends JFrame {
         text.add(Box.createVerticalStrut(8));
         text.add(price);
 
-        JButton add = new JButton("+");
-        add.setFocusPainted(false);
-        add.setForeground(Color.WHITE);
-        add.setBackground(AppTheme.SUCCESS);
-        add.setFont(add.getFont().deriveFont(Font.BOLD, 24f));
-        add.setBorder(new EmptyBorder(0, 0, 3, 0));
-        add.setPreferredSize(new Dimension(48, 44));
-        add.addActionListener(e -> {
-            selectedMenuItem = item;
-            addSelectedItem();
-        });
-
-        JPanel bottom = new JPanel(new BorderLayout(8, 0));
+        JPanel bottom = new JPanel(new BorderLayout(8, 6));
         bottom.setOpaque(false);
         bottom.add(text, BorderLayout.CENTER);
-        bottom.add(add, BorderLayout.EAST);
+        if (selected) {
+            JLabel selectedBadge = new JLabel("Selected");
+            selectedBadge.setForeground(AppTheme.ACCENT);
+            selectedBadge.setFont(selectedBadge.getFont().deriveFont(Font.BOLD, 11f));
+            bottom.add(selectedBadge, BorderLayout.SOUTH);
+        }
         card.add(bottom, BorderLayout.CENTER);
 
         card.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 selectedMenuItem = item;
+                updateSelectedPanel();
                 if (e.getClickCount() == 2) {
                     addSelectedItem();
                 } else {

@@ -3,14 +3,21 @@ package com.coffeeshop;
 import com.coffeeshop.domain.model.Order;
 import com.coffeeshop.domain.model.User;
 import com.coffeeshop.domain.patterns.adapter.MomoAdapter;
+import com.coffeeshop.domain.patterns.adapter.PaymentGateway;
+import com.coffeeshop.domain.patterns.adapter.PaymentResult;
 import com.coffeeshop.domain.patterns.decorator.BaseCoffee;
 import com.coffeeshop.domain.patterns.decorator.Beverage;
 import com.coffeeshop.domain.patterns.decorator.LargeSizeDecorator;
 import com.coffeeshop.domain.patterns.decorator.PearlDecorator;
+import com.coffeeshop.domain.patterns.factory.CoffeeFactory;
+import com.coffeeshop.domain.patterns.factory.MatchaFactory;
+import com.coffeeshop.domain.patterns.factory.TeaFactory;
 import com.coffeeshop.domain.patterns.observer.CashierScreen;
 import com.coffeeshop.domain.patterns.observer.OrderEventPublisher;
+import com.coffeeshop.domain.patterns.singleton.AppConfig;
 import com.coffeeshop.domain.patterns.state.InvalidStateTransitionException;
 import com.coffeeshop.domain.patterns.strategy.PercentDiscountStrategy;
+import com.coffeeshop.infrastructure.DatabaseConnection;
 import com.coffeeshop.service.OrderService;
 import com.coffeeshop.service.PaymentService;
 import com.coffeeshop.service.MenuService;
@@ -44,7 +51,11 @@ public class TestRunner {
         runner.tc12ReceiptPreviewContent();
         runner.tc13ReceiptImageExport();
         runner.tc14AdminUserManagement();
-        System.out.println("All tests passed: " + runner.passed + "/14");
+        runner.tc15CartQuantityWorkflow();
+        runner.tc16FactoryCreatesExpectedBeverages();
+        runner.tc17SingletonInstancesAreShared();
+        runner.tc18AdapterFailureDoesNotPayOrder();
+        System.out.println("All tests passed: " + runner.passed + "/18");
     }
 
     private void tc01LoginByRole() {
@@ -237,6 +248,61 @@ public class TestRunner {
         passed++;
     }
 
+    private void tc15CartQuantityWorkflow() {
+        // POS cart workflow: same drink merges quantity, can be adjusted only while Pending.
+        InMemoryRepository repo = new InMemoryRepository();
+        OrderService orderService = new OrderService(repo, new OrderEventPublisher());
+        Order order = orderService.createOrder();
+        orderService.addItem(order, 1, new BaseCoffee("Ca phe sua", 30000), 1, "");
+        orderService.addItem(order, 1, new BaseCoffee("Ca phe sua", 30000), 1, "");
+        assertEquals(1, order.getItems().size(), "TC15 duplicate item should be merged");
+        assertEquals(2, order.getItems().get(0).getQuantity(), "TC15 merged quantity");
+        orderService.updateItemQuantity(order, order.getItems().get(0).getId(), 3);
+        assertEquals(90000.0, order.getSubtotal(), "TC15 subtotal after quantity update");
+        orderService.sendToKitchen(order);
+        assertThrows(InvalidStateTransitionException.class,
+                () -> orderService.updateItemQuantity(order, order.getItems().get(0).getId(), 1),
+                "TC15 update quantity after kitchen should fail");
+        passed++;
+    }
+
+    private void tc16FactoryCreatesExpectedBeverages() {
+        // Factory Method Pattern: each concrete factory hides the concrete beverage class from callers.
+        Beverage coffee = new CoffeeFactory().createBeverage("Americano", 30000);
+        Beverage tea = new TeaFactory().createBeverage("Tra sua", 38000);
+        Beverage matcha = new MatchaFactory().createBeverage("Matcha latte", 42000);
+        assertTrue(coffee.getDescription().contains("Americano"), "TC16 coffee factory description");
+        assertTrue(tea.getDescription().contains("Tra sua"), "TC16 tea factory description");
+        assertTrue(matcha.getDescription().contains("Matcha latte"), "TC16 matcha factory description");
+        assertEquals(42000.0, matcha.getPrice(), "TC16 factory price should preserve base price");
+        passed++;
+    }
+
+    private void tc17SingletonInstancesAreShared() {
+        // Singleton Pattern: repeated calls must return the exact same object.
+        assertTrue(AppConfig.getInstance() == AppConfig.getInstance(), "TC17 AppConfig singleton identity");
+        assertTrue(DatabaseConnection.getInstance() == DatabaseConnection.getInstance(), "TC17 DatabaseConnection singleton identity");
+        assertEquals("Coffee Shop POS", AppConfig.getInstance().getAppName(), "TC17 app config value");
+        assertTrue(DatabaseConnection.getInstance().getConnectionString().contains("sqlite"), "TC17 connection string");
+        passed++;
+    }
+
+    private void tc18AdapterFailureDoesNotPayOrder() {
+        // Adapter Pattern failure path: PaymentService depends on PaymentGateway and leaves order Ready on failure.
+        InMemoryRepository repo = new InMemoryRepository();
+        OrderService orderService = new OrderService(repo, new OrderEventPublisher());
+        PaymentService paymentService = new PaymentService(repo);
+        Order order = orderService.createOrder();
+        orderService.addItem(order, 1, new BaseCoffee("Ca phe sua", 30000), 1, "");
+        orderService.sendToKitchen(order);
+        orderService.markReady(order);
+        PaymentResult result = paymentService.pay(order, new FakeFailingGateway());
+        assertTrue(!result.isSuccess(), "TC18 fake gateway should fail");
+        assertEquals("READY", order.getStatus(), "TC18 failed payment must not mark order paid");
+        assertTrue(order.getPayment() == null, "TC18 failed payment must not create payment record");
+        passed++;
+    }
+
     private void assertEquals(Object expected, Object actual, String message) {
         if (!expected.equals(actual)) {
             throw new AssertionError(message + ". Expected " + expected + ", actual " + actual);
@@ -263,5 +329,15 @@ public class TestRunner {
             throw new AssertionError(message + ". Wrong exception: " + throwable);
         }
         throw new AssertionError(message + ". No exception was thrown");
+    }
+
+    private static final class FakeFailingGateway implements PaymentGateway {
+        public PaymentResult processPayment(double amount) {
+            return new PaymentResult(false, "", "Simulated gateway failure");
+        }
+
+        public String getGatewayName() {
+            return "FakePay";
+        }
     }
 }

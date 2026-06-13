@@ -8,4 +8,5 @@ for /R "%ROOT%src\main\java" %%f in (*.java) do echo %%f>> "%SOURCES%"
 javac -encoding UTF-8 -d "%OUT%" @"%SOURCES%"
 if errorlevel 1 exit /b 1
 del "%SOURCES%"
+if exist "%ROOT%src\main\resources" xcopy "%ROOT%src\main\resources\*" "%OUT%\" /E /I /Y >nul
 java -cp "%OUT%" com.coffeeshop.Main

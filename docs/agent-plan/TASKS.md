@@ -102,6 +102,9 @@ Tasks:
 - Make POS bill easier to read.
 - Add visible status and payment result.
 - Add Admin overview/orders/history/users based on Sothirich reference flow. Done.
+- Add selected-drink panel, cart quantity controls, remove/cancel order, and disabled invalid POS actions. Done.
+- Add observer-driven Kitchen board with order cards and item detail. Done.
+- Polish Admin lists/dashboard/cards while preserving service calls. Done.
 - Keep actions calling services.
 
 Verify:
@@ -152,3 +155,27 @@ Tasks:
 Definition of done:
 
 - Every pattern in the report has exact class names from source code.
+
+## Agent Current Slice - Demo Completion
+
+Objective: make the current Swing app presentation-ready without changing architecture.
+
+Allowed files:
+
+- `src/main/java/com/coffeeshop/presentation/**`
+- `src/main/resources/**`
+- `docs/**`
+
+Tasks:
+
+- Capture manual screenshots for Login, Cashier, Kitchen, Admin.
+- Update pattern evidence table with exact classes.
+- Add demo script showing Decorator, Strategy, State, Observer, Adapter, Factory, Singleton.
+- Keep `test.bat` green after every UI change.
+
+Verify:
+
+```bat
+test.bat
+run.bat
+```

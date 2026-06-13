@@ -9,7 +9,9 @@ import com.coffeeshop.domain.model.User;
 import com.coffeeshop.infrastructure.MenuItemRecord;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 public class AdminView extends JFrame {
@@ -44,12 +46,13 @@ public class AdminView extends JFrame {
     public AdminView(AppContext context) {
         this.context = context;
         setTitle("Coffee Shop POS - Admin");
-        setSize(900, 580);
-        setMinimumSize(new Dimension(860, 560));
+        setSize(1180, 720);
+        setMinimumSize(new Dimension(1040, 640));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         JTabbedPane tabs = new JTabbedPane();
+        tabs.setFont(tabs.getFont().deriveFont(Font.BOLD, 13f));
         tabs.addTab("Overview", overviewPanel());
         tabs.addTab("Orders", ordersPanel());
         tabs.addTab("History", historyPanel());
@@ -64,86 +67,117 @@ public class AdminView extends JFrame {
     }
 
     private JPanel overviewPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-        JButton refresh = new JButton("Refresh overview");
+        JPanel panel = new JPanel(new BorderLayout(14, 14));
+        panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(16, 16, 16, 16));
+        JButton refresh = AppTheme.ghostButton("Refresh overview");
         refresh.addActionListener(e -> {
             topItemsChart.setData(context.reportService.getTopSellingItems());
             panel.repaint();
         });
 
         JPanel cards = new JPanel(new GridLayout(1, 4, 12, 12));
+        cards.setOpaque(false);
         cards.add(metricCard("Total orders", String.valueOf(context.repository.getOrders().size())));
         cards.add(metricCard("Pending", String.valueOf(countOrders("PENDING"))));
         cards.add(metricCard("Paid", String.valueOf(countOrders("PAID"))));
         cards.add(metricCard("Revenue", String.format("%,.0f d", context.reportService.getRevenue())));
 
         topItemsChart.setData(context.reportService.getTopSellingItems());
+        topItemsChart.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
         panel.add(cards, BorderLayout.NORTH);
-        panel.add(topItemsChart, BorderLayout.CENTER);
+        panel.add(AppTheme.roundedPanel(new BorderLayout(), AppTheme.PANEL, AppTheme.BORDER, 14, new Insets(8, 8, 8, 8)), BorderLayout.CENTER);
+        ((JPanel) panel.getComponent(1)).add(topItemsChart, BorderLayout.CENTER);
         panel.add(refresh, BorderLayout.SOUTH);
         return panel;
     }
 
     private JPanel metricCard(String title, String value) {
-        JPanel card = new JPanel(new GridLayout(2, 1));
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 220, 220)),
-                BorderFactory.createEmptyBorder(16, 16, 16, 16)));
+        JPanel card = AppTheme.roundedPanel(new GridLayout(2, 1, 0, 4), AppTheme.PANEL, AppTheme.BORDER, 14, new Insets(16, 16, 16, 16));
         JLabel valueLabel = new JLabel(value);
-        valueLabel.setFont(valueLabel.getFont().deriveFont(Font.BOLD, 22f));
+        valueLabel.setForeground(AppTheme.PRIMARY);
+        valueLabel.setFont(valueLabel.getFont().deriveFont(Font.BOLD, 24f));
+        JLabel titleLabel = AppTheme.muted(title);
         card.add(valueLabel);
-        card.add(new JLabel(title));
+        card.add(titleLabel);
         return card;
     }
 
+    private JPanel sectionHeader(String title, String subtitle) {
+        JPanel panel = new JPanel(new GridLayout(2, 1, 0, 2));
+        panel.setOpaque(false);
+        JLabel t = new JLabel(title);
+        t.setForeground(AppTheme.TEXT);
+        t.setFont(t.getFont().deriveFont(Font.BOLD, 20f));
+        JLabel s = AppTheme.muted(subtitle);
+        panel.add(t);
+        panel.add(s);
+        return panel;
+    }
+
+    private JPanel wrapWithTitle(String title, JComponent component) {
+        JPanel panel = AppTheme.card(new BorderLayout(8, 8));
+        JLabel label = AppTheme.section(title);
+        panel.add(label, BorderLayout.NORTH);
+        panel.add(component, BorderLayout.CENTER);
+        return panel;
+    }
+
     private JPanel menuPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
         menuList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        menuList.setCellRenderer(new MenuRenderer());
         menuList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 fillBeverageForm(menuList.getSelectedValue());
             }
         });
-        panel.add(new JScrollPane(menuList), BorderLayout.CENTER);
+        panel.add(wrapWithTitle("Menu catalog", new JScrollPane(menuList)), BorderLayout.CENTER);
         panel.add(beverageForm(), BorderLayout.EAST);
         refreshMenuModel();
         return panel;
     }
 
     private JPanel toppingPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
         toppingList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        toppingList.setCellRenderer(new ToppingRenderer());
         toppingList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 fillToppingForm(toppingList.getSelectedValue());
             }
         });
-        panel.add(new JScrollPane(toppingList), BorderLayout.CENTER);
+        panel.add(wrapWithTitle("Topping catalog", new JScrollPane(toppingList)), BorderLayout.CENTER);
         panel.add(toppingForm(), BorderLayout.EAST);
         refreshToppingModel();
         return panel;
     }
 
     private JPanel ordersPanel() {
-        JPanel panel = new JPanel(new BorderLayout(8, 8));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
         activeOrderDetailArea.setEditable(false);
         activeOrderDetailArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        activeOrderDetailArea.setBorder(new EmptyBorder(12, 12, 12, 12));
         activeOrderList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        activeOrderList.setCellRenderer(new AdminOrderRenderer());
         activeOrderList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 activeOrderDetailArea.setText(orderDetails(activeOrderList.getSelectedValue()));
             }
         });
 
-        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton refresh = new JButton("Refresh");
-        JButton sendKitchen = new JButton("Send to kitchen");
-        JButton ready = new JButton("Mark ready");
-        JButton cancel = new JButton("Cancel order");
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        actions.setOpaque(false);
+        JButton refresh = AppTheme.ghostButton("Refresh");
+        JButton sendKitchen = AppTheme.button("Send to kitchen", AppTheme.WARNING);
+        JButton ready = AppTheme.button("Mark ready", AppTheme.SUCCESS);
+        JButton cancel = AppTheme.button("Cancel order", AppTheme.DANGER);
         actions.add(refresh);
         actions.add(sendKitchen);
         actions.add(ready);
@@ -156,7 +190,8 @@ public class AdminView extends JFrame {
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(activeOrderList), new JScrollPane(activeOrderDetailArea));
         split.setDividerLocation(320);
-        panel.add(new JLabel("Active order queue, inspired by the Accept/Pending flow in the reference app."), BorderLayout.NORTH);
+        split.setBorder(null);
+        panel.add(sectionHeader("Active Orders", "State Pattern controls which transitions are allowed."), BorderLayout.NORTH);
         panel.add(split, BorderLayout.CENTER);
         panel.add(actions, BorderLayout.SOUTH);
         refreshOrderModels();
@@ -164,19 +199,23 @@ public class AdminView extends JFrame {
     }
 
     private JPanel historyPanel() {
-        JPanel panel = new JPanel(new BorderLayout(8, 8));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
         historyOrderDetailArea.setEditable(false);
         historyOrderDetailArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        historyOrderDetailArea.setBorder(new EmptyBorder(12, 12, 12, 12));
+        historyOrderList.setCellRenderer(new AdminOrderRenderer());
         historyOrderList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 historyOrderDetailArea.setText(orderDetails(historyOrderList.getSelectedValue()));
             }
         });
-        JButton refresh = new JButton("Refresh history");
+        JButton refresh = AppTheme.ghostButton("Refresh history");
         refresh.addActionListener(e -> refreshOrderModels());
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(historyOrderList), new JScrollPane(historyOrderDetailArea));
         split.setDividerLocation(320);
+        split.setBorder(null);
         panel.add(split, BorderLayout.CENTER);
         panel.add(refresh, BorderLayout.SOUTH);
         refreshOrderModels();
@@ -184,17 +223,21 @@ public class AdminView extends JFrame {
     }
 
     private JPanel reportPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        JButton refresh = new JButton("Refresh report");
+        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
+        JButton refresh = AppTheme.ghostButton("Refresh report");
         reportArea.setEditable(false);
+        reportArea.setBorder(new EmptyBorder(12, 12, 12, 12));
         refresh.addActionListener(e -> refreshReport());
-        JPanel top = new JPanel(new BorderLayout());
+        JPanel top = AppTheme.roundedPanel(new BorderLayout(), AppTheme.PANEL, AppTheme.BORDER, 14, new Insets(10, 12, 10, 12));
         revenueCard.setFont(revenueCard.getFont().deriveFont(Font.BOLD, 18f));
-        revenueCard.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        revenueCard.setForeground(AppTheme.PRIMARY);
         top.add(revenueCard, BorderLayout.WEST);
         top.add(refresh, BorderLayout.EAST);
         JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topItemsChart, new JScrollPane(reportArea));
         split.setDividerLocation(260);
+        split.setBorder(null);
         panel.add(top, BorderLayout.NORTH);
         panel.add(split, BorderLayout.CENTER);
         refreshReport();
@@ -202,12 +245,14 @@ public class AdminView extends JFrame {
     }
 
     private JPanel inventoryPanel() {
-        JPanel panel = new JPanel(new BorderLayout(8, 8));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
         JList<InventoryItem> inventoryList = new JList<>(inventoryModel);
-        JButton refresh = new JButton("Refresh inventory");
+        inventoryList.setCellRenderer(new InventoryRenderer());
+        JButton refresh = AppTheme.ghostButton("Refresh inventory");
         refresh.addActionListener(e -> refreshInventoryModel());
-        panel.add(new JLabel("Inventory is deducted automatically when an order is sent to kitchen."), BorderLayout.NORTH);
+        panel.add(sectionHeader("Inventory", "InventoryService deducts stock when orders enter kitchen flow."), BorderLayout.NORTH);
         panel.add(new JScrollPane(inventoryList), BorderLayout.CENTER);
         panel.add(refresh, BorderLayout.SOUTH);
         refreshInventoryModel();
@@ -215,8 +260,9 @@ public class AdminView extends JFrame {
     }
 
     private JPanel usersPanel() {
-        JPanel panel = new JPanel(new BorderLayout(8, 8));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
         userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         userList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
             JLabel label = new JLabel(value.getUsername() + " [" + value.getRole() + "] - " + (value.isActive() ? "ACTIVE" : "LOCKED"));
@@ -258,10 +304,10 @@ public class AdminView extends JFrame {
         addRow(form, gbc, 2, "Category", categoryBox);
         gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2; form.add(beverageActiveBox, gbc);
 
-        JButton add = new JButton("Add");
-        JButton update = new JButton("Update");
-        JButton disable = new JButton("Disable");
-        JButton clear = new JButton("Clear");
+        JButton add = AppTheme.button("Add", AppTheme.SUCCESS);
+        JButton update = AppTheme.button("Update", AppTheme.WARNING);
+        JButton disable = AppTheme.button("Disable", AppTheme.DANGER);
+        JButton clear = AppTheme.ghostButton("Clear");
         JPanel buttons = new JPanel(new GridLayout(2, 2, 6, 6));
         buttons.add(add); buttons.add(update); buttons.add(disable); buttons.add(clear);
         gbc.gridy = 4; form.add(buttons, gbc);
@@ -297,10 +343,10 @@ public class AdminView extends JFrame {
         addRow(form, gbc, 1, "Password", passwordField);
         addRow(form, gbc, 2, "Role", roleBox);
 
-        JButton add = new JButton("Add user");
-        JButton lock = new JButton("Lock");
-        JButton unlock = new JButton("Unlock");
-        JButton clear = new JButton("Clear");
+        JButton add = AppTheme.button("Add user", AppTheme.SUCCESS);
+        JButton lock = AppTheme.button("Lock", AppTheme.DANGER);
+        JButton unlock = AppTheme.button("Unlock", AppTheme.WARNING);
+        JButton clear = AppTheme.ghostButton("Clear");
         JPanel buttons = new JPanel(new GridLayout(2, 2, 6, 6));
         buttons.add(add); buttons.add(lock); buttons.add(unlock); buttons.add(clear);
         gbc.gridx = 0;
@@ -338,10 +384,10 @@ public class AdminView extends JFrame {
         addRow(form, gbc, 1, "Price", toppingPriceField);
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; form.add(toppingActiveBox, gbc);
 
-        JButton add = new JButton("Add");
-        JButton update = new JButton("Update");
-        JButton disable = new JButton("Disable");
-        JButton clear = new JButton("Clear");
+        JButton add = AppTheme.button("Add", AppTheme.SUCCESS);
+        JButton update = AppTheme.button("Update", AppTheme.WARNING);
+        JButton disable = AppTheme.button("Disable", AppTheme.DANGER);
+        JButton clear = AppTheme.ghostButton("Clear");
         JPanel buttons = new JPanel(new GridLayout(2, 2, 6, 6));
         buttons.add(add); buttons.add(update); buttons.add(disable); buttons.add(clear);
         gbc.gridy = 3; form.add(buttons, gbc);
@@ -495,6 +541,66 @@ public class AdminView extends JFrame {
             action.run();
         } catch (RuntimeException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Validation error", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    private static final class MenuRenderer extends DefaultListCellRenderer {
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected, boolean focus) {
+            MenuItemRecord item = (MenuItemRecord) value;
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, selected, focus);
+            label.setText("<html><b>" + item.getName() + "</b> <span style='color:#735f55'>[" + item.getCategory()
+                    + "]</span><br>" + AppTheme.money(item.getBasePrice()) + " - "
+                    + (item.isActive() ? "ACTIVE" : "DISABLED") + "</html>");
+            label.setBorder(new EmptyBorder(10, 12, 10, 12));
+            label.setBackground(selected ? new Color(255, 241, 225) : AppTheme.PANEL);
+            label.setForeground(AppTheme.TEXT);
+            return label;
+        }
+    }
+
+    private static final class ToppingRenderer extends DefaultListCellRenderer {
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected, boolean focus) {
+            Topping topping = (Topping) value;
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, selected, focus);
+            label.setText("<html><b>" + topping.getName() + "</b><br>" + AppTheme.money(topping.getExtraPrice())
+                    + " - " + (topping.isActive() ? "ACTIVE" : "DISABLED") + "</html>");
+            label.setBorder(new EmptyBorder(10, 12, 10, 12));
+            label.setBackground(selected ? new Color(255, 241, 225) : AppTheme.PANEL);
+            label.setForeground(AppTheme.TEXT);
+            return label;
+        }
+    }
+
+    private static final class InventoryRenderer extends DefaultListCellRenderer {
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected, boolean focus) {
+            InventoryItem item = (InventoryItem) value;
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, selected, focus);
+            boolean low = item.isLowStock();
+            label.setText("<html><b>" + item.getName() + "</b><br>" + String.format("%,.0f", item.getQuantity())
+                    + " " + item.getUnit() + " / reorder at " + String.format("%,.0f", item.getReorderLevel()) + "</html>");
+            label.setBorder(new EmptyBorder(10, 12, 10, 12));
+            label.setBackground(selected ? new Color(255, 241, 225) : (low ? new Color(255, 238, 228) : AppTheme.PANEL));
+            label.setForeground(low ? AppTheme.DANGER : AppTheme.TEXT);
+            return label;
+        }
+    }
+
+    private static final class AdminOrderRenderer extends DefaultListCellRenderer {
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected, boolean focus) {
+            Order order = (Order) value;
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, selected, focus);
+            label.setText("<html><b>Order #" + order.getId() + "</b> - " + order.getStatus()
+                    + "<br>" + order.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))
+                    + " - " + order.getItems().size() + " line(s) - " + AppTheme.money(order.getTotalAmount()) + "</html>");
+            label.setBorder(new EmptyBorder(10, 12, 10, 12));
+            label.setBackground(selected ? new Color(255, 241, 225) : AppTheme.PANEL);
+            label.setForeground(switch (order.getStatus()) {
+                case "PAID" -> AppTheme.SUCCESS;
+                case "CANCELLED" -> AppTheme.DANGER;
+                case "PREPARING" -> AppTheme.WARNING;
+                default -> AppTheme.TEXT;
+            });
+            return label;
         }
     }
 }

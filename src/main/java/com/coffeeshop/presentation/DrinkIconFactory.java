@@ -3,11 +3,17 @@ package com.coffeeshop.presentation;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.net.URL;
+import java.text.Normalizer;
+import java.util.Locale;
 
 public final class DrinkIconFactory {
     private DrinkIconFactory() {}
 
     public static ImageIcon create(String category, String name, int size) {
+        ImageIcon asset = loadAsset(name, size);
+        if (asset != null) return asset;
+
         BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -64,5 +70,22 @@ public final class DrinkIconFactory {
 
         g.dispose();
         return new ImageIcon(image);
+    }
+
+    private static ImageIcon loadAsset(String name, int size) {
+        String path = "/assets/drinks/" + slug(name) + ".png";
+        URL url = DrinkIconFactory.class.getResource(path);
+        if (url == null) return null;
+        Image image = new ImageIcon(url).getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
+        return new ImageIcon(image);
+    }
+
+    private static String slug(String text) {
+        String normalized = Normalizer.normalize(text, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("(^-|-$)", "");
+        return normalized.isBlank() ? "drink" : normalized;
     }
 }

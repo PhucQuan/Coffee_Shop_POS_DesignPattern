@@ -7,7 +7,7 @@ Baseline Java project exists and tests pass.
 Last verified:
 
 ```text
-All tests passed: 14/14
+All tests passed: 18/18
 ```
 
 ## Done
@@ -45,19 +45,25 @@ All tests passed: 14/14
 - Started Phase 02 app shell: added shared AppShell header/sidebar/logout and applied it to Cashier, Kitchen, and Admin views.
 - Completed Phase 03 Cashier POS polish baseline: menu card grid, category toggles, clearer cart summary, grouped order/payment actions.
 - Added PaymentDialog with QR simulation, async gateway status, transaction display, and cleaner checkout flow.
+- Completed POS cart workflow polish: selected-drink panel, item quantity controls, remove item, cancel order, disabled invalid actions, and scroll-safe cart panel.
+- Completed Kitchen board polish: observer-driven refresh, order cards, item detail panel, and state-aware receive/complete/cancel actions.
+- Started and verified Admin polish: dashboard cards, styled charts/lists, clearer Menu/Topping/Orders/History/Inventory/Users tabs, and service-backed forms.
+- Added reference drink images under `src/main/resources/assets/drinks` and copied resources automatically in run/test scripts.
+- Added TC15 for cart quantity workflow.
+- Added TC16-TC18 for Factory Method, Singleton identity, and Adapter failure path.
 
 ## Known gaps
 
 - Kitchen and POS windows are not synchronized when opened from separate login sessions because current repository is in-memory per app context.
 - No persistent SQLite runtime connection yet; SQL script exists, but app uses in-memory repository.
-- Swing UI is improving, but POS/Kitchen/Admin still need a shared app shell and deeper visual polish.
+- Swing UI is improving and now usable for demo; Admin/Kitchen can still get more visual polish if time permits.
 - No JUnit/Maven project yet; tests use no-dependency TestRunner.
 - Receipt preview and PNG export are implemented; PDF export is still not implemented.
 - Dashboard chart is simple Java2D, not JFreeChart.
 
 ## Next recommended phase
 
-Upgrade Kitchen board to Pending/Preparing/Ready columns or continue polishing cart rows.
+Finish Admin smoke test visually, then prepare report/demo evidence: screenshots, pattern evidence table, and UML sequence/class notes.
 
 ## Last updated
 

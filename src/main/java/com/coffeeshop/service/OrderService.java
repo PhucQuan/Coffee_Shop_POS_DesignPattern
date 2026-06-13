@@ -4,9 +4,12 @@ import com.coffeeshop.domain.model.Order;
 import com.coffeeshop.domain.model.OrderItem;
 import com.coffeeshop.domain.patterns.decorator.Beverage;
 import com.coffeeshop.domain.patterns.observer.OrderEventPublisher;
+import com.coffeeshop.domain.patterns.state.InvalidStateTransitionException;
 import com.coffeeshop.domain.patterns.strategy.DiscountStrategy;
 import com.coffeeshop.domain.patterns.strategy.NoDiscountStrategy;
 import com.coffeeshop.infrastructure.InMemoryRepository;
+
+import java.util.Objects;
 
 public class OrderService {
     private final InMemoryRepository repository;
@@ -31,6 +34,15 @@ public class OrderService {
     }
 
     public OrderItem addItem(Order order, int beverageId, Beverage beverage, int quantity, String note) {
+        ensurePending(order, "add item");
+        for (OrderItem existing : order.getItems()) {
+            if (existing.getBeverage().getDescription().equals(beverage.getDescription())
+                    && Objects.equals(existing.getNote(), note == null ? "" : note)) {
+                existing.setQuantity(existing.getQuantity() + quantity);
+                recalculate(order);
+                return existing;
+            }
+        }
         OrderItem item = new OrderItem(repository.nextOrderItemId(), order.getId(), beverageId, beverage, quantity, note);
         order.getState().addItem(order, item);
         recalculate(order);
@@ -39,6 +51,20 @@ public class OrderService {
 
     public void removeItem(Order order, int itemId) {
         order.getState().removeItem(order, itemId);
+        recalculate(order);
+    }
+
+    public void updateItemQuantity(Order order, int itemId, int quantity) {
+        ensurePending(order, "update item quantity");
+        if (quantity <= 0) {
+            removeItem(order, itemId);
+            return;
+        }
+        OrderItem item = order.getItems().stream()
+                .filter(orderItem -> orderItem.getId() == itemId)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Order item not found: " + itemId));
+        item.setQuantity(quantity);
         recalculate(order);
     }
 
@@ -75,5 +101,11 @@ public class OrderService {
         order.getState().cancel(order);
         inventoryService.restockForOrder(order);
         publisher.notifyObservers(order, order.getStatus());
+    }
+
+    private void ensurePending(Order order, String action) {
+        if (!"PENDING".equals(order.getStatus())) {
+            throw new InvalidStateTransitionException("Cannot " + action + " when order is " + order.getStatus() + ".");
+        }
     }
 }

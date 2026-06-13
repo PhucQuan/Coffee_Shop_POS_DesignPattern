@@ -2,7 +2,7 @@
 
 Reference repo: `Sothirich/CoffeeShopSystemManagement`.
 
-Muc tieu: dung repo nay de tham khao luong man hinh va do "giong app that", khong copy code/UI/assets.
+Muc tieu: dung repo nay de tham khao luong man hinh va do "giong app that". Code/UI van la cua project nay; mot so anh do uong/background duoc tai su dung lam asset demo sau khi duoc xac nhan co the dung.
 
 ## Nhung diem hoc tu repo tham khao
 
@@ -27,6 +27,7 @@ Muc tieu: dung repo nay de tham khao luong man hinh va do "giong app that", khon
 | Check history | Da bo sung tab History | Can cho demo back-office |
 | Add user | Da bo sung UserService + Admin Users | Hoan thien role management |
 | MySQL | Giu `schema.sql`, runtime van in-memory | Demo chay nhanh, van co du thiet ke DB |
+| Drink/background assets | Da them vao `src/main/resources/assets` | Lam UI giong san pham that hon, khong anh huong pattern/core logic |
 
 ## Mapping theo BMAD/GSD
 
@@ -45,7 +46,7 @@ Coffee Shop POS la app Java Swing demo Design Patterns trong nghiep vu ban cafe.
 
 1. Hoan thien back-office: overview, order queue, history, users. Done.
 2. Giu pattern core on dinh: Decorator, Strategy, State, Observer, Factory, Singleton, Adapter. Done.
-3. Tang chat luong demo: receipt PNG, QR simulation, inventory report. Done.
+3. Tang chat luong demo: receipt PNG, QR simulation, inventory report, drink images. Done.
 4. Neu con thoi gian: them screenshot vao bao cao va ve lai UML theo code that.
 
 ### Acceptance criteria
@@ -59,6 +60,6 @@ Coffee Shop POS la app Java Swing demo Design Patterns trong nghiep vu ban cafe.
 ## Nhung viec khong nen lam luc nay
 
 - Khong migrate sang JavaFX neu deadline gan, vi se doi build/dependency va khong tang diem pattern nhieu.
-- Khong copy anh/assets tu repo tham khao.
+- Khong copy code JavaFX/FXML tu repo tham khao vao project Swing nay.
 - Khong dua SQL connection that vao UI.
 - Khong tao them qua nhieu pattern chi de "cho nhieu", vi se lam bao cao kho bao ve.

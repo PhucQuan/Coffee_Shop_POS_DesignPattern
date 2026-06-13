@@ -7,4 +7,6 @@ Set-Content -Path $sourceList -Value $sources -Encoding UTF8
 javac -encoding UTF-8 -d $out "@$sourceList"
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 Remove-Item -LiteralPath $sourceList -ErrorAction SilentlyContinue
+$resources = Join-Path $root "src\main\resources"
+if (Test-Path $resources) { Copy-Item -Path (Join-Path $resources "*") -Destination $out -Recurse -Force }
 java -cp $out com.coffeeshop.tools.SampleArtifactGenerator
