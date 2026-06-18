@@ -10,18 +10,25 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class KitchenView extends JFrame implements OrderObserver {
     private final AppContext context;
-    private final DefaultListModel<Order> orderModel = new DefaultListModel<>();
-    private final JList<Order> orderList = new JList<>(orderModel);
+    private final DefaultListModel<Order> pendingModel = new DefaultListModel<>();
+    private final DefaultListModel<Order> preparingModel = new DefaultListModel<>();
+    private final DefaultListModel<Order> readyModel = new DefaultListModel<>();
+    private final JList<Order> pendingList = new JList<>(pendingModel);
+    private final JList<Order> preparingList = new JList<>(preparingModel);
+    private final JList<Order> readyList = new JList<>(readyModel);
     private final DefaultListModel<String> itemModel = new DefaultListModel<>();
     private final JList<String> itemList = new JList<>(itemModel);
     private final JLabel selectedTitle = new JLabel("Select an order");
     private final JLabel selectedStatus = new JLabel("No order selected");
     private final JLabel selectedTotal = new JLabel(AppTheme.money(0));
     private final JLabel queueCount = new JLabel("0 active");
+    private Order currentSelectedOrder;
     private JButton receiveButton;
     private JButton completeButton;
     private JButton cancelButton;
@@ -29,24 +36,26 @@ public class KitchenView extends JFrame implements OrderObserver {
     public KitchenView(AppContext context) {
         this.context = context;
         setTitle("Coffee Shop POS - Kitchen");
-        setSize(1120, 680);
-        setMinimumSize(new Dimension(980, 620));
+        setSize(1280, 720);
+        setMinimumSize(new Dimension(1024, 640));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setContentPane(AppShell.wrap(this, context, "Kitchen",
-                "Receive pending orders, prepare drinks, and mark orders ready.",
-                buildContent(), "Queue", "Preparing", "Ready"));
+                "Kanban Board: Receive pending orders, prepare drinks, and mark orders ready.",
+                buildContent(), nav -> {}, "Kanban"));
         context.publisher.subscribe(this);
         addWindowListener(new WindowAdapter() {
             public void windowClosed(WindowEvent e) {
                 context.publisher.unsubscribe(KitchenView.this);
             }
         });
+        Timer timer = new Timer(30000, e -> refresh());
+        timer.start();
         refresh();
     }
 
     private JPanel buildContent() {
-        JPanel root = new JPanel(new BorderLayout(16, 16));
+        JPanel root = new JPanel(new BorderLayout(24, 24));
         root.setOpaque(false);
         root.add(queuePanel(), BorderLayout.CENTER);
         root.add(detailPanel(), BorderLayout.EAST);
@@ -54,30 +63,54 @@ public class KitchenView extends JFrame implements OrderObserver {
     }
 
     private JPanel queuePanel() {
-        JPanel panel = AppTheme.card(new BorderLayout(12, 12));
+        JPanel panel = AppTheme.card(new BorderLayout(24, 24));
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
-        top.add(sectionHeader("Kitchen Queue", "Observer updates this board when POS changes an order."), BorderLayout.WEST);
+        top.add(sectionHeader("Kitchen Kanban", "Orders > 15 mins will show a warning."), BorderLayout.WEST);
         queueCount.setForeground(AppTheme.PRIMARY);
         queueCount.setFont(queueCount.getFont().deriveFont(Font.BOLD, 14f));
         top.add(queueCount, BorderLayout.EAST);
         panel.add(top, BorderLayout.NORTH);
 
-        orderList.setCellRenderer(new KitchenOrderRenderer());
-        orderList.setFixedCellHeight(108);
-        orderList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        orderList.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) showDetails(orderList.getSelectedValue());
-        });
-        JScrollPane scroll = new JScrollPane(orderList);
-        scroll.setBorder(BorderFactory.createLineBorder(AppTheme.BORDER));
-        panel.add(scroll, BorderLayout.CENTER);
+        JPanel kanban = new JPanel(new GridLayout(1, 3, 16, 0));
+        kanban.setOpaque(false);
+        kanban.add(createColumn("Pending", pendingList));
+        kanban.add(createColumn("Preparing", preparingList));
+        kanban.add(createColumn("Ready", readyList));
+        panel.add(kanban, BorderLayout.CENTER);
         return panel;
     }
 
+    private JPanel createColumn(String title, JList<Order> list) {
+        JPanel col = new JPanel(new BorderLayout(0, 8));
+        col.setOpaque(false);
+        JLabel label = new JLabel(title);
+        label.setFont(label.getFont().deriveFont(Font.BOLD, 16f));
+        label.setForeground(AppTheme.TEXT);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        col.add(label, BorderLayout.NORTH);
+
+        list.setCellRenderer(new KitchenOrderRenderer());
+        list.setFixedCellHeight(114);
+        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        list.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && list.getSelectedValue() != null) {
+                if (list != pendingList) pendingList.clearSelection();
+                if (list != preparingList) preparingList.clearSelection();
+                if (list != readyList) readyList.clearSelection();
+                currentSelectedOrder = list.getSelectedValue();
+                showDetails(currentSelectedOrder);
+            }
+        });
+        JScrollPane scroll = new JScrollPane(list);
+        scroll.setBorder(BorderFactory.createLineBorder(AppTheme.BORDER));
+        col.add(scroll, BorderLayout.CENTER);
+        return col;
+    }
+
     private JPanel detailPanel() {
-        JPanel panel = AppTheme.card(new BorderLayout(12, 12));
-        panel.setPreferredSize(new Dimension(380, 0));
+        JPanel panel = AppTheme.card(new BorderLayout(24, 24));
+        panel.setPreferredSize(new Dimension(340, 0));
         JPanel top = new JPanel();
         top.setOpaque(false);
         top.setLayout(new BoxLayout(top, BoxLayout.Y_AXIS));
@@ -100,20 +133,20 @@ public class KitchenView extends JFrame implements OrderObserver {
 
         JPanel actions = new JPanel(new GridLayout(2, 2, 8, 8));
         actions.setOpaque(false);
-        JButton refresh = AppTheme.ghostButton("Refresh");
+        JButton refreshBtn = AppTheme.ghostButton("Refresh");
         receiveButton = AppTheme.button("Receive", AppTheme.WARNING);
         completeButton = AppTheme.button("Complete", AppTheme.SUCCESS);
         cancelButton = AppTheme.button("Cancel", AppTheme.DANGER);
-        actions.add(refresh);
+        actions.add(refreshBtn);
         actions.add(receiveButton);
         actions.add(completeButton);
         actions.add(cancelButton);
         panel.add(actions, BorderLayout.SOUTH);
 
-        refresh.addActionListener(e -> refresh());
-        receiveButton.addActionListener(e -> selected(order -> context.orderService.sendToKitchen(order)));
-        completeButton.addActionListener(e -> selected(order -> context.orderService.markReady(order)));
-        cancelButton.addActionListener(e -> selected(order -> context.orderService.cancel(order)));
+        refreshBtn.addActionListener(e -> refresh());
+        receiveButton.addActionListener(e -> executeAction(order -> context.orderService.sendToKitchen(order)));
+        completeButton.addActionListener(e -> executeAction(order -> context.orderService.markReady(order)));
+        cancelButton.addActionListener(e -> executeAction(order -> context.orderService.cancel(order)));
         return panel;
     }
 
@@ -130,29 +163,47 @@ public class KitchenView extends JFrame implements OrderObserver {
     }
 
     private void refresh() {
-        Order selected = orderList.getSelectedValue();
-        orderModel.clear();
-        context.repository.getOrders().stream()
-                .filter(order -> !"PAID".equals(order.getStatus()) && !"CANCELLED".equals(order.getStatus()))
-                .forEach(orderModel::addElement);
-        queueCount.setText(orderModel.getSize() + " active");
-        if (selected != null) {
-            for (int i = 0; i < orderModel.size(); i++) {
-                if (orderModel.get(i).getId() == selected.getId()) {
-                    orderList.setSelectedIndex(i);
-                    return;
-                }
+        pendingModel.clear();
+        preparingModel.clear();
+        readyModel.clear();
+        
+        context.repository.getOrders().forEach(order -> {
+            switch (order.getStatus()) {
+                case "PENDING" -> pendingModel.addElement(order);
+                case "PREPARING" -> preparingModel.addElement(order);
+                case "READY" -> readyModel.addElement(order);
+            }
+        });
+        
+        queueCount.setText((pendingModel.getSize() + preparingModel.getSize() + readyModel.getSize()) + " active");
+        
+        if (currentSelectedOrder != null) {
+            boolean found = selectInList(pendingList, pendingModel) ||
+                            selectInList(preparingList, preparingModel) ||
+                            selectInList(readyList, readyModel);
+            if (!found) {
+                currentSelectedOrder = null;
+                showDetails(null);
+            }
+        } else {
+            showDetails(null);
+        }
+    }
+    
+    private boolean selectInList(JList<Order> list, DefaultListModel<Order> model) {
+        for (int i = 0; i < model.size(); i++) {
+            if (model.get(i).getId() == currentSelectedOrder.getId()) {
+                list.setSelectedIndex(i);
+                return true;
             }
         }
-        if (!orderModel.isEmpty()) orderList.setSelectedIndex(0);
-        else showDetails(null);
+        return false;
     }
 
-    private void selected(java.util.function.Consumer<Order> action) {
-        Order order = orderList.getSelectedValue();
-        if (order == null) return;
+    private void executeAction(java.util.function.Consumer<Order> action) {
+        if (currentSelectedOrder == null) return;
         try {
-            action.accept(order);
+            action.accept(currentSelectedOrder);
             refresh();
         } catch (RuntimeException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage());
@@ -194,20 +245,25 @@ public class KitchenView extends JFrame implements OrderObserver {
         private final JLabel id = new JLabel();
         private final JLabel status = new JLabel();
         private final JLabel meta = new JLabel();
+        private final JLabel warning = new JLabel();
         private final JLabel total = new JLabel();
 
         private KitchenOrderRenderer() {
             setLayout(new BorderLayout(10, 4));
-            setBorder(new EmptyBorder(12, 12, 12, 12));
-            JPanel text = new JPanel(new GridLayout(3, 1, 0, 2));
+            setBorder(new EmptyBorder(10, 10, 10, 10));
+            JPanel text = new JPanel(new GridLayout(4, 1, 0, 0));
             text.setOpaque(false);
             id.setFont(id.getFont().deriveFont(Font.BOLD, 17f));
             status.setFont(status.getFont().deriveFont(Font.BOLD, 12f));
             meta.setForeground(AppTheme.MUTED);
-            total.setFont(total.getFont().deriveFont(Font.BOLD, 16f));
+            warning.setFont(warning.getFont().deriveFont(Font.BOLD, 11f));
+            warning.setForeground(AppTheme.DANGER);
+            total.setFont(total.getFont().deriveFont(Font.BOLD, 15f));
+            
             text.add(id);
             text.add(status);
             text.add(meta);
+            text.add(warning);
             add(text, BorderLayout.CENTER);
             add(total, BorderLayout.EAST);
         }
@@ -217,6 +273,14 @@ public class KitchenView extends JFrame implements OrderObserver {
             status.setText(order.getStatus());
             meta.setText(order.getItems().size() + " line(s) - " + order.getCreatedAt().format(DateTimeFormatter.ofPattern("HH:mm")));
             total.setText(AppTheme.money(order.getTotalAmount()));
+            
+            long mins = Duration.between(order.getCreatedAt(), LocalDateTime.now()).toMinutes();
+            if (mins >= 15 && !"READY".equals(order.getStatus())) {
+                warning.setText("⚠️ WAITING " + mins + " MINS");
+            } else {
+                warning.setText("");
+            }
+            
             Color statusColor = switch (order.getStatus()) {
                 case "PENDING" -> AppTheme.WARNING;
                 case "PREPARING" -> AppTheme.SUCCESS;
@@ -224,11 +288,17 @@ public class KitchenView extends JFrame implements OrderObserver {
                 default -> AppTheme.MUTED;
             };
             status.setForeground(statusColor);
-            setBackground(selected ? new Color(255, 241, 225) : AppTheme.PANEL);
+            
+            if (mins >= 15 && !"READY".equals(order.getStatus())) {
+                setBackground(selected ? new Color(255, 230, 230) : new Color(255, 245, 245));
+            } else {
+                setBackground(selected ? new Color(255, 245, 235) : AppTheme.PANEL);
+            }
+            
             setOpaque(true);
             setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createMatteBorder(0, 0, 1, 0, AppTheme.BORDER),
-                    new EmptyBorder(12, 12, 12, 12)));
+                    new EmptyBorder(8, 8, 8, 8)));
             return this;
         }
     }

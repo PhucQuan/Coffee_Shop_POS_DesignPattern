@@ -4,12 +4,12 @@ import com.coffeeshop.domain.model.Order;
 import com.coffeeshop.domain.model.Payment;
 import com.coffeeshop.domain.patterns.adapter.PaymentGateway;
 import com.coffeeshop.domain.patterns.adapter.PaymentResult;
-import com.coffeeshop.infrastructure.InMemoryRepository;
+import com.coffeeshop.infrastructure.Repository;
 
 public class PaymentService {
-    private final InMemoryRepository repository;
+    private final Repository repository;
 
-    public PaymentService(InMemoryRepository repository) {
+    public PaymentService(Repository repository) {
         this.repository = repository;
     }
 

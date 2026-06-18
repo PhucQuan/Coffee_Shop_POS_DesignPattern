@@ -3,21 +3,29 @@ package com.coffeeshop.service;
 import com.coffeeshop.domain.model.InventoryItem;
 import com.coffeeshop.domain.model.Order;
 import com.coffeeshop.domain.model.OrderItem;
-import com.coffeeshop.infrastructure.InMemoryRepository;
+import com.coffeeshop.domain.model.RecipeItem;
+import com.coffeeshop.infrastructure.Repository;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class InventoryService {
-    private final InMemoryRepository repository;
+    private final Repository repository;
 
-    public InventoryService(InMemoryRepository repository) {
+    public InventoryService(Repository repository) {
         this.repository = repository;
     }
 
     public List<InventoryItem> getInventory() {
         return repository.getInventory();
+    }
+
+    public void restockItem(int id, double amount) {
+        InventoryItem item = getInventoryItemById(id);
+        item.setQuantity(item.getQuantity() + amount);
+        // Note: For full SQLite support, we should call repository.saveInventoryItem(item) here.
+        // Currently InMemoryRepository mutates the object directly.
     }
 
     public void deductForOrder(Order order) {
@@ -49,44 +57,15 @@ public class InventoryService {
 
     private void addRequirements(Map<String, Double> requirements, OrderItem item) {
         double quantity = item.getQuantity();
-        switch (item.getBeverageId()) {
-            case 1 -> add(requirements, "Coffee beans", 18 * quantity);
-            case 2 -> {
-                add(requirements, "Coffee beans", 15 * quantity);
-                add(requirements, "Fresh milk", 80 * quantity);
+        
+        List<RecipeItem> recipeItems = repository.getRecipeItems(item.getBeverageId());
+        if (recipeItems.isEmpty()) {
+            add(requirements, "Coffee beans", 10 * quantity);
+        } else {
+            for (RecipeItem recipeItem : recipeItems) {
+                InventoryItem invItem = getInventoryItemById(recipeItem.getInventoryItemId());
+                add(requirements, invItem.getName(), recipeItem.getQuantityRequired() * quantity);
             }
-            case 3 -> {
-                add(requirements, "Tea leaves", 8 * quantity);
-                add(requirements, "Peach syrup", 40 * quantity);
-            }
-            case 4 -> {
-                add(requirements, "Tea leaves", 10 * quantity);
-                add(requirements, "Fresh milk", 100 * quantity);
-            }
-            case 5 -> {
-                add(requirements, "Matcha powder", 12 * quantity);
-                add(requirements, "Fresh milk", 120 * quantity);
-            }
-            case 6 -> add(requirements, "Mango", 150 * quantity);
-            case 7 -> add(requirements, "Coffee beans", 18 * quantity);
-            case 8 -> add(requirements, "Coffee beans", 16 * quantity);
-            case 9, 10 -> {
-                add(requirements, "Coffee beans", 18 * quantity);
-                add(requirements, "Fresh milk", 120 * quantity);
-            }
-            case 11 -> add(requirements, "Coffee beans", 22 * quantity);
-            case 12 -> {
-                add(requirements, "Tea leaves", 8 * quantity);
-                add(requirements, "Peach syrup", 20 * quantity);
-            }
-            case 13 -> add(requirements, "Tea leaves", 8 * quantity);
-            case 14 -> {
-                add(requirements, "Matcha powder", 15 * quantity);
-                add(requirements, "Fresh milk", 100 * quantity);
-            }
-            case 15 -> add(requirements, "Mango", 120 * quantity);
-            case 16 -> add(requirements, "Fresh milk", 150 * quantity);
-            default -> add(requirements, "Coffee beans", 10 * quantity);
         }
 
         String description = item.getBeverage().getDescription();
@@ -111,6 +90,13 @@ public class InventoryService {
                 .filter(item -> item.getName().equals(name))
                 .findFirst()
                 .orElseThrow(() -> new InventoryException("Missing inventory item: " + name));
+    }
+
+    private InventoryItem getInventoryItemById(int id) {
+        return repository.getInventory().stream()
+                .filter(item -> item.getId() == id)
+                .findFirst()
+                .orElseThrow(() -> new InventoryException("Missing inventory item id: " + id));
     }
 
     private void add(Map<String, Double> requirements, String name, double quantity) {

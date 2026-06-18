@@ -7,3 +7,6 @@ build/
 *.tmp
 Thumbs.db
 .DS_Store
+pos_data.db
+run_output.txt
+sources.txt

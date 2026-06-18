@@ -7,21 +7,22 @@ import com.coffeeshop.domain.patterns.observer.OrderEventPublisher;
 import com.coffeeshop.domain.patterns.state.InvalidStateTransitionException;
 import com.coffeeshop.domain.patterns.strategy.DiscountStrategy;
 import com.coffeeshop.domain.patterns.strategy.NoDiscountStrategy;
-import com.coffeeshop.infrastructure.InMemoryRepository;
+import com.coffeeshop.infrastructure.Repository;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class OrderService {
-    private final InMemoryRepository repository;
+    private final Repository repository;
     private final OrderEventPublisher publisher;
     private final InventoryService inventoryService;
     private DiscountStrategy discountStrategy = new NoDiscountStrategy();
 
-    public OrderService(InMemoryRepository repository, OrderEventPublisher publisher) {
+    public OrderService(Repository repository, OrderEventPublisher publisher) {
         this(repository, publisher, new InventoryService(repository));
     }
 
-    public OrderService(InMemoryRepository repository, OrderEventPublisher publisher, InventoryService inventoryService) {
+    public OrderService(Repository repository, OrderEventPublisher publisher, InventoryService inventoryService) {
         this.repository = repository;
         this.publisher = publisher;
         this.inventoryService = inventoryService;

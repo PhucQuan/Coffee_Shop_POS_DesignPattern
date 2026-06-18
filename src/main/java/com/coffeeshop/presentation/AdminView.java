@@ -63,20 +63,37 @@ public class AdminView extends JFrame {
         tabs.addTab("Revenue report", reportPanel());
         setContentPane(AppShell.wrap(this, context, "Admin",
                 "Manage menu, orders, inventory, users, and reports.",
-                tabs, "Overview", "Orders", "History", "Menu", "Inventory", "Users", "Reports"));
+                tabs, nav -> selectAdminTab(tabs, nav), "Overview", "Orders", "History", "Menu", "Topping", "Inventory", "Users", "Reports"));
+    }
+
+    private void selectAdminTab(JTabbedPane tabs, String nav) {
+        String target = "Reports".equals(nav) ? "Revenue report" : nav;
+        for (int i = 0; i < tabs.getTabCount(); i++) {
+            if (tabs.getTitleAt(i).equals(target)) {
+                tabs.setSelectedIndex(i);
+                if ("Overview".equals(target)) {
+                    topItemsChart.setData(context.reportService.getTopSellingItems());
+                }
+                if ("Orders".equals(target) || "History".equals(target)) refreshOrderModels();
+                if ("Inventory".equals(target)) refreshInventoryModel();
+                if ("Users".equals(target)) refreshUserModel();
+                if ("Revenue report".equals(target)) refreshReport();
+                return;
+            }
+        }
     }
 
     private JPanel overviewPanel() {
-        JPanel panel = new JPanel(new BorderLayout(14, 14));
+        JPanel panel = new JPanel(new BorderLayout(24, 24));
         panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(16, 16, 16, 16));
+        panel.setBorder(new EmptyBorder(24, 24, 24, 24));
         JButton refresh = AppTheme.ghostButton("Refresh overview");
         refresh.addActionListener(e -> {
             topItemsChart.setData(context.reportService.getTopSellingItems());
             panel.repaint();
         });
 
-        JPanel cards = new JPanel(new GridLayout(1, 4, 12, 12));
+        JPanel cards = new JPanel(new GridLayout(1, 4, 20, 20));
         cards.setOpaque(false);
         cards.add(metricCard("Total orders", String.valueOf(context.repository.getOrders().size())));
         cards.add(metricCard("Pending", String.valueOf(countOrders("PENDING"))));
@@ -86,14 +103,14 @@ public class AdminView extends JFrame {
         topItemsChart.setData(context.reportService.getTopSellingItems());
         topItemsChart.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
         panel.add(cards, BorderLayout.NORTH);
-        panel.add(AppTheme.roundedPanel(new BorderLayout(), AppTheme.PANEL, AppTheme.BORDER, 14, new Insets(8, 8, 8, 8)), BorderLayout.CENTER);
+        panel.add(AppTheme.roundedPanel(new BorderLayout(), AppTheme.PANEL, null, 16, new Insets(16, 16, 16, 16)), BorderLayout.CENTER);
         ((JPanel) panel.getComponent(1)).add(topItemsChart, BorderLayout.CENTER);
         panel.add(refresh, BorderLayout.SOUTH);
         return panel;
     }
 
     private JPanel metricCard(String title, String value) {
-        JPanel card = AppTheme.roundedPanel(new GridLayout(2, 1, 0, 4), AppTheme.PANEL, AppTheme.BORDER, 14, new Insets(16, 16, 16, 16));
+        JPanel card = AppTheme.roundedPanel(new GridLayout(2, 1, 0, 8), AppTheme.PANEL, null, 16, new Insets(20, 20, 20, 20));
         JLabel valueLabel = new JLabel(value);
         valueLabel.setForeground(AppTheme.PRIMARY);
         valueLabel.setFont(valueLabel.getFont().deriveFont(Font.BOLD, 24f));
@@ -116,7 +133,7 @@ public class AdminView extends JFrame {
     }
 
     private JPanel wrapWithTitle(String title, JComponent component) {
-        JPanel panel = AppTheme.card(new BorderLayout(8, 8));
+        JPanel panel = AppTheme.card(new BorderLayout(16, 16));
         JLabel label = AppTheme.section(title);
         panel.add(label, BorderLayout.NORTH);
         panel.add(component, BorderLayout.CENTER);
@@ -124,9 +141,9 @@ public class AdminView extends JFrame {
     }
 
     private JPanel menuPanel() {
-        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        JPanel panel = new JPanel(new BorderLayout(24, 24));
         panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
+        panel.setBorder(new EmptyBorder(24, 24, 24, 24));
         menuList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         menuList.setCellRenderer(new MenuRenderer());
         menuList.addListSelectionListener(e -> {
@@ -141,9 +158,9 @@ public class AdminView extends JFrame {
     }
 
     private JPanel toppingPanel() {
-        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        JPanel panel = new JPanel(new BorderLayout(24, 24));
         panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
+        panel.setBorder(new EmptyBorder(24, 24, 24, 24));
         toppingList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         toppingList.setCellRenderer(new ToppingRenderer());
         toppingList.addListSelectionListener(e -> {
@@ -158,9 +175,9 @@ public class AdminView extends JFrame {
     }
 
     private JPanel ordersPanel() {
-        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        JPanel panel = new JPanel(new BorderLayout(24, 24));
         panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
+        panel.setBorder(new EmptyBorder(24, 24, 24, 24));
         activeOrderDetailArea.setEditable(false);
         activeOrderDetailArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         activeOrderDetailArea.setBorder(new EmptyBorder(12, 12, 12, 12));
@@ -199,9 +216,9 @@ public class AdminView extends JFrame {
     }
 
     private JPanel historyPanel() {
-        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        JPanel panel = new JPanel(new BorderLayout(24, 24));
         panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
+        panel.setBorder(new EmptyBorder(24, 24, 24, 24));
         historyOrderDetailArea.setEditable(false);
         historyOrderDetailArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         historyOrderDetailArea.setBorder(new EmptyBorder(12, 12, 12, 12));
@@ -223,14 +240,14 @@ public class AdminView extends JFrame {
     }
 
     private JPanel reportPanel() {
-        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        JPanel panel = new JPanel(new BorderLayout(24, 24));
         panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
+        panel.setBorder(new EmptyBorder(24, 24, 24, 24));
         JButton refresh = AppTheme.ghostButton("Refresh report");
         reportArea.setEditable(false);
         reportArea.setBorder(new EmptyBorder(12, 12, 12, 12));
         refresh.addActionListener(e -> refreshReport());
-        JPanel top = AppTheme.roundedPanel(new BorderLayout(), AppTheme.PANEL, AppTheme.BORDER, 14, new Insets(10, 12, 10, 12));
+        JPanel top = AppTheme.roundedPanel(new BorderLayout(), AppTheme.PANEL, null, 16, new Insets(16, 20, 16, 20));
         revenueCard.setFont(revenueCard.getFont().deriveFont(Font.BOLD, 18f));
         revenueCard.setForeground(AppTheme.PRIMARY);
         top.add(revenueCard, BorderLayout.WEST);
@@ -245,24 +262,50 @@ public class AdminView extends JFrame {
     }
 
     private JPanel inventoryPanel() {
-        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        JPanel panel = new JPanel(new BorderLayout(24, 24));
         panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
+        panel.setBorder(new EmptyBorder(24, 24, 24, 24));
         JList<InventoryItem> inventoryList = new JList<>(inventoryModel);
         inventoryList.setCellRenderer(new InventoryRenderer());
+        inventoryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        actions.setOpaque(false);
         JButton refresh = AppTheme.ghostButton("Refresh inventory");
+        JButton restock = AppTheme.button("Restock selected", AppTheme.SUCCESS);
+        actions.add(refresh);
+        actions.add(restock);
+        
         refresh.addActionListener(e -> refreshInventoryModel());
+        restock.addActionListener(e -> {
+            InventoryItem selected = inventoryList.getSelectedValue();
+            if (selected == null) {
+                JOptionPane.showMessageDialog(this, "Please select an item to restock.");
+                return;
+            }
+            String input = JOptionPane.showInputDialog(this, "Enter restock amount for " + selected.getName() + " (" + selected.getUnit() + "):", "Restock", JOptionPane.QUESTION_MESSAGE);
+            if (input != null && !input.trim().isEmpty()) {
+                try {
+                    double amount = Double.parseDouble(input.trim());
+                    context.inventoryService.restockItem(selected.getId(), amount);
+                    refreshInventoryModel();
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid amount.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        
         panel.add(sectionHeader("Inventory", "InventoryService deducts stock when orders enter kitchen flow."), BorderLayout.NORTH);
         panel.add(new JScrollPane(inventoryList), BorderLayout.CENTER);
-        panel.add(refresh, BorderLayout.SOUTH);
+        panel.add(actions, BorderLayout.SOUTH);
         refreshInventoryModel();
         return panel;
     }
 
     private JPanel usersPanel() {
-        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        JPanel panel = new JPanel(new BorderLayout(24, 24));
         panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
+        panel.setBorder(new EmptyBorder(24, 24, 24, 24));
         userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         userList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
             JLabel label = new JLabel(value.getUsername() + " [" + value.getRole() + "] - " + (value.isActive() ? "ACTIVE" : "LOCKED"));
@@ -552,7 +595,7 @@ public class AdminView extends JFrame {
                     + "]</span><br>" + AppTheme.money(item.getBasePrice()) + " - "
                     + (item.isActive() ? "ACTIVE" : "DISABLED") + "</html>");
             label.setBorder(new EmptyBorder(10, 12, 10, 12));
-            label.setBackground(selected ? new Color(255, 241, 225) : AppTheme.PANEL);
+            label.setBackground(selected ? new Color(255, 245, 235) : AppTheme.PANEL);
             label.setForeground(AppTheme.TEXT);
             return label;
         }
@@ -565,7 +608,7 @@ public class AdminView extends JFrame {
             label.setText("<html><b>" + topping.getName() + "</b><br>" + AppTheme.money(topping.getExtraPrice())
                     + " - " + (topping.isActive() ? "ACTIVE" : "DISABLED") + "</html>");
             label.setBorder(new EmptyBorder(10, 12, 10, 12));
-            label.setBackground(selected ? new Color(255, 241, 225) : AppTheme.PANEL);
+            label.setBackground(selected ? new Color(255, 245, 235) : AppTheme.PANEL);
             label.setForeground(AppTheme.TEXT);
             return label;
         }
@@ -593,7 +636,7 @@ public class AdminView extends JFrame {
                     + "<br>" + order.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))
                     + " - " + order.getItems().size() + " line(s) - " + AppTheme.money(order.getTotalAmount()) + "</html>");
             label.setBorder(new EmptyBorder(10, 12, 10, 12));
-            label.setBackground(selected ? new Color(255, 241, 225) : AppTheme.PANEL);
+            label.setBackground(selected ? new Color(255, 245, 235) : AppTheme.PANEL);
             label.setForeground(switch (order.getStatus()) {
                 case "PAID" -> AppTheme.SUCCESS;
                 case "CANCELLED" -> AppTheme.DANGER;

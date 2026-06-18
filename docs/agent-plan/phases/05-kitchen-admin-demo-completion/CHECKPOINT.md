@@ -30,6 +30,10 @@ Make the app feel like a complete final-project demo while keeping Design Patter
 - Added report-ready docs:
   - `docs/PATTERN_EVIDENCE_TABLE.md`
   - `docs/DEMO_SCRIPT.md`
+- Sidebar navigation is now functional:
+  - Cashier: `POS`, `Orders`, `Receipt`
+  - Kitchen: `Queue`, `Pending`, `Preparing`, `Ready`
+  - Admin: `Overview`, `Orders`, `History`, `Menu`, `Topping`, `Inventory`, `Users`, `Reports`
 
 ## Pattern evidence
 

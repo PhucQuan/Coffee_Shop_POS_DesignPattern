@@ -1,14 +1,14 @@
 package com.coffeeshop.service;
 
 import com.coffeeshop.domain.model.User;
-import com.coffeeshop.infrastructure.InMemoryRepository;
+import com.coffeeshop.infrastructure.Repository;
 
 import java.util.List;
 
 public class UserService {
-    private final InMemoryRepository repository;
+    private final Repository repository;
 
-    public UserService(InMemoryRepository repository) {
+    public UserService(Repository repository) {
         this.repository = repository;
     }
 

@@ -163,7 +163,7 @@ public class LoginView extends JFrame {
             super(layout);
             URL url = LoginView.class.getResource("/assets/backgrounds/coffee-hero.jpg");
             background = url == null ? null : new ImageIcon(url).getImage();
-            setBackground(new Color(255, 252, 247));
+            setBackground(AppTheme.BG);
         }
 
         @Override
@@ -174,15 +174,22 @@ public class LoginView extends JFrame {
             if (background != null) {
                 g.drawImage(background, 0, 0, getWidth(), getHeight(), this);
             }
-            GradientPaint veil = new GradientPaint(0, 0, new Color(255, 252, 247, 245),
-                    getWidth(), 0, new Color(255, 252, 247, 40));
+            GradientPaint veil = new GradientPaint(0, 0, new Color(253, 251, 247, 245),
+                    getWidth(), 0, new Color(253, 251, 247, 40));
             g.setPaint(veil);
             g.fillRect(0, 0, getWidth(), getHeight());
-            g.setColor(new Color(255, 255, 255, 210));
+            
+            // Soft shadow for the panel
+            g.setColor(new Color(0, 0, 0, 10));
+            g.fillRoundRect(34, 38, 500, getHeight() - 68, 24, 24);
+            g.setColor(new Color(0, 0, 0, 5));
+            g.fillRoundRect(34, 42, 500, getHeight() - 68, 24, 24);
+            
+            g.setColor(new Color(255, 255, 255, 240));
             g.fillRoundRect(34, 34, 500, getHeight() - 68, 24, 24);
-            g.setColor(new Color(226, 214, 201, 160));
+            g.setColor(new Color(235, 230, 223, 160));
             g.drawRoundRect(34, 34, 500, getHeight() - 68, 24, 24);
-            g.setColor(new Color(124, 76, 49, 24));
+            g.setColor(new Color(232, 93, 4, 15));
             for (int i = 0; i < 5; i++) {
                 int y = 90 + i * 72;
                 g.fillOval(720 + i * 18, y, 120, 120);

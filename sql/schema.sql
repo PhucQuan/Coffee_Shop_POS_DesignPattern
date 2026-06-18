@@ -26,6 +26,7 @@ CREATE TABLE orders (
     created_at TIMESTAMP NOT NULL,
     status VARCHAR(30) NOT NULL,
     discount_type VARCHAR(50),
+    discount_amount DECIMAL(12, 2) DEFAULT 0,
     total_amount DECIMAL(12, 2) NOT NULL
 );
 
@@ -67,6 +68,11 @@ CREATE TABLE recipe_items (
     FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id)
 );
 
+CREATE TABLE settings (
+    key VARCHAR(50) PRIMARY KEY,
+    value TEXT
+);
+
 INSERT INTO users(id, username, password_hash, role, status) VALUES
 (1, 'admin', '123', 'ADMIN', 'ACTIVE'),
 (2, 'cashier01', '123', 'CASHIER', 'ACTIVE'),
@@ -88,14 +94,25 @@ INSERT INTO beverages(id, name, base_price, category, active) VALUES
 (13, 'Tra tac mat ong', 34000, 'TEA', 1),
 (14, 'Matcha da xay', 52000, 'MATCHA', 1),
 (15, 'Sinh to dau', 48000, 'SMOOTHIE', 1),
-(16, 'Cacao nong', 36000, 'COFFEE', 1);
+(16, 'Cacao nong', 36000, 'COFFEE', 1),
+(17, 'Vanilla latte', 46000, 'COFFEE', 1),
+(18, 'Caramel macchiato', 49000, 'COFFEE', 1),
+(19, 'Mocha', 47000, 'COFFEE', 1),
+(20, 'Hong tra sua', 39000, 'TEA', 1),
+(21, 'Oolong sua', 41000, 'TEA', 1),
+(22, 'Tra sen vang', 42000, 'TEA', 1),
+(23, 'Matcha cream cheese', 55000, 'MATCHA', 1),
+(24, 'Sinh to bo', 52000, 'SMOOTHIE', 1);
 
 INSERT INTO toppings(id, name, extra_price, active) VALUES
 (1, 'Tran chau', 10000, 1),
 (2, 'Pudding', 9000, 1),
 (3, 'Kem cheese', 12000, 1),
 (4, 'Extra shot', 8000, 1),
-(5, 'Size L', 7000, 1);
+(5, 'Size L', 7000, 1),
+(6, 'Thach cafe', 9000, 1),
+(7, 'Kem vani', 11000, 1),
+(8, 'Duong den', 6000, 1);
 
 INSERT INTO inventory_items(id, name, unit, quantity, reorder_level) VALUES
 (1, 'Coffee beans', 'g', 5000, 500),
@@ -105,7 +122,11 @@ INSERT INTO inventory_items(id, name, unit, quantity, reorder_level) VALUES
 (5, 'Matcha powder', 'g', 2000, 200),
 (6, 'Mango', 'g', 5000, 500),
 (7, 'Pearl', 'g', 4000, 400),
-(8, 'Cup L', 'pcs', 300, 30);
+(8, 'Cup L', 'pcs', 300, 30),
+(9, 'Cream cheese', 'g', 2500, 250),
+(10, 'Avocado', 'g', 4500, 450),
+(11, 'Brown sugar syrup', 'ml', 3000, 300),
+(12, 'Vanilla syrup', 'ml', 2500, 250);
 
 INSERT INTO recipe_items(id, beverage_id, inventory_item_id, quantity_required) VALUES
 (1, 1, 1, 18),
@@ -131,4 +152,17 @@ INSERT INTO recipe_items(id, beverage_id, inventory_item_id, quantity_required) 
 (21, 14, 5, 15),
 (22, 14, 2, 100),
 (23, 15, 6, 120),
-(24, 16, 2, 150);
+(24, 16, 2, 150),
+(25, 17, 1, 10),
+(26, 18, 1, 10),
+(27, 19, 1, 10),
+(28, 20, 1, 10),
+(29, 21, 1, 10),
+(30, 22, 1, 10),
+(31, 23, 1, 10),
+(32, 24, 1, 10);
+
+INSERT INTO settings(key, value) VALUES
+('store_name', 'PurrCoffee POS'),
+('tax_rate', '0.10'),
+('address', '123 Coffee Street');

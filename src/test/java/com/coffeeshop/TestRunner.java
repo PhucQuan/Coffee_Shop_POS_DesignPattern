@@ -143,7 +143,7 @@ public class TestRunner {
         InMemoryRepository repo = new InMemoryRepository();
         MenuService menuService = new MenuService(repo);
         MenuItemRecord item = menuService.addBeverage("Affogato", 39000, "COFFEE");
-        assertEquals(17, item.getId(), "TC08 new beverage id");
+        assertEquals(25, item.getId(), "TC08 new beverage id");
         menuService.updateBeverage(item, "Cold brew premium", 45000, "COFFEE", true);
         assertEquals("Cold brew premium", item.getName(), "TC08 updated beverage name");
         assertEquals(45000.0, item.getBasePrice(), "TC08 updated beverage price");

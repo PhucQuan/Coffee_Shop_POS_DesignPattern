@@ -51,6 +51,10 @@ All tests passed: 18/18
 - Added reference drink images under `src/main/resources/assets/drinks` and copied resources automatically in run/test scripts.
 - Added TC15 for cart quantity workflow.
 - Added TC16-TC18 for Factory Method, Singleton identity, and Adapter failure path.
+- Added clickable sidebar navigation across Cashier/Admin/Kitchen workspaces.
+- Added Cashier sub-pages for Orders and Receipt instead of leaving sidebar as static labels.
+- Added Kitchen sidebar filters for Queue/Pending/Preparing/Ready.
+- Added Admin sidebar tab navigation for Overview/Orders/History/Menu/Topping/Inventory/Users/Reports.
 
 ## Known gaps
 
@@ -63,7 +67,7 @@ All tests passed: 18/18
 
 ## Next recommended phase
 
-Finish Admin smoke test visually, then prepare report/demo evidence: screenshots, pattern evidence table, and UML sequence/class notes.
+Manual smoke test the clickable sidebars, then capture screenshots for the final report/demo deck.
 
 ## Last updated
 

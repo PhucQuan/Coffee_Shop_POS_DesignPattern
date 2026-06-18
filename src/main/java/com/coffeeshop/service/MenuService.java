@@ -3,17 +3,17 @@ package com.coffeeshop.service;
 import com.coffeeshop.domain.patterns.decorator.*;
 import com.coffeeshop.domain.patterns.factory.*;
 import com.coffeeshop.domain.model.Topping;
-import com.coffeeshop.infrastructure.InMemoryRepository;
 import com.coffeeshop.infrastructure.MenuItemRecord;
+import com.coffeeshop.infrastructure.Repository;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 public class MenuService {
-    private final InMemoryRepository repository;
+    private final Repository repository;
 
-    public MenuService(InMemoryRepository repository) {
+    public MenuService(Repository repository) {
         this.repository = repository;
     }
 
@@ -50,6 +50,8 @@ public class MenuService {
             case "Tran chau" -> new PearlDecorator(beverage);
             case "Extra shot" -> new ExtraShotDecorator(beverage);
             case "Size L" -> new LargeSizeDecorator(beverage);
+            case "Kem cheese" -> new LargeSizeDecorator(beverage);
+            case "Thach cafe", "Kem vani", "Duong den" -> new PearlDecorator(beverage);
             default -> beverage;
         };
     }
