@@ -4,11 +4,19 @@ import com.coffeeshop.domain.patterns.observer.CashierScreen;
 import com.coffeeshop.domain.patterns.observer.KitchenScreen;
 import com.coffeeshop.domain.patterns.observer.OrderEventPublisher;
 import com.coffeeshop.domain.patterns.observer.ReportLogger;
+import com.coffeeshop.infrastructure.DatabaseConnection;
 import com.coffeeshop.infrastructure.InMemoryRepository;
 import com.coffeeshop.infrastructure.Repository;
 import com.coffeeshop.infrastructure.SqliteRepository;
-import com.coffeeshop.service.*;
-import com.coffeeshop.service.*;
+import com.coffeeshop.service.AuthService;
+import com.coffeeshop.service.InventoryService;
+import com.coffeeshop.service.MenuService;
+import com.coffeeshop.service.OrderService;
+import com.coffeeshop.service.PaymentService;
+import com.coffeeshop.service.ReceiptImageService;
+import com.coffeeshop.service.ReceiptService;
+import com.coffeeshop.service.ReportService;
+import com.coffeeshop.service.UserService;
 
 public class AppContext {
     public final Repository repository;
@@ -30,7 +38,7 @@ public class AppContext {
         Repository repo;
         try {
             Class.forName("org.sqlite.JDBC");
-            repo = new SqliteRepository("pos_data.db");
+            repo = new SqliteRepository(DatabaseConnection.getInstance().getDatabasePath());
             System.out.println("Loaded SQLite Repository.");
         } catch (Exception e) {
             System.out.println("SQLite not available, falling back to InMemoryRepository.");

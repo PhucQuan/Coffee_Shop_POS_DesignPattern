@@ -6,17 +6,15 @@ import com.coffeeshop.domain.patterns.decorator.Beverage;
 import com.coffeeshop.domain.patterns.observer.OrderEventPublisher;
 import com.coffeeshop.domain.patterns.state.InvalidStateTransitionException;
 import com.coffeeshop.domain.patterns.strategy.DiscountStrategy;
-import com.coffeeshop.domain.patterns.strategy.NoDiscountStrategy;
+import com.coffeeshop.domain.patterns.strategy.DiscountStrategyResolver;
 import com.coffeeshop.infrastructure.Repository;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public class OrderService {
     private final Repository repository;
     private final OrderEventPublisher publisher;
     private final InventoryService inventoryService;
-    private DiscountStrategy discountStrategy = new NoDiscountStrategy();
 
     public OrderService(Repository repository, OrderEventPublisher publisher) {
         this(repository, publisher, new InventoryService(repository));
@@ -69,11 +67,12 @@ public class OrderService {
         recalculate(order);
     }
 
-    public void setDiscountStrategy(DiscountStrategy discountStrategy) {
-        this.discountStrategy = discountStrategy;
+    public void setDiscountStrategy(Order order, DiscountStrategy discountStrategy) {
+        order.setDiscountType(discountStrategy == null ? "NONE" : discountStrategy.getName());
     }
 
     public void recalculate(Order order) {
+        DiscountStrategy discountStrategy = DiscountStrategyResolver.fromName(order.getDiscountType());
         double discount = discountStrategy.calculateDiscount(order);
         double finalTotal = Math.max(0, order.getSubtotal() - discount);
         order.setDiscountType(discountStrategy.getName());

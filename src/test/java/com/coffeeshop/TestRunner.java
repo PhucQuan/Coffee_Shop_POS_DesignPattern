@@ -88,7 +88,7 @@ public class TestRunner {
         OrderService orderService = new OrderService(repo, new OrderEventPublisher());
         Order order = orderService.createOrder();
         orderService.addItem(order, 1, new BaseCoffee("Combo", 100000), 1, "");
-        orderService.setDiscountStrategy(new PercentDiscountStrategy(10));
+        orderService.setDiscountStrategy(order, new PercentDiscountStrategy(10));
         orderService.recalculate(order);
         assertEquals(90000.0, order.getTotalAmount(), "TC03 final total after 10% discount");
         passed++;

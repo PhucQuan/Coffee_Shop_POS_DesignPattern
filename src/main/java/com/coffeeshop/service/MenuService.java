@@ -1,7 +1,12 @@
 package com.coffeeshop.service;
 
-import com.coffeeshop.domain.patterns.decorator.*;
-import com.coffeeshop.domain.patterns.factory.*;
+import com.coffeeshop.domain.patterns.decorator.Beverage;
+import com.coffeeshop.domain.patterns.decorator.PricedToppingDecorator;
+import com.coffeeshop.domain.patterns.factory.BeverageFactory;
+import com.coffeeshop.domain.patterns.factory.CoffeeFactory;
+import com.coffeeshop.domain.patterns.factory.MatchaFactory;
+import com.coffeeshop.domain.patterns.factory.SmoothieFactory;
+import com.coffeeshop.domain.patterns.factory.TeaFactory;
 import com.coffeeshop.domain.model.Topping;
 import com.coffeeshop.infrastructure.MenuItemRecord;
 import com.coffeeshop.infrastructure.Repository;
@@ -39,21 +44,17 @@ public class MenuService {
             case "TEA" -> new TeaFactory();
             case "MATCHA" -> new MatchaFactory();
             case "SMOOTHIE" -> new SmoothieFactory();
-            default -> new CoffeeFactory();
+            default -> throw new IllegalArgumentException("Unsupported beverage category: " + item.getCategory());
         };
         return factory.createBeverage(item.getName(), item.getBasePrice());
     }
 
     public Beverage applyTopping(Beverage beverage, String toppingName) {
-        return switch (toppingName) {
-            case "Sua" -> new MilkDecorator(beverage);
-            case "Tran chau" -> new PearlDecorator(beverage);
-            case "Extra shot" -> new ExtraShotDecorator(beverage);
-            case "Size L" -> new LargeSizeDecorator(beverage);
-            case "Kem cheese" -> new LargeSizeDecorator(beverage);
-            case "Thach cafe", "Kem vani", "Duong den" -> new PearlDecorator(beverage);
-            default -> beverage;
-        };
+        Topping topping = repository.getToppings().stream()
+                .filter(item -> item.getName().equalsIgnoreCase(toppingName == null ? "" : toppingName.trim()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown topping: " + toppingName));
+        return new PricedToppingDecorator(beverage, topping.getName(), topping.getExtraPrice());
     }
 
     public MenuItemRecord addBeverage(String name, double basePrice, String category) {

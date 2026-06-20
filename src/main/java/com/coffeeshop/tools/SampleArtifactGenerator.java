@@ -30,7 +30,7 @@ public class SampleArtifactGenerator {
                 .orElseThrow();
         context.orderService.addItem(order, matcha.getId(), context.menuService.createBeverage(matcha), 1, "");
 
-        context.orderService.setDiscountStrategy(new PercentDiscountStrategy(10));
+        context.orderService.setDiscountStrategy(order, new PercentDiscountStrategy(10));
         context.orderService.recalculate(order);
         context.orderService.sendToKitchen(order);
         context.orderService.markReady(order);

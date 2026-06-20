@@ -2,7 +2,8 @@ package com.coffeeshop.infrastructure;
 
 public class DatabaseConnection {
     private static volatile DatabaseConnection instance;
-    private final String connectionString = "jdbc:sqlite:coffee_shop_pos.db";
+    private final String databasePath = "pos_data.db";
+    private final String connectionString = "jdbc:sqlite:" + databasePath;
 
     private DatabaseConnection() {}
 
@@ -17,5 +18,6 @@ public class DatabaseConnection {
         return instance;
     }
 
+    public String getDatabasePath() { return databasePath; }
     public String getConnectionString() { return connectionString; }
 }

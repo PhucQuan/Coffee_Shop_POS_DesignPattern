@@ -13,5 +13,5 @@ public class VipDiscountStrategy implements DiscountStrategy {
         return Math.min(fixedAmount, order.getSubtotal());
     }
 
-    public String getName() { return "VIP_FIXED"; }
+    public String getName() { return "VIP_FIXED_" + String.format("%.0f", fixedAmount); }
 }

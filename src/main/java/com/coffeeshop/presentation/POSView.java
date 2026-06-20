@@ -513,7 +513,8 @@ public class POSView extends JFrame {
 
     private void newOrder() {
         currentOrder = context.orderService.createOrder();
-        context.orderService.setDiscountStrategy(new NoDiscountStrategy());
+        context.orderService.setDiscountStrategy(currentOrder, new NoDiscountStrategy());
+        context.orderService.recalculate(currentOrder);
         pearl.setSelected(false);
         large.setSelected(false);
         shot.setSelected(false);
@@ -558,7 +559,7 @@ public class POSView extends JFrame {
     }
 
     private void applyDiscount() {
-        context.orderService.setDiscountStrategy("10%".equals(discountBox.getSelectedItem())
+        context.orderService.setDiscountStrategy(currentOrder, "10%".equals(discountBox.getSelectedItem())
                 ? new PercentDiscountStrategy(10)
                 : new NoDiscountStrategy());
         context.orderService.recalculate(currentOrder);
