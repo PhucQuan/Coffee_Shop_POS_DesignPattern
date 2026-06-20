@@ -4,6 +4,7 @@ import com.coffeeshop.AppContext;
 import com.coffeeshop.domain.model.InventoryItem;
 import com.coffeeshop.domain.model.Order;
 import com.coffeeshop.domain.model.OrderItem;
+import com.coffeeshop.domain.model.RecipeItem;
 import com.coffeeshop.domain.model.Topping;
 import com.coffeeshop.domain.model.User;
 import com.coffeeshop.infrastructure.InventoryTransactionRecord;
@@ -25,11 +26,13 @@ public class AdminView extends JFrame {
     private final DefaultListModel<MenuItemRecord> menuModel = new DefaultListModel<>();
     private final DefaultListModel<Topping> toppingModel = new DefaultListModel<>();
     private final DefaultListModel<InventoryItem> inventoryModel = new DefaultListModel<>();
+    private final DefaultListModel<RecipeRow> recipeModel = new DefaultListModel<>();
     private final DefaultListModel<Order> activeOrderModel = new DefaultListModel<>();
     private final DefaultListModel<Order> historyOrderModel = new DefaultListModel<>();
     private final DefaultListModel<User> userModel = new DefaultListModel<>();
     private final JList<MenuItemRecord> menuList = new JList<>(menuModel);
     private final JList<Topping> toppingList = new JList<>(toppingModel);
+    private final JList<RecipeRow> recipeList = new JList<>(recipeModel);
     private final JList<Order> activeOrderList = new JList<>(activeOrderModel);
     private final JList<Order> historyOrderList = new JList<>(historyOrderModel);
     private final JList<User> userList = new JList<>(userModel);
@@ -42,6 +45,8 @@ public class AdminView extends JFrame {
     private final JTextField beveragePriceField = new JTextField();
     private final JComboBox<String> categoryBox = new JComboBox<>(new String[]{"COFFEE", "TEA", "MATCHA", "SMOOTHIE"});
     private final JCheckBox beverageActiveBox = new JCheckBox("Active", true);
+    private final JComboBox<InventoryItem> recipeInventoryBox = new JComboBox<>();
+    private final JTextField recipeQuantityField = new JTextField();
     private final JTextField toppingNameField = new JTextField();
     private final JTextField toppingPriceField = new JTextField();
     private final JCheckBox toppingActiveBox = new JCheckBox("Active", true);
@@ -160,8 +165,15 @@ public class AdminView extends JFrame {
             }
         });
         panel.add(wrapWithTitle("Menu catalog", new JScrollPane(menuList)), BorderLayout.CENTER);
-        panel.add(beverageForm(), BorderLayout.EAST);
+        JPanel side = new JPanel();
+        side.setOpaque(false);
+        side.setLayout(new BoxLayout(side, BoxLayout.Y_AXIS));
+        side.add(beverageForm());
+        side.add(Box.createVerticalStrut(16));
+        side.add(recipeForm());
+        panel.add(side, BorderLayout.EAST);
         refreshMenuModel();
+        refreshInventoryModel();
         return panel;
     }
 
@@ -479,6 +491,64 @@ public class AdminView extends JFrame {
         return form;
     }
 
+    private JPanel recipeForm() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setPreferredSize(new Dimension(300, 360));
+        panel.setMaximumSize(new Dimension(300, 360));
+        panel.setBorder(BorderFactory.createTitledBorder("Recipe"));
+
+        recipeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        recipeList.setVisibleRowCount(7);
+        recipeList.setCellRenderer(new RecipeRenderer());
+        recipeList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                fillRecipeForm(recipeList.getSelectedValue());
+            }
+        });
+        panel.add(new JScrollPane(recipeList), BorderLayout.CENTER);
+
+        JPanel form = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
+
+        recipeInventoryBox.setRenderer(new InventoryComboRenderer());
+        loadRecipeInventoryOptions();
+        addRow(form, gbc, 0, "Ingredient", recipeInventoryBox);
+        addRow(form, gbc, 1, "Quantity", recipeQuantityField);
+
+        JButton add = AppTheme.button("Save line", AppTheme.SUCCESS);
+        JButton remove = AppTheme.button("Remove line", AppTheme.DANGER);
+        JButton clear = AppTheme.ghostButton("Clear");
+        JPanel buttons = new JPanel(new GridLayout(1, 3, 6, 6));
+        buttons.add(add);
+        buttons.add(remove);
+        buttons.add(clear);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        form.add(buttons, gbc);
+
+        add.addActionListener(e -> runAdminAction(() -> {
+            context.menuService.saveRecipeItem(
+                    menuList.getSelectedValue(),
+                    (InventoryItem) recipeInventoryBox.getSelectedItem(),
+                    parsePositiveNumber(recipeQuantityField, "Recipe quantity")
+            );
+            refreshRecipeModel(menuList.getSelectedValue());
+        }));
+        remove.addActionListener(e -> runAdminAction(() -> {
+            RecipeRow row = recipeList.getSelectedValue();
+            context.menuService.deleteRecipeItem(menuList.getSelectedValue(), row == null ? null : row.inventoryItem());
+            refreshRecipeModel(menuList.getSelectedValue());
+        }));
+        clear.addActionListener(e -> clearRecipeForm());
+
+        panel.add(form, BorderLayout.SOUTH);
+        return panel;
+    }
+
     private JPanel userForm() {
         JPanel form = new JPanel(new GridBagLayout());
         form.setPreferredSize(new Dimension(300, 0));
@@ -573,6 +643,7 @@ public class AdminView extends JFrame {
     private void refreshMenuModel() {
         menuModel.clear();
         context.menuService.getAllMenu().forEach(menuModel::addElement);
+        refreshRecipeModel(menuList.getSelectedValue());
     }
 
     private void refreshToppingModel() {
@@ -583,6 +654,8 @@ public class AdminView extends JFrame {
     private void refreshInventoryModel() {
         inventoryModel.clear();
         context.inventoryService.getInventory().forEach(inventoryModel::addElement);
+        loadRecipeInventoryOptions();
+        refreshRecipeModel(menuList.getSelectedValue());
     }
 
     private void refreshOrderModels() {
@@ -603,12 +676,54 @@ public class AdminView extends JFrame {
         context.userService.getUsers().forEach(userModel::addElement);
     }
 
+    private void refreshRecipeModel(MenuItemRecord beverage) {
+        recipeModel.clear();
+        if (beverage == null) {
+            clearRecipeForm();
+            return;
+        }
+        for (RecipeItem item : context.menuService.getRecipeItems(beverage)) {
+            InventoryItem inventoryItem = context.inventoryService.getInventory().stream()
+                    .filter(candidate -> candidate.getId() == item.getInventoryItemId())
+                    .findFirst()
+                    .orElse(null);
+            if (inventoryItem != null) {
+                recipeModel.addElement(new RecipeRow(item, inventoryItem));
+            }
+        }
+        clearRecipeForm();
+    }
+
+    private void loadRecipeInventoryOptions() {
+        InventoryItem selected = (InventoryItem) recipeInventoryBox.getSelectedItem();
+        DefaultComboBoxModel<InventoryItem> model = new DefaultComboBoxModel<>();
+        for (InventoryItem item : context.inventoryService.getInventory()) {
+            model.addElement(item);
+        }
+        recipeInventoryBox.setModel(model);
+        if (selected != null) {
+            for (int i = 0; i < model.getSize(); i++) {
+                if (model.getElementAt(i).getId() == selected.getId()) {
+                    recipeInventoryBox.setSelectedIndex(i);
+                    return;
+                }
+            }
+        }
+        if (model.getSize() > 0) {
+            recipeInventoryBox.setSelectedIndex(0);
+        }
+    }
+
     private void fillBeverageForm(MenuItemRecord item) {
-        if (item == null) return;
+        if (item == null) {
+            clearRecipeForm();
+            return;
+        }
         beverageNameField.setText(item.getName());
         beveragePriceField.setText(String.format("%.0f", item.getBasePrice()));
         categoryBox.setSelectedItem(item.getCategory());
         beverageActiveBox.setSelected(item.isActive());
+        refreshRecipeModel(item);
     }
 
     private void fillToppingForm(Topping topping) {
@@ -618,12 +733,23 @@ public class AdminView extends JFrame {
         toppingActiveBox.setSelected(topping.isActive());
     }
 
+    private void fillRecipeForm(RecipeRow row) {
+        if (row == null) {
+            clearRecipeForm();
+            return;
+        }
+        selectRecipeInventory(row.inventoryItem().getId());
+        recipeQuantityField.setText(formatQuantity(row.recipeItem().getQuantityRequired()));
+    }
+
     private void clearBeverageForm() {
         menuList.clearSelection();
         beverageNameField.setText("");
         beveragePriceField.setText("");
         categoryBox.setSelectedItem("COFFEE");
         beverageActiveBox.setSelected(true);
+        recipeModel.clear();
+        clearRecipeForm();
     }
 
     private void clearToppingForm() {
@@ -631,6 +757,14 @@ public class AdminView extends JFrame {
         toppingNameField.setText("");
         toppingPriceField.setText("");
         toppingActiveBox.setSelected(true);
+    }
+
+    private void clearRecipeForm() {
+        recipeList.clearSelection();
+        recipeQuantityField.setText("");
+        if (recipeInventoryBox.getItemCount() > 0 && recipeInventoryBox.getSelectedIndex() < 0) {
+            recipeInventoryBox.setSelectedIndex(0);
+        }
     }
 
     private void clearUserForm() {
@@ -685,6 +819,35 @@ public class AdminView extends JFrame {
         }
     }
 
+    private double parsePositiveNumber(JTextField field, String fieldName) {
+        try {
+            double value = Double.parseDouble(field.getText().trim());
+            if (value <= 0) {
+                throw new IllegalArgumentException(fieldName + " must be greater than 0.");
+            }
+            return value;
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException(fieldName + " must be a valid number.");
+        }
+    }
+
+    private void selectRecipeInventory(int inventoryItemId) {
+        for (int i = 0; i < recipeInventoryBox.getItemCount(); i++) {
+            InventoryItem item = recipeInventoryBox.getItemAt(i);
+            if (item.getId() == inventoryItemId) {
+                recipeInventoryBox.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
+
+    private String formatQuantity(double value) {
+        if (Math.abs(value - Math.rint(value)) < 0.001) {
+            return String.format("%.0f", value);
+        }
+        return String.format("%.2f", value);
+    }
+
     private void runAdminAction(Runnable action) {
         try {
             action.run();
@@ -720,6 +883,30 @@ public class AdminView extends JFrame {
         }
     }
 
+    private static final class RecipeRenderer extends DefaultListCellRenderer {
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected, boolean focus) {
+            RecipeRow row = (RecipeRow) value;
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, selected, focus);
+            label.setText("<html><b>" + row.inventoryItem().getName() + "</b><br>"
+                    + String.format("%,.2f", row.recipeItem().getQuantityRequired()) + " " + row.inventoryItem().getUnit() + "</html>");
+            label.setBorder(new EmptyBorder(8, 10, 8, 10));
+            label.setBackground(selected ? new Color(255, 245, 235) : AppTheme.PANEL);
+            label.setForeground(AppTheme.TEXT);
+            return label;
+        }
+    }
+
+    private static final class InventoryComboRenderer extends DefaultListCellRenderer {
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected, boolean focus) {
+            InventoryItem item = (InventoryItem) value;
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, selected, focus);
+            if (item != null) {
+                label.setText(item.getName() + " (" + item.getUnit() + ")");
+            }
+            return label;
+        }
+    }
+
     private static final class InventoryRenderer extends DefaultListCellRenderer {
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected, boolean focus) {
             InventoryItem item = (InventoryItem) value;
@@ -751,5 +938,8 @@ public class AdminView extends JFrame {
             });
             return label;
         }
+    }
+
+    private record RecipeRow(RecipeItem recipeItem, InventoryItem inventoryItem) {
     }
 }

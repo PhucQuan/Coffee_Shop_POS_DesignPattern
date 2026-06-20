@@ -1,6 +1,8 @@
 package com.coffeeshop;
 
 import com.coffeeshop.domain.model.Order;
+import com.coffeeshop.domain.model.InventoryItem;
+import com.coffeeshop.domain.model.RecipeItem;
 import com.coffeeshop.domain.model.Topping;
 import com.coffeeshop.domain.model.User;
 import com.coffeeshop.domain.patterns.adapter.MomoAdapter;
@@ -72,7 +74,8 @@ public class TestRunner {
         runner.tc21SqliteAuditTrailPersistence();
         runner.tc22SqliteAuditQueriesExposeOperationsData();
         runner.tc23SqliteBackupExportCreatesUsableSnapshot();
-        System.out.println("All tests passed: " + runner.passed + "/23");
+        runner.tc24RecipeManagementPersistsToRepository();
+        System.out.println("All tests passed: " + runner.passed + "/24");
     }
 
     private void tc01LoginByRole() {
@@ -472,7 +475,6 @@ public class TestRunner {
             orderService.addItem(order, 1, new BaseCoffee("Ca phe sua", 30000), 1, "");
             orderService.sendToKitchen(order);
 
-            Path backupDirectory = Files.createTempDirectory("coffee-shop-pos-backup-");
             OperationsService operationsService = new OperationsService(repo);
             Path backupPath = operationsService.backupDatabase();
 
@@ -490,6 +492,41 @@ public class TestRunner {
             passed++;
         } catch (Exception ex) {
             throw new RuntimeException("TC23 sqlite backup export failed", ex);
+        }
+    }
+
+    private void tc24RecipeManagementPersistsToRepository() {
+        File dbFile = createTempDatabaseFile();
+        try (SqliteRepository repo = new SqliteRepository(dbFile.getAbsolutePath())) {
+            MenuService menuService = new MenuService(repo);
+            MenuItemRecord beverage = repo.getMenu().stream()
+                    .filter(item -> item.getId() == 24)
+                    .findFirst()
+                    .orElseThrow();
+            InventoryItem avocado = repo.getInventory().stream()
+                    .filter(item -> item.getName().equals("Avocado"))
+                    .findFirst()
+                    .orElseThrow();
+
+            menuService.saveRecipeItem(beverage, avocado, 180);
+
+            try (SqliteRepository reloaded = new SqliteRepository(dbFile.getAbsolutePath())) {
+                RecipeItem recipeItem = reloaded.getRecipeItems(beverage.getId()).stream()
+                        .filter(item -> item.getInventoryItemId() == avocado.getId())
+                        .findFirst()
+                        .orElseThrow();
+                assertEquals(180.0, recipeItem.getQuantityRequired(), "TC24 recipe quantity should persist");
+
+                MenuService reloadedMenuService = new MenuService(reloaded);
+                reloadedMenuService.deleteRecipeItem(beverage, avocado);
+                assertTrue(reloaded.getRecipeItems(beverage.getId()).stream()
+                        .noneMatch(item -> item.getInventoryItemId() == avocado.getId()),
+                        "TC24 recipe delete should persist");
+            }
+
+            passed++;
+        } catch (Exception ex) {
+            throw new RuntimeException("TC24 recipe management persistence failed", ex);
         }
     }
 

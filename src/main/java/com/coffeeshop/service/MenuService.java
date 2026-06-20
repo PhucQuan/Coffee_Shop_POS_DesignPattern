@@ -7,6 +7,8 @@ import com.coffeeshop.domain.patterns.factory.CoffeeFactory;
 import com.coffeeshop.domain.patterns.factory.MatchaFactory;
 import com.coffeeshop.domain.patterns.factory.SmoothieFactory;
 import com.coffeeshop.domain.patterns.factory.TeaFactory;
+import com.coffeeshop.domain.model.InventoryItem;
+import com.coffeeshop.domain.model.RecipeItem;
 import com.coffeeshop.domain.model.Topping;
 import com.coffeeshop.infrastructure.MenuItemRecord;
 import com.coffeeshop.infrastructure.Repository;
@@ -36,6 +38,13 @@ public class MenuService {
 
     public List<Topping> getAllToppings() {
         return repository.getToppings();
+    }
+
+    public List<RecipeItem> getRecipeItems(MenuItemRecord item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Please select a beverage first.");
+        }
+        return repository.getRecipeItems(item.getId());
     }
 
     public Beverage createBeverage(MenuItemRecord item) {
@@ -88,6 +97,29 @@ public class MenuService {
         }
         item.setActive(false);
         repository.saveMenuItem(item);
+    }
+
+    public void saveRecipeItem(MenuItemRecord beverage, InventoryItem inventoryItem, double quantityRequired) {
+        if (beverage == null) {
+            throw new IllegalArgumentException("Please select a beverage first.");
+        }
+        if (inventoryItem == null) {
+            throw new IllegalArgumentException("Please select an inventory item.");
+        }
+        if (quantityRequired <= 0) {
+            throw new IllegalArgumentException("Recipe quantity must be greater than 0.");
+        }
+        repository.saveRecipeItem(new RecipeItem(beverage.getId(), inventoryItem.getId(), quantityRequired));
+    }
+
+    public void deleteRecipeItem(MenuItemRecord beverage, InventoryItem inventoryItem) {
+        if (beverage == null) {
+            throw new IllegalArgumentException("Please select a beverage first.");
+        }
+        if (inventoryItem == null) {
+            throw new IllegalArgumentException("Please select a recipe line first.");
+        }
+        repository.deleteRecipeItem(beverage.getId(), inventoryItem.getId());
     }
 
     public Topping addTopping(String name, double extraPrice) {

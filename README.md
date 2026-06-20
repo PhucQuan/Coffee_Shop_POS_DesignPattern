@@ -31,6 +31,7 @@ Java Swing desktop POS project focused on clean design patterns plus practical s
 - Order customization persistence: selected toppings are stored in `order_item_toppings`.
 - Admin operations console: review order status audit logs and inventory transaction history from the UI.
 - SQLite backup: create timestamped database snapshots in the `backups/` folder directly from the admin workspace.
+- Recipe editor: admin can map each beverage to its inventory ingredients so stock deduction follows the actual menu.
 
 ## Data Layer
 
@@ -75,7 +76,7 @@ If PowerShell blocks scripts, use:
 test.bat
 ```
 
-The test runner currently covers TC01-TC23 without requiring Maven/JUnit.
+The test runner currently covers TC01-TC24 without requiring Maven/JUnit.
 
 ## Generate report assets
 
