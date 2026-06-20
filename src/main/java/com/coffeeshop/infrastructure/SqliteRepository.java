@@ -29,9 +29,11 @@ import java.util.stream.Collectors;
 public class SqliteRepository implements Repository, AutoCloseable {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
+    private final String dbPath;
     private final Connection conn;
 
     public SqliteRepository(String dbPath) throws SQLException {
+        this.dbPath = dbPath;
         this.conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
         enablePragmas();
         initSchema();
@@ -625,6 +627,66 @@ public class SqliteRepository implements Repository, AutoCloseable {
     }
 
     @Override
+    public List<OrderStatusHistoryRecord> getOrderStatusHistory() {
+        List<OrderStatusHistoryRecord> records = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement("""
+                SELECT id, order_id, status, note, changed_at
+                FROM order_status_history
+                ORDER BY changed_at DESC, id DESC
+                """);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                records.add(new OrderStatusHistoryRecord(
+                        rs.getInt("id"),
+                        rs.getInt("order_id"),
+                        rs.getString("status"),
+                        rs.getString("note"),
+                        parseDateTime(rs.getString("changed_at"))
+                ));
+            }
+            return records;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Failed to load order status history.", ex);
+        }
+    }
+
+    @Override
+    public List<InventoryTransactionRecord> getInventoryTransactions() {
+        List<InventoryTransactionRecord> records = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement("""
+                SELECT tx.id, tx.inventory_item_id, ii.name AS inventory_item_name, tx.order_id,
+                       tx.change_amount, tx.balance_after, tx.reason, tx.created_at
+                FROM inventory_transactions tx
+                JOIN inventory_items ii ON ii.id = tx.inventory_item_id
+                ORDER BY tx.created_at DESC, tx.id DESC
+                """);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                int rawOrderId = rs.getInt("order_id");
+                boolean orderMissing = rs.wasNull();
+                records.add(new InventoryTransactionRecord(
+                        rs.getInt("id"),
+                        rs.getInt("inventory_item_id"),
+                        rs.getString("inventory_item_name"),
+                        orderMissing ? null : rawOrderId,
+                        rs.getDouble("change_amount"),
+                        rs.getDouble("balance_after"),
+                        rs.getString("reason"),
+                        parseDateTime(rs.getString("created_at"))
+                ));
+            }
+            return records;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Failed to load inventory transactions.", ex);
+        }
+    }
+
+    @Override
+    public Optional<String> getStoragePath() {
+        return Optional.of(dbPath);
+    }
+
+    @Override
     public int nextOrderId() {
         return nextId("orders");
     }
@@ -784,6 +846,16 @@ public class SqliteRepository implements Repository, AutoCloseable {
             stmt.executeUpdate();
         } catch (SQLException ex) {
             throw new RuntimeException("Failed to save payment for order #" + payment.getOrderId(), ex);
+        }
+    }
+
+    @Override
+    public void backupTo(String destinationPath) {
+        String escapedDestination = destinationPath.replace("'", "''");
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("VACUUM INTO '" + escapedDestination + "'");
+        } catch (SQLException ex) {
+            throw new RuntimeException("Failed to create SQLite backup.", ex);
         }
     }
 

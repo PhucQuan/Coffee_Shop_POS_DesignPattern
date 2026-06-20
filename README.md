@@ -1,6 +1,6 @@
-# Coffee Shop POS - Design Patterns Demo
+# Coffee Shop POS - Design Patterns Desktop App
 
-Java Swing project for the Coffee Shop POS final project.
+Java Swing desktop POS project focused on clean design patterns plus practical store operations.
 
 ## Layers
 
@@ -29,6 +29,8 @@ Java Swing project for the Coffee Shop POS final project.
 - Audit trail: order lifecycle states are stored in `order_status_history`.
 - Inventory ledger: every stock deduction/restock is tracked in `inventory_transactions`.
 - Order customization persistence: selected toppings are stored in `order_item_toppings`.
+- Admin operations console: review order status audit logs and inventory transaction history from the UI.
+- SQLite backup: create timestamped database snapshots in the `backups/` folder directly from the admin workspace.
 
 ## Data Layer
 
@@ -73,7 +75,7 @@ If PowerShell blocks scripts, use:
 test.bat
 ```
 
-The test runner covers TC01-TC13 without requiring Maven/JUnit.
+The test runner currently covers TC01-TC23 without requiring Maven/JUnit.
 
 ## Generate report assets
 

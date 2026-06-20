@@ -12,6 +12,7 @@ import com.coffeeshop.service.AuthService;
 import com.coffeeshop.service.InventoryService;
 import com.coffeeshop.service.MenuService;
 import com.coffeeshop.service.OrderService;
+import com.coffeeshop.service.OperationsService;
 import com.coffeeshop.service.PaymentService;
 import com.coffeeshop.service.ReceiptImageService;
 import com.coffeeshop.service.ReceiptService;
@@ -31,6 +32,7 @@ public class AppContext {
     public final OrderService orderService;
     public final PaymentService paymentService;
     public final ReportService reportService;
+    public final OperationsService operationsService;
     public final ReceiptService receiptService = new ReceiptService();
     public final ReceiptImageService receiptImageService = new ReceiptImageService();
 
@@ -53,6 +55,7 @@ public class AppContext {
         this.orderService = new OrderService(repository, publisher, inventoryService);
         this.paymentService = new PaymentService(repository);
         this.reportService = new ReportService(repository);
+        this.operationsService = new OperationsService(repository);
         publisher.subscribe(cashierObserver);
         publisher.subscribe(kitchenObserver);
         publisher.subscribe(reportLogger);

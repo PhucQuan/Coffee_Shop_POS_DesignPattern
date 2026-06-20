@@ -20,6 +20,7 @@ import com.coffeeshop.domain.patterns.state.InvalidStateTransitionException;
 import com.coffeeshop.domain.patterns.strategy.PercentDiscountStrategy;
 import com.coffeeshop.infrastructure.DatabaseConnection;
 import com.coffeeshop.service.OrderService;
+import com.coffeeshop.service.OperationsService;
 import com.coffeeshop.service.PaymentService;
 import com.coffeeshop.service.MenuService;
 import com.coffeeshop.service.InventoryException;
@@ -30,13 +31,17 @@ import com.coffeeshop.service.UserService;
 import java.io.File;
 import java.io.IOException;
 import com.coffeeshop.infrastructure.InMemoryRepository;
+import com.coffeeshop.infrastructure.InventoryTransactionRecord;
 import com.coffeeshop.infrastructure.MenuItemRecord;
+import com.coffeeshop.infrastructure.OrderStatusHistoryRecord;
 import com.coffeeshop.infrastructure.SqliteRepository;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Random;
 
 public class TestRunner {
@@ -65,7 +70,9 @@ public class TestRunner {
         runner.tc19SqliteOrderPersistence();
         runner.tc20SqliteAdminCrudPersistence();
         runner.tc21SqliteAuditTrailPersistence();
-        System.out.println("All tests passed: " + runner.passed + "/21");
+        runner.tc22SqliteAuditQueriesExposeOperationsData();
+        runner.tc23SqliteBackupExportCreatesUsableSnapshot();
+        System.out.println("All tests passed: " + runner.passed + "/23");
     }
 
     private void tc01LoginByRole() {
@@ -425,6 +432,64 @@ public class TestRunner {
             passed++;
         } catch (Exception ex) {
             throw new RuntimeException("TC21 sqlite audit persistence failed", ex);
+        }
+    }
+
+    private void tc22SqliteAuditQueriesExposeOperationsData() {
+        File dbFile = createTempDatabaseFile();
+        try (SqliteRepository repo = new SqliteRepository(dbFile.getAbsolutePath())) {
+            OrderService orderService = new OrderService(repo, new OrderEventPublisher());
+            PaymentService paymentService = new PaymentService(repo);
+            Order order = orderService.createOrder();
+            orderService.addItem(order, 1, new BaseCoffee("Ca phe sua", 30000), 1, "");
+            orderService.sendToKitchen(order);
+            orderService.markReady(order);
+            paymentService.pay(order, new MomoAdapter(new Random(1)));
+
+            OperationsService operationsService = new OperationsService(repo);
+            OrderStatusHistoryRecord latestHistory = operationsService.getOrderStatusHistory().stream()
+                    .filter(record -> record.getOrderId() == order.getId())
+                    .findFirst()
+                    .orElseThrow();
+            InventoryTransactionRecord inventoryRecord = operationsService.getInventoryTransactions().stream()
+                    .filter(record -> order.getId() == (record.getOrderId() == null ? -1 : record.getOrderId()))
+                    .findFirst()
+                    .orElseThrow();
+
+            assertEquals("PAID", latestHistory.getStatus(), "TC22 latest history should show paid state");
+            assertTrue(inventoryRecord.getChangeAmount() < 0, "TC22 inventory transaction should capture deduction");
+            passed++;
+        } catch (Exception ex) {
+            throw new RuntimeException("TC22 operations audit query failed", ex);
+        }
+    }
+
+    private void tc23SqliteBackupExportCreatesUsableSnapshot() {
+        File dbFile = createTempDatabaseFile();
+        try (SqliteRepository repo = new SqliteRepository(dbFile.getAbsolutePath())) {
+            OrderService orderService = new OrderService(repo, new OrderEventPublisher());
+            Order order = orderService.createOrder();
+            orderService.addItem(order, 1, new BaseCoffee("Ca phe sua", 30000), 1, "");
+            orderService.sendToKitchen(order);
+
+            Path backupDirectory = Files.createTempDirectory("coffee-shop-pos-backup-");
+            OperationsService operationsService = new OperationsService(repo);
+            Path backupPath = operationsService.backupDatabase();
+
+            assertTrue(Files.exists(backupPath), "TC23 backup file should exist");
+            assertTrue(Files.size(backupPath) > 0, "TC23 backup file should not be empty");
+
+            try (SqliteRepository restored = new SqliteRepository(backupPath.toString())) {
+                Order persisted = restored.getOrders().stream()
+                        .filter(candidate -> candidate.getId() == order.getId())
+                        .findFirst()
+                        .orElseThrow();
+                assertEquals("PREPARING", persisted.getStatus(), "TC23 backup should contain saved order state");
+            }
+
+            passed++;
+        } catch (Exception ex) {
+            throw new RuntimeException("TC23 sqlite backup export failed", ex);
         }
     }
 

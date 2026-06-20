@@ -23,16 +23,20 @@ public interface Repository {
     void adjustInventory(int inventoryItemId, double delta, Integer orderId, String reason);
     List<Order> getOrders();
     List<Payment> getPayments();
-    
+    List<OrderStatusHistoryRecord> getOrderStatusHistory();
+    List<InventoryTransactionRecord> getInventoryTransactions();
+    Optional<String> getStoragePath();
+
     int nextOrderId();
     int nextOrderItemId();
     int nextPaymentId();
     int nextMenuId();
     int nextToppingId();
     int nextUserId();
-    
+
     void saveOrder(Order order);
     void savePayment(Payment payment);
+    void backupTo(String destinationPath);
 
     List<RecipeItem> getRecipeItems(int beverageId);
     void saveRecipeItem(RecipeItem item);

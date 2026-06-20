@@ -6,11 +6,14 @@ import com.coffeeshop.domain.model.Order;
 import com.coffeeshop.domain.model.OrderItem;
 import com.coffeeshop.domain.model.Topping;
 import com.coffeeshop.domain.model.User;
+import com.coffeeshop.infrastructure.InventoryTransactionRecord;
 import com.coffeeshop.infrastructure.MenuItemRecord;
+import com.coffeeshop.infrastructure.OrderStatusHistoryRecord;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.nio.file.Path;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
@@ -32,6 +35,9 @@ public class AdminView extends JFrame {
     private final JList<User> userList = new JList<>(userModel);
     private final JTextArea activeOrderDetailArea = new JTextArea();
     private final JTextArea historyOrderDetailArea = new JTextArea();
+    private final JTextArea statusHistoryArea = new JTextArea();
+    private final JTextArea inventoryTransactionArea = new JTextArea();
+    private final JTextArea operationsSummaryArea = new JTextArea();
     private final JTextField beverageNameField = new JTextField();
     private final JTextField beveragePriceField = new JTextField();
     private final JComboBox<String> categoryBox = new JComboBox<>(new String[]{"COFFEE", "TEA", "MATCHA", "SMOOTHIE"});
@@ -60,10 +66,11 @@ public class AdminView extends JFrame {
         tabs.addTab("Topping", toppingPanel());
         tabs.addTab("Inventory", inventoryPanel());
         tabs.addTab("Users", usersPanel());
+        tabs.addTab("Operations", operationsPanel());
         tabs.addTab("Revenue report", reportPanel());
         setContentPane(AppShell.wrap(this, context, "Admin",
                 "Manage menu, orders, inventory, users, and reports.",
-                tabs, nav -> selectAdminTab(tabs, nav), "Overview", "Orders", "History", "Menu", "Topping", "Inventory", "Users", "Reports"));
+                tabs, nav -> selectAdminTab(tabs, nav), "Overview", "Orders", "History", "Menu", "Topping", "Inventory", "Users", "Operations", "Reports"));
     }
 
     private void selectAdminTab(JTabbedPane tabs, String nav) {
@@ -77,6 +84,7 @@ public class AdminView extends JFrame {
                 if ("Orders".equals(target) || "History".equals(target)) refreshOrderModels();
                 if ("Inventory".equals(target)) refreshInventoryModel();
                 if ("Users".equals(target)) refreshUserModel();
+                if ("Operations".equals(target)) refreshOperationsPanel();
                 if ("Revenue report".equals(target)) refreshReport();
                 return;
             }
@@ -261,6 +269,50 @@ public class AdminView extends JFrame {
         return panel;
     }
 
+    private JPanel operationsPanel() {
+        JPanel panel = new JPanel(new BorderLayout(24, 24));
+        panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(24, 24, 24, 24));
+
+        JButton refresh = AppTheme.ghostButton("Refresh operations");
+        JButton backup = AppTheme.button("Backup SQLite", AppTheme.SUCCESS);
+        backup.setEnabled(context.operationsService.canBackup());
+        refresh.addActionListener(e -> refreshOperationsPanel());
+        backup.addActionListener(e -> createBackup());
+
+        JPanel top = AppTheme.roundedPanel(new BorderLayout(), AppTheme.PANEL, null, 16, new Insets(16, 20, 16, 20));
+        top.add(sectionHeader("Operations", "Audit trail, stock ledger, and SQLite backup."), BorderLayout.WEST);
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        actions.setOpaque(false);
+        actions.add(refresh);
+        actions.add(backup);
+        top.add(actions, BorderLayout.EAST);
+
+        statusHistoryArea.setEditable(false);
+        statusHistoryArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        statusHistoryArea.setBorder(new EmptyBorder(12, 12, 12, 12));
+        inventoryTransactionArea.setEditable(false);
+        inventoryTransactionArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        inventoryTransactionArea.setBorder(new EmptyBorder(12, 12, 12, 12));
+        operationsSummaryArea.setEditable(false);
+        operationsSummaryArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        operationsSummaryArea.setBorder(new EmptyBorder(12, 12, 12, 12));
+
+        JSplitPane split = new JSplitPane(
+                JSplitPane.VERTICAL_SPLIT,
+                wrapWithTitle("Order status audit", new JScrollPane(statusHistoryArea)),
+                wrapWithTitle("Inventory ledger", new JScrollPane(inventoryTransactionArea))
+        );
+        split.setDividerLocation(260);
+        split.setBorder(null);
+
+        panel.add(top, BorderLayout.NORTH);
+        panel.add(split, BorderLayout.CENTER);
+        panel.add(wrapWithTitle("System summary", new JScrollPane(operationsSummaryArea)), BorderLayout.SOUTH);
+        refreshOperationsPanel();
+        return panel;
+    }
+
     private JPanel inventoryPanel() {
         JPanel panel = new JPanel(new BorderLayout(24, 24));
         panel.setOpaque(false);
@@ -331,6 +383,60 @@ public class AdminView extends JFrame {
             builder.append("- ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
         }
         reportArea.setText(builder.toString());
+    }
+
+    private void refreshOperationsPanel() {
+        StringBuilder historyBuilder = new StringBuilder();
+        for (OrderStatusHistoryRecord record : context.operationsService.getOrderStatusHistory()) {
+            historyBuilder.append(record.getChangedAt().format(DateTimeFormatter.ofPattern("dd/MM HH:mm:ss")))
+                    .append(" | Order #").append(record.getOrderId())
+                    .append(" | ").append(record.getStatus());
+            if (record.getNote() != null && !record.getNote().isBlank()) {
+                historyBuilder.append(" | ").append(record.getNote());
+            }
+            historyBuilder.append("\n");
+        }
+        if (historyBuilder.length() == 0) {
+            historyBuilder.append("No order status activity yet.");
+        }
+        statusHistoryArea.setText(historyBuilder.toString());
+        statusHistoryArea.setCaretPosition(0);
+
+        StringBuilder inventoryBuilder = new StringBuilder();
+        for (InventoryTransactionRecord record : context.operationsService.getInventoryTransactions()) {
+            inventoryBuilder.append(record.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM HH:mm:ss")))
+                    .append(" | ").append(record.getInventoryItemName())
+                    .append(" | ").append(String.format("%+.0f", record.getChangeAmount()))
+                    .append(" | balance ").append(String.format("%,.0f", record.getBalanceAfter()))
+                    .append(" | ").append(record.getReason());
+            if (record.getOrderId() != null) {
+                inventoryBuilder.append(" | order #").append(record.getOrderId());
+            }
+            inventoryBuilder.append("\n");
+        }
+        if (inventoryBuilder.length() == 0) {
+            inventoryBuilder.append("No inventory transactions yet.");
+        }
+        inventoryTransactionArea.setText(inventoryBuilder.toString());
+        inventoryTransactionArea.setCaretPosition(0);
+
+        StringBuilder summaryBuilder = new StringBuilder();
+        summaryBuilder.append("Storage: ").append(context.operationsService.getStorageLabel()).append("\n");
+        summaryBuilder.append("Order status records: ").append(context.operationsService.getOrderStatusHistory().size()).append("\n");
+        summaryBuilder.append("Inventory transactions: ").append(context.operationsService.getInventoryTransactions().size()).append("\n");
+        summaryBuilder.append("Backup available: ").append(context.operationsService.canBackup() ? "YES" : "NO");
+        operationsSummaryArea.setText(summaryBuilder.toString());
+        operationsSummaryArea.setCaretPosition(0);
+    }
+
+    private void createBackup() {
+        try {
+            Path backupPath = context.operationsService.backupDatabase();
+            refreshOperationsPanel();
+            JOptionPane.showMessageDialog(this, "Backup created at:\n" + backupPath.toAbsolutePath());
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Backup error", JOptionPane.WARNING_MESSAGE);
+        }
     }
 
     private JPanel beverageForm() {

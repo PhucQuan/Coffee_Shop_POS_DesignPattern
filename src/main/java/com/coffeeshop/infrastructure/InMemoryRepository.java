@@ -8,7 +8,12 @@ import com.coffeeshop.domain.model.InventoryItem;
 import com.coffeeshop.domain.model.RecipeItem;
 
 import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -26,6 +31,11 @@ public class InMemoryRepository implements Repository {
     private final List<InventoryItem> inventory = new ArrayList<>();
     private final List<Order> orders = new ArrayList<>();
     private final List<Payment> payments = new ArrayList<>();
+    private final List<OrderStatusHistoryRecord> orderHistory = new ArrayList<>();
+    private final List<InventoryTransactionRecord> inventoryTransactions = new ArrayList<>();
+    private final Map<Integer, String> orderStatusById = new LinkedHashMap<>();
+    private final AtomicInteger orderHistoryId = new AtomicInteger(1);
+    private final AtomicInteger inventoryTransactionId = new AtomicInteger(1);
 
     public InMemoryRepository() {
         seed();
@@ -159,20 +169,52 @@ public class InMemoryRepository implements Repository {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Inventory item not found: " + inventoryItemId));
         item.setQuantity(item.getQuantity() + delta);
+        inventoryTransactions.add(0, new InventoryTransactionRecord(
+                inventoryTransactionId.getAndIncrement(),
+                item.getId(),
+                item.getName(),
+                orderId,
+                delta,
+                item.getQuantity(),
+                reason == null ? "MANUAL_UPDATE" : reason,
+                LocalDateTime.now()
+        ));
     }
     public List<Order> getOrders() { return orders; }
     public List<Payment> getPayments() { return payments; }
+    public List<OrderStatusHistoryRecord> getOrderStatusHistory() { return orderHistory; }
+    public List<InventoryTransactionRecord> getInventoryTransactions() { return inventoryTransactions; }
+    public Optional<String> getStoragePath() { return Optional.empty(); }
     public int nextOrderId() { return orderId.getAndIncrement(); }
     public int nextOrderItemId() { return orderItemId.getAndIncrement(); }
     public int nextPaymentId() { return paymentId.getAndIncrement(); }
     public int nextMenuId() { return menuId.getAndIncrement(); }
     public int nextToppingId() { return toppingId.getAndIncrement(); }
     public int nextUserId() { return userId.getAndIncrement(); }
-    public void saveOrder(Order order) { if (!orders.contains(order)) orders.add(order); }
+    public void saveOrder(Order order) {
+        orders.removeIf(existing -> existing.getId() == order.getId());
+        orders.add(order);
+        orders.sort(java.util.Comparator.comparingInt(Order::getId));
+
+        String previousStatus = orderStatusById.get(order.getId());
+        if (!Objects.equals(previousStatus, order.getStatus())) {
+            orderHistory.add(0, new OrderStatusHistoryRecord(
+                    orderHistoryId.getAndIncrement(),
+                    order.getId(),
+                    order.getStatus(),
+                    previousStatus == null ? "Order created" : "State changed",
+                    LocalDateTime.now()
+            ));
+            orderStatusById.put(order.getId(), order.getStatus());
+        }
+    }
     public void savePayment(Payment payment) {
         payments.removeIf(existing -> existing.getId() == payment.getId());
         payments.add(payment);
         payments.sort(java.util.Comparator.comparingInt(Payment::getId));
+    }
+    public void backupTo(String destinationPath) {
+        throw new UnsupportedOperationException("In-memory repository does not support backup.");
     }
 
     // Recipe Item logic

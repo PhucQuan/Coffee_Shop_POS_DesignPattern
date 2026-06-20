@@ -141,7 +141,7 @@ public final class AppShell {
             new LoginView(context).setVisible(true);
         }));
 
-        JLabel foot = new JLabel("Design Patterns Demo");
+        JLabel foot = new JLabel("Design Patterns POS");
         foot.setFont(new Font("Segoe UI", Font.PLAIN, 10));
         foot.setForeground(AppTheme.SIDEBAR_MUTED);
         foot.setAlignmentX(Component.LEFT_ALIGNMENT);
