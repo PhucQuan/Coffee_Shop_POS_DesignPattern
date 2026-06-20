@@ -1,0 +1,4 @@
+interface:
+  display_name: "Coffee POS UI"
+  short_description: "Polish Swing screens for the coffee POS"
+  default_prompt: "Use $coffee-pos-ui to polish or add a Swing screen for this coffee shop POS while preserving the current theme and layout conventions."

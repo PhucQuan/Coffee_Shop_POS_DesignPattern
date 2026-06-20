@@ -1,6 +1,10 @@
 build/
 *.class
-.codex/
+.codex/*
+!.codex/skills/
+.codex/skills/*
+!.codex/skills/coffee-pos-ui/
+!.codex/skills/coffee-pos-ui/**
 .idea/
 .vscode/
 *.log
