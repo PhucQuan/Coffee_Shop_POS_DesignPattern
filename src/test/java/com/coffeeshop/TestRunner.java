@@ -1,6 +1,7 @@
 package com.coffeeshop;
 
 import com.coffeeshop.domain.model.Order;
+import com.coffeeshop.domain.model.Topping;
 import com.coffeeshop.domain.model.User;
 import com.coffeeshop.domain.patterns.adapter.MomoAdapter;
 import com.coffeeshop.domain.patterns.adapter.PaymentGateway;
@@ -27,9 +28,15 @@ import com.coffeeshop.service.ReceiptImageService;
 import com.coffeeshop.service.UserService;
 
 import java.io.File;
+import java.io.IOException;
 import com.coffeeshop.infrastructure.InMemoryRepository;
 import com.coffeeshop.infrastructure.MenuItemRecord;
+import com.coffeeshop.infrastructure.SqliteRepository;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Random;
 
 public class TestRunner {
@@ -55,7 +62,10 @@ public class TestRunner {
         runner.tc16FactoryCreatesExpectedBeverages();
         runner.tc17SingletonInstancesAreShared();
         runner.tc18AdapterFailureDoesNotPayOrder();
-        System.out.println("All tests passed: " + runner.passed + "/18");
+        runner.tc19SqliteOrderPersistence();
+        runner.tc20SqliteAdminCrudPersistence();
+        runner.tc21SqliteAuditTrailPersistence();
+        System.out.println("All tests passed: " + runner.passed + "/21");
     }
 
     private void tc01LoginByRole() {
@@ -301,6 +311,131 @@ public class TestRunner {
         assertEquals("READY", order.getStatus(), "TC18 failed payment must not mark order paid");
         assertTrue(order.getPayment() == null, "TC18 failed payment must not create payment record");
         passed++;
+    }
+
+    private void tc19SqliteOrderPersistence() {
+        File dbFile = createTempDatabaseFile();
+        try (SqliteRepository repo = new SqliteRepository(dbFile.getAbsolutePath())) {
+            OrderService orderService = new OrderService(repo, new OrderEventPublisher());
+            PaymentService paymentService = new PaymentService(repo);
+            Beverage beverage = new LargeSizeDecorator(new PearlDecorator(new BaseCoffee("Ca phe sua", 30000)));
+            Order order = orderService.createOrder();
+            orderService.addItem(order, 1, beverage, 2, "less ice");
+            orderService.sendToKitchen(order);
+            orderService.markReady(order);
+            paymentService.pay(order, new MomoAdapter(new Random(1)));
+
+            try (SqliteRepository reloaded = new SqliteRepository(dbFile.getAbsolutePath())) {
+                Order persisted = reloaded.getOrders().stream()
+                        .filter(candidate -> candidate.getId() == order.getId())
+                        .findFirst()
+                        .orElseThrow();
+                assertEquals("PAID", persisted.getStatus(), "TC19 persisted order status");
+                assertEquals(1, persisted.getItems().size(), "TC19 persisted order item count");
+                assertTrue(persisted.getItems().get(0).getBeverage().getDescription().contains("Tran chau"),
+                        "TC19 persisted topping description");
+                assertTrue(persisted.getPayment() != null, "TC19 payment should be reloaded with order");
+            }
+            passed++;
+        } catch (Exception ex) {
+            throw new RuntimeException("TC19 sqlite persistence failed", ex);
+        }
+    }
+
+    private void tc20SqliteAdminCrudPersistence() {
+        File dbFile = createTempDatabaseFile();
+        try (SqliteRepository repo = new SqliteRepository(dbFile.getAbsolutePath())) {
+            MenuService menuService = new MenuService(repo);
+            UserService userService = new UserService(repo);
+
+            MenuItemRecord beverage = menuService.addBeverage("Affogato", 39000, "COFFEE");
+            menuService.updateBeverage(beverage, "Affogato Premium", 42000, "COFFEE", true);
+            Topping topping = menuService.addTopping("Milk foam", 9000);
+            menuService.disableTopping(topping);
+            User user = userService.addUser("cashier02", "123", "CASHIER");
+            userService.setActive(user, false);
+
+            try (SqliteRepository reloaded = new SqliteRepository(dbFile.getAbsolutePath())) {
+                MenuItemRecord persistedBeverage = reloaded.getMenu().stream()
+                        .filter(item -> item.getId() == beverage.getId())
+                        .findFirst()
+                        .orElseThrow();
+                Topping persistedTopping = reloaded.getToppings().stream()
+                        .filter(item -> item.getId() == topping.getId())
+                        .findFirst()
+                        .orElseThrow();
+                User persistedUser = reloaded.getUsers().stream()
+                        .filter(item -> item.getId() == user.getId())
+                        .findFirst()
+                        .orElseThrow();
+
+                assertEquals("Affogato Premium", persistedBeverage.getName(), "TC20 persisted beverage name");
+                assertEquals(42000.0, persistedBeverage.getBasePrice(), "TC20 persisted beverage price");
+                assertTrue(!persistedTopping.isActive(), "TC20 topping disable should persist");
+                assertTrue(!persistedUser.isActive(), "TC20 user lock should persist");
+            }
+            passed++;
+        } catch (Exception ex) {
+            throw new RuntimeException("TC20 sqlite admin persistence failed", ex);
+        }
+    }
+
+    private void tc21SqliteAuditTrailPersistence() {
+        File dbFile = createTempDatabaseFile();
+        try (SqliteRepository repo = new SqliteRepository(dbFile.getAbsolutePath())) {
+            OrderService orderService = new OrderService(repo, new OrderEventPublisher());
+            PaymentService paymentService = new PaymentService(repo);
+            Order order = orderService.createOrder();
+            orderService.addItem(order, 1, new PearlDecorator(new BaseCoffee("Ca phe sua", 30000)), 1, "");
+
+            double before = repo.getInventory().stream()
+                    .filter(item -> item.getName().equals("Coffee beans"))
+                    .findFirst().orElseThrow().getQuantity();
+
+            orderService.sendToKitchen(order);
+            orderService.markReady(order);
+            paymentService.pay(order, new MomoAdapter(new Random(1)));
+
+            try (SqliteRepository reloaded = new SqliteRepository(dbFile.getAbsolutePath())) {
+                double after = reloaded.getInventory().stream()
+                        .filter(item -> item.getName().equals("Coffee beans"))
+                        .findFirst().orElseThrow().getQuantity();
+                assertTrue(after < before, "TC21 inventory deduction should persist in sqlite");
+            }
+
+            try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath())) {
+                try (PreparedStatement history = connection.prepareStatement(
+                        "SELECT COUNT(*) FROM order_status_history WHERE order_id = ?")) {
+                    history.setInt(1, order.getId());
+                    try (ResultSet rs = history.executeQuery()) {
+                        rs.next();
+                        assertTrue(rs.getInt(1) >= 4, "TC21 order history should capture lifecycle states");
+                    }
+                }
+                try (PreparedStatement inventoryTx = connection.prepareStatement(
+                        "SELECT COUNT(*) FROM inventory_transactions WHERE order_id = ?")) {
+                    inventoryTx.setInt(1, order.getId());
+                    try (ResultSet rs = inventoryTx.executeQuery()) {
+                        rs.next();
+                        assertTrue(rs.getInt(1) >= 1, "TC21 inventory transactions should be logged");
+                    }
+                }
+            }
+
+            passed++;
+        } catch (Exception ex) {
+            throw new RuntimeException("TC21 sqlite audit persistence failed", ex);
+        }
+    }
+
+    private File createTempDatabaseFile() {
+        try {
+            File file = File.createTempFile("coffee-shop-pos-test-", ".db");
+            file.deleteOnExit();
+            return file;
+        } catch (IOException ex) {
+            throw new RuntimeException("Failed to create temp database file.", ex);
+        }
     }
 
     private void assertEquals(Object expected, Object actual, String message) {

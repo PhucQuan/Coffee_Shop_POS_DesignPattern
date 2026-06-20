@@ -26,7 +26,7 @@ public class UserService {
             throw new IllegalArgumentException("Username already exists.");
         }
         User user = new User(repository.nextUserId(), normalizedUsername, normalizedPassword, normalizedRole, true);
-        repository.getUsers().add(user);
+        repository.saveUser(user);
         return user;
     }
 
@@ -35,6 +35,7 @@ public class UserService {
             throw new IllegalArgumentException("Select a user first.");
         }
         user.setActive(active);
+        repository.saveUser(user);
     }
 
     private String requireText(String value, String fieldName) {

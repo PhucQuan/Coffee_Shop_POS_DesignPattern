@@ -13,9 +13,14 @@ import java.util.Optional;
 public interface Repository {
     Optional<User> findUser(String username, String password);
     List<User> getUsers();
+    void saveUser(User user);
     List<MenuItemRecord> getMenu();
+    void saveMenuItem(MenuItemRecord item);
     List<Topping> getToppings();
+    void saveTopping(Topping topping);
     List<InventoryItem> getInventory();
+    void saveInventoryItem(InventoryItem item);
+    void adjustInventory(int inventoryItemId, double delta, Integer orderId, String reason);
     List<Order> getOrders();
     List<Payment> getPayments();
     
@@ -29,7 +34,6 @@ public interface Repository {
     void saveOrder(Order order);
     void savePayment(Payment payment);
 
-    // For Recipe
     List<RecipeItem> getRecipeItems(int beverageId);
     void saveRecipeItem(RecipeItem item);
     void deleteRecipeItem(int beverageId, int inventoryItemId);

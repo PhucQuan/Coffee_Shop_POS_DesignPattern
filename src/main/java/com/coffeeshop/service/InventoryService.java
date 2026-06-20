@@ -22,10 +22,11 @@ public class InventoryService {
     }
 
     public void restockItem(int id, double amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Restock amount must be greater than 0.");
+        }
         InventoryItem item = getInventoryItemById(id);
-        item.setQuantity(item.getQuantity() + amount);
-        // Note: For full SQLite support, we should call repository.saveInventoryItem(item) here.
-        // Currently InMemoryRepository mutates the object directly.
+        repository.adjustInventory(item.getId(), amount, null, "MANUAL_RESTOCK");
     }
 
     public void deductForOrder(Order order) {
@@ -34,7 +35,10 @@ public class InventoryService {
         }
         Map<String, Double> requirements = calculateRequirements(order);
         validateAvailable(requirements);
-        requirements.forEach((name, quantity) -> getItem(name).setQuantity(getItem(name).getQuantity() - quantity));
+        requirements.forEach((name, quantity) -> {
+            InventoryItem item = getItem(name);
+            repository.adjustInventory(item.getId(), -quantity, order.getId(), "ORDER_DEDUCTION");
+        });
         order.setInventoryDeducted(true);
     }
 
@@ -43,7 +47,10 @@ public class InventoryService {
             return;
         }
         Map<String, Double> requirements = calculateRequirements(order);
-        requirements.forEach((name, quantity) -> getItem(name).setQuantity(getItem(name).getQuantity() + quantity));
+        requirements.forEach((name, quantity) -> {
+            InventoryItem item = getItem(name);
+            repository.adjustInventory(item.getId(), quantity, order.getId(), "ORDER_RESTOCK");
+        });
         order.setInventoryDeducted(false);
     }
 

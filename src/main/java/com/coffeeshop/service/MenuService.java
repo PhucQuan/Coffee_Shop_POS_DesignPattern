@@ -62,7 +62,7 @@ public class MenuService {
         String normalizedCategory = normalizeCategory(category);
         ensureUniqueMenuName(name, -1);
         MenuItemRecord item = new MenuItemRecord(repository.nextMenuId(), name.trim(), basePrice, normalizedCategory, true);
-        repository.getMenu().add(item);
+        repository.saveMenuItem(item);
         return item;
     }
 
@@ -78,6 +78,7 @@ public class MenuService {
         item.setBasePrice(basePrice);
         item.setCategory(normalizedCategory);
         item.setActive(active);
+        repository.saveMenuItem(item);
     }
 
     public void disableBeverage(MenuItemRecord item) {
@@ -85,6 +86,7 @@ public class MenuService {
             throw new IllegalArgumentException("Please select a beverage to disable.");
         }
         item.setActive(false);
+        repository.saveMenuItem(item);
     }
 
     public Topping addTopping(String name, double extraPrice) {
@@ -92,7 +94,7 @@ public class MenuService {
         validatePrice(extraPrice);
         ensureUniqueToppingName(name, -1);
         Topping topping = new Topping(repository.nextToppingId(), name.trim(), extraPrice, true);
-        repository.getToppings().add(topping);
+        repository.saveTopping(topping);
         return topping;
     }
 
@@ -106,6 +108,7 @@ public class MenuService {
         topping.setName(name.trim());
         topping.setExtraPrice(extraPrice);
         topping.setActive(active);
+        repository.saveTopping(topping);
     }
 
     public void disableTopping(Topping topping) {
@@ -113,6 +116,7 @@ public class MenuService {
             throw new IllegalArgumentException("Please select a topping to disable.");
         }
         topping.setActive(false);
+        repository.saveTopping(topping);
     }
 
     private void validateName(String name) {

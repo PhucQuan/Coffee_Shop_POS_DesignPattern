@@ -7,7 +7,7 @@ Java Swing project for the Coffee Shop POS final project.
 - `presentation`: `LoginView`, `POSView`, `KitchenView`, `AdminView`
 - `service`: `AuthService`, `OrderService`, `MenuService`, `PaymentService`, `ReportService`
 - `domain`: entities and Design Pattern classes
-- `infrastructure`: `DatabaseConnection`, in-memory repository, SQL schema support
+- `infrastructure`: `DatabaseConnection`, `SqliteRepository`, in-memory fallback, SQL schema support
 
 ## Patterns
 
@@ -24,7 +24,24 @@ Java Swing project for the Coffee Shop POS final project.
 - Dashboard: Admin revenue card and top-selling bar chart.
 - Receipt image export: save bill preview as PNG for report/demo materials.
 - Payment QR simulation: receipt preview and receipt PNG include a VNPay/Momo-style QR block.
-- Expanded coffee shop menu: 16 sample beverages across coffee, tea, matcha, and smoothie categories.
+- Expanded coffee shop menu: 24 sample beverages across coffee, tea, matcha, and smoothie categories.
+- Embedded SQLite persistence: orders, menu, users, toppings, payments, and inventory now persist across app restarts.
+- Audit trail: order lifecycle states are stored in `order_status_history`.
+- Inventory ledger: every stock deduction/restock is tracked in `inventory_transactions`.
+- Order customization persistence: selected toppings are stored in `order_item_toppings`.
+
+## Data Layer
+
+- Default database: `pos_data.db` in the project root.
+- Runtime repository: `SqliteRepository` is used automatically when the SQLite JDBC driver is available.
+- Fallback repository: `InMemoryRepository` is kept for resilience and pattern-focused unit tests.
+
+### Current schema highlights
+
+- Core master data: `users`, `beverages`, `toppings`, `inventory_items`, `settings`
+- POS transaction data: `orders`, `order_items`, `payments`
+- Rich relational data: `recipe_items`, `order_item_toppings`
+- Audit/logging data: `order_status_history`, `inventory_transactions`
 
 ## Run
 

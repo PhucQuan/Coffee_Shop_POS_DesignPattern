@@ -21,6 +21,7 @@ public class PaymentService {
                     order.getTotalAmount(), result.getTransactionCode(), "SUCCESS");
             order.setPayment(payment);
             repository.savePayment(payment);
+            repository.saveOrder(order);
         }
         return result;
     }

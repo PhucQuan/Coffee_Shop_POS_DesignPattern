@@ -79,28 +79,33 @@ public class OrderService {
         order.setDiscountType(discountStrategy.getName());
         order.setDiscountAmount(discount);
         order.setTotalAmount(finalTotal);
+        repository.saveOrder(order);
     }
 
     public void sendToKitchen(Order order) {
         inventoryService.deductForOrder(order);
         order.getState().sendToKitchen(order);
+        repository.saveOrder(order);
         publisher.notifyObservers(order, order.getStatus());
     }
 
     public void startPreparing(Order order) {
         inventoryService.deductForOrder(order);
         order.getState().startPreparing(order);
+        repository.saveOrder(order);
         publisher.notifyObservers(order, order.getStatus());
     }
 
     public void markReady(Order order) {
         order.getState().markReady(order);
+        repository.saveOrder(order);
         publisher.notifyObservers(order, order.getStatus());
     }
 
     public void cancel(Order order) {
         order.getState().cancel(order);
         inventoryService.restockForOrder(order);
+        repository.saveOrder(order);
         publisher.notifyObservers(order, order.getStatus());
     }
 

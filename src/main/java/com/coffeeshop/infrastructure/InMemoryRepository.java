@@ -130,9 +130,36 @@ public class InMemoryRepository implements Repository {
     }
 
     public List<User> getUsers() { return users; }
+    public void saveUser(User user) {
+        users.removeIf(existing -> existing.getId() == user.getId());
+        users.add(user);
+        users.sort(java.util.Comparator.comparingInt(User::getId));
+    }
     public List<MenuItemRecord> getMenu() { return menu; }
+    public void saveMenuItem(MenuItemRecord item) {
+        menu.removeIf(existing -> existing.getId() == item.getId());
+        menu.add(item);
+        menu.sort(java.util.Comparator.comparingInt(MenuItemRecord::getId));
+    }
     public List<Topping> getToppings() { return toppings; }
+    public void saveTopping(Topping topping) {
+        toppings.removeIf(existing -> existing.getId() == topping.getId());
+        toppings.add(topping);
+        toppings.sort(java.util.Comparator.comparingInt(Topping::getId));
+    }
     public List<InventoryItem> getInventory() { return inventory; }
+    public void saveInventoryItem(InventoryItem item) {
+        inventory.removeIf(existing -> existing.getId() == item.getId());
+        inventory.add(item);
+        inventory.sort(java.util.Comparator.comparingInt(InventoryItem::getId));
+    }
+    public void adjustInventory(int inventoryItemId, double delta, Integer orderId, String reason) {
+        InventoryItem item = inventory.stream()
+                .filter(existing -> existing.getId() == inventoryItemId)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Inventory item not found: " + inventoryItemId));
+        item.setQuantity(item.getQuantity() + delta);
+    }
     public List<Order> getOrders() { return orders; }
     public List<Payment> getPayments() { return payments; }
     public int nextOrderId() { return orderId.getAndIncrement(); }
@@ -142,7 +169,11 @@ public class InMemoryRepository implements Repository {
     public int nextToppingId() { return toppingId.getAndIncrement(); }
     public int nextUserId() { return userId.getAndIncrement(); }
     public void saveOrder(Order order) { if (!orders.contains(order)) orders.add(order); }
-    public void savePayment(Payment payment) { payments.add(payment); }
+    public void savePayment(Payment payment) {
+        payments.removeIf(existing -> existing.getId() == payment.getId());
+        payments.add(payment);
+        payments.sort(java.util.Comparator.comparingInt(Payment::getId));
+    }
 
     // Recipe Item logic
     private final List<RecipeItem> recipeItems = new ArrayList<>();
