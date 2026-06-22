@@ -3,6 +3,7 @@ package com.coffeeshop.presentation;
 import com.coffeeshop.AppContext;
 import com.coffeeshop.domain.model.Order;
 import com.coffeeshop.domain.model.OrderItem;
+import com.coffeeshop.domain.model.Topping;
 import com.coffeeshop.domain.patterns.adapter.MomoAdapter;
 import com.coffeeshop.domain.patterns.adapter.PaymentGateway;
 import com.coffeeshop.domain.patterns.adapter.PaymentResult;
@@ -14,6 +15,8 @@ import com.coffeeshop.infrastructure.MenuItemRecord;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -35,9 +38,17 @@ public class POSView extends JFrame {
     private final JPanel menuGrid = new JPanel(new WrapLayout(FlowLayout.LEFT, 20, 20));
     private final JTextField searchField = new JTextField();
     private final ButtonGroup categoryGroup = new ButtonGroup();
-    private final JCheckBox pearl = new JCheckBox("Tran chau");
-    private final JCheckBox large = new JCheckBox("Size L");
-    private final JCheckBox shot = new JCheckBox("Extra shot");
+    private final List<Topping> activeToppings = new ArrayList<>();
+    private final DefaultTableModel toppingTableModel = new DefaultTableModel(new Object[]{"", "Topping", "Price"}, 0) {
+        public Class<?> getColumnClass(int columnIndex) {
+            return columnIndex == 0 ? Boolean.class : String.class;
+        }
+
+        public boolean isCellEditable(int row, int column) {
+            return column == 0;
+        }
+    };
+    private final JTable toppingTable = new JTable(toppingTableModel);
     private final JComboBox<String> discountBox = new JComboBox<>(new String[]{"No discount", "10%"});
     private final JLabel orderStatusLabel = new JLabel();
     private final JLabel subtotalLabel = new JLabel();
@@ -64,12 +75,12 @@ public class POSView extends JFrame {
         this.context = context;
         this.currentOrder = context.orderService.createOrder();
         setTitle("Coffee Shop POS - Cashier");
-        setSize(1460, 800);
+        setSize(1540, 800);
         setMinimumSize(new Dimension(1280, 720));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setContentPane(AppShell.wrap(this, context, "Cashier",
-                "Select drinks, customize toppings, send to kitchen, and process payment.",
+                "",
                 buildWorkspace(), this::showCashierPage, "POS", "Orders", "Receipt"));
         installShortcuts();
         refreshMenu();
@@ -91,11 +102,15 @@ public class POSView extends JFrame {
     }
 
     private JComponent buildContent() {
-        JPanel root = new JPanel(new BorderLayout(24, 24));
+        JPanel root = new JPanel(new BorderLayout(14, 24));
         root.setOpaque(false);
 
         root.add(buildSelectedPanel(), BorderLayout.WEST);
-        root.add(buildMenuPanel(), BorderLayout.CENTER);
+        JPanel orderWorkspace = new JPanel(new BorderLayout(14, 0));
+        orderWorkspace.setOpaque(false);
+        orderWorkspace.add(buildMenuPanel(), BorderLayout.CENTER);
+        orderWorkspace.add(buildToppingPanel(), BorderLayout.EAST);
+        root.add(orderWorkspace, BorderLayout.CENTER);
         root.add(buildBillPanel(), BorderLayout.EAST);
         return root;
     }
@@ -150,8 +165,8 @@ public class POSView extends JFrame {
         // Warm espresso dark — softer than pure black, matches sidebar tone
         JPanel panel = AppTheme.roundedPanel(new BorderLayout(0, 14),
                 new Color(50, 24, 6), null, 14, new Insets(22, 20, 20, 20));
-        panel.setPreferredSize(new Dimension(248, 0));
-        panel.setMinimumSize(new Dimension(228, 0));
+        panel.setPreferredSize(new Dimension(224, 0));
+        panel.setMinimumSize(new Dimension(210, 0));
 
         JPanel title = new JPanel();
         title.setOpaque(false);
@@ -188,12 +203,6 @@ public class POSView extends JFrame {
         JPanel bottom = new JPanel();
         bottom.setOpaque(false);
         bottom.setLayout(new BoxLayout(bottom, BoxLayout.Y_AXIS));
-        bottom.add(optionCheck(pearl));
-        bottom.add(Box.createVerticalStrut(7));
-        bottom.add(optionCheck(large));
-        bottom.add(Box.createVerticalStrut(7));
-        bottom.add(optionCheck(shot));
-        bottom.add(Box.createVerticalStrut(16));
         JButton add = AppTheme.button("Add to cart  (F1)", AppTheme.PRIMARY);
         add.setAlignmentX(Component.LEFT_ALIGNMENT);
         add.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
@@ -205,20 +214,12 @@ public class POSView extends JFrame {
         return panel;
     }
 
-    private JCheckBox optionCheck(JCheckBox checkBox) {
-        checkBox.setOpaque(false);
-        checkBox.setForeground(new Color(192, 174, 150));
-        checkBox.setFont(checkBox.getFont().deriveFont(Font.PLAIN, 12f));
-        checkBox.setFocusPainted(false);
-        return checkBox;
-    }
-
     private JPanel buildMenuPanel() {
         JPanel panel = card(new BorderLayout(24, 24));
-        panel.setMinimumSize(new Dimension(520, 0));
+        panel.setMinimumSize(new Dimension(420, 0));
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
-        top.add(sectionHeader("Menu", "Search and select a beverage"), BorderLayout.WEST);
+        top.add(singleLineHeader("Menu"), BorderLayout.WEST);
         orderStatusLabel.setFont(orderStatusLabel.getFont().deriveFont(Font.BOLD, 14f));
         orderStatusLabel.setForeground(AppTheme.SUCCESS);
         top.add(orderStatusLabel, BorderLayout.EAST);
@@ -237,9 +238,9 @@ public class POSView extends JFrame {
         filters.add(searchField, BorderLayout.CENTER);
         filters.add(right, BorderLayout.EAST);
 
-        JPanel categories = new JPanel(new GridLayout(1, 5, 8, 0));
+        JPanel categories = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         categories.setOpaque(false);
-        categories.setPreferredSize(new Dimension(0, 58));
+        categories.setPreferredSize(new Dimension(0, 46));
         addCategoryButton(categories, "ALL", "All", "16 items");
         addCategoryButton(categories, "COFFEE", "Coffee", "10 items");
         addCategoryButton(categories, "TEA", "Tea", "4 items");
@@ -257,7 +258,7 @@ public class POSView extends JFrame {
         JPanel center = new JPanel(new BorderLayout(10, 10));
         center.setOpaque(false);
         center.add(filters, BorderLayout.NORTH);
-        JPanel menuBody = new JPanel(new BorderLayout(0, 20));
+        JPanel menuBody = new JPanel(new BorderLayout(0, 14));
         menuBody.setOpaque(false);
         menuBody.add(categories, BorderLayout.NORTH);
         menuBody.add(menuScroll, BorderLayout.CENTER);
@@ -269,23 +270,62 @@ public class POSView extends JFrame {
         return panel;
     }
 
+    private JPanel buildToppingPanel() {
+        JPanel panel = card(new BorderLayout(0, 14));
+        panel.setPreferredSize(new Dimension(238, 0));
+        panel.setMinimumSize(new Dimension(218, 0));
+        panel.add(singleLineHeader("Toppings"), BorderLayout.NORTH);
+
+        toppingTable.setRowHeight(38);
+        toppingTable.setShowGrid(false);
+        toppingTable.setIntercellSpacing(new Dimension(0, 0));
+        toppingTable.setSelectionBackground(new Color(255, 241, 225));
+        toppingTable.setSelectionForeground(AppTheme.TEXT);
+        toppingTable.setForeground(AppTheme.TEXT);
+        toppingTable.setBackground(AppTheme.SURFACE);
+        toppingTable.getTableHeader().setReorderingAllowed(false);
+        toppingTable.getTableHeader().setFont(toppingTable.getTableHeader().getFont().deriveFont(Font.BOLD, 12f));
+        toppingTable.getTableHeader().setForeground(AppTheme.MUTED);
+        toppingTable.getTableHeader().setBackground(AppTheme.PANEL);
+        TableColumnModel columns = toppingTable.getColumnModel();
+        columns.getColumn(0).setPreferredWidth(36);
+        columns.getColumn(0).setMaxWidth(42);
+        columns.getColumn(1).setPreferredWidth(132);
+        columns.getColumn(2).setPreferredWidth(82);
+
+        JScrollPane scroll = new JScrollPane(toppingTable);
+        scroll.setBorder(BorderFactory.createLineBorder(AppTheme.BORDER));
+        scroll.getViewport().setBackground(AppTheme.SURFACE);
+        panel.add(scroll, BorderLayout.CENTER);
+
+        JPanel actions = new JPanel(new GridLayout(1, 2, 8, 0));
+        actions.setOpaque(false);
+        JButton clear = secondaryButton("Clear");
+        JButton refresh = secondaryButton("Refresh");
+        clear.addActionListener(e -> clearSelectedToppings());
+        refresh.addActionListener(e -> refreshToppings());
+        actions.add(clear);
+        actions.add(refresh);
+        panel.add(actions, BorderLayout.SOUTH);
+
+        refreshToppings();
+        return panel;
+    }
+
     private JPanel buildBillPanel() {
         JPanel panel = card(new BorderLayout(0, 16));
-        panel.setPreferredSize(new Dimension(450, 0));
-        panel.setMinimumSize(new Dimension(420, 0));
+        panel.setPreferredSize(new Dimension(500, 0));
+        panel.setMinimumSize(new Dimension(440, 0));
 
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
         JLabel cartTitle = new JLabel("Cart");
         cartTitle.setForeground(AppTheme.TEXT);
         cartTitle.setFont(cartTitle.getFont().deriveFont(Font.BOLD, 22f));
-        JLabel cartSubtitle = AppTheme.muted("Review selected drinks and checkout");
         JPanel titleStack = new JPanel();
         titleStack.setOpaque(false);
         titleStack.setLayout(new BoxLayout(titleStack, BoxLayout.Y_AXIS));
         titleStack.add(cartTitle);
-        titleStack.add(Box.createVerticalStrut(4));
-        titleStack.add(cartSubtitle);
         top.add(titleStack, BorderLayout.WEST);
         panel.add(top, BorderLayout.NORTH);
 
@@ -307,8 +347,8 @@ public class POSView extends JFrame {
         itemActions.setOpaque(false);
         itemActions.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
         itemActions.setAlignmentX(Component.LEFT_ALIGNMENT);
-        decreaseQtyButton = secondaryButton("- Qty");
-        increaseQtyButton = secondaryButton("+ Qty");
+        decreaseQtyButton = secondaryButton("- 1");
+        increaseQtyButton = secondaryButton("+ 1");
         removeItemButton = secondaryButton("Remove");
         itemActions.add(decreaseQtyButton);
         itemActions.add(increaseQtyButton);
@@ -428,8 +468,8 @@ public class POSView extends JFrame {
     }
 
     private void addCategoryButton(JPanel parent, String key, String title, String subtitle) {
-        JToggleButton button = AppTheme.toggleButton("<html><b>" + title + "</b><br><span style='font-size:9px'>" + subtitle + "</span></html>");
-        button.setPreferredSize(new Dimension(0, 52));
+        JToggleButton button = AppTheme.toggleButton("<html><b>" + title + "</b><br><span style='font-size:8px'>" + subtitle + "</span></html>");
+        button.setPreferredSize(new Dimension(Math.max(70, title.length() * 11 + 28), 40));
         button.addActionListener(e -> {
             selectedCategory = key;
             refreshMenu();
@@ -448,6 +488,15 @@ public class POSView extends JFrame {
         s.setForeground(new Color(100, 112, 125));
         panel.add(t);
         panel.add(s);
+        return panel;
+    }
+
+    private JPanel singleLineHeader(String title) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(false);
+        JLabel t = new JLabel(title);
+        t.setFont(t.getFont().deriveFont(Font.BOLD, 18f));
+        panel.add(t, BorderLayout.CENTER);
         return panel;
     }
 
@@ -515,9 +564,7 @@ public class POSView extends JFrame {
         currentOrder = context.orderService.createOrder();
         context.orderService.setDiscountStrategy(currentOrder, new NoDiscountStrategy());
         context.orderService.recalculate(currentOrder);
-        pearl.setSelected(false);
-        large.setSelected(false);
-        shot.setSelected(false);
+        clearSelectedToppings();
         discountBox.setSelectedItem("No discount");
         paymentStatusLabel.setText("Payment: idle");
         selectedMenuItem = null;
@@ -547,14 +594,39 @@ public class POSView extends JFrame {
         }
         try {
             Beverage beverage = context.menuService.createBeverage(item);
-            if (pearl.isSelected()) beverage = context.menuService.applyTopping(beverage, "Tran chau");
-            if (large.isSelected()) beverage = context.menuService.applyTopping(beverage, "Size L");
-            if (shot.isSelected()) beverage = context.menuService.applyTopping(beverage, "Extra shot");
+            for (Topping topping : selectedToppings()) {
+                beverage = context.menuService.applyTopping(beverage, topping.getName());
+            }
             context.orderService.addItem(currentOrder, item.getId(), beverage, 1, "");
             refreshBill();
             refreshMenu();
         } catch (RuntimeException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+    }
+
+    private void refreshToppings() {
+        activeToppings.clear();
+        activeToppings.addAll(context.menuService.getActiveToppings());
+        toppingTableModel.setRowCount(0);
+        for (Topping topping : activeToppings) {
+            toppingTableModel.addRow(new Object[]{false, topping.getName(), AppTheme.money(topping.getExtraPrice())});
+        }
+    }
+
+    private List<Topping> selectedToppings() {
+        List<Topping> selected = new ArrayList<>();
+        for (int row = 0; row < toppingTableModel.getRowCount() && row < activeToppings.size(); row++) {
+            if (Boolean.TRUE.equals(toppingTableModel.getValueAt(row, 0))) {
+                selected.add(activeToppings.get(row));
+            }
+        }
+        return selected;
+    }
+
+    private void clearSelectedToppings() {
+        for (int row = 0; row < toppingTableModel.getRowCount(); row++) {
+            toppingTableModel.setValueAt(false, row, 0);
         }
     }
 
@@ -710,7 +782,7 @@ public class POSView extends JFrame {
                 selected ? new Color(255, 245, 235) : AppTheme.PANEL,
                 selected ? AppTheme.ACCENT : null,
                 16, new Insets(16, 16, 16, 16));
-        card.setPreferredSize(new Dimension(180, 208));
+        card.setPreferredSize(new Dimension(168, 196));
         card.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         JLabel icon = new JLabel(DrinkIconFactory.create(item.getCategory(), item.getName(), 62));
@@ -761,9 +833,16 @@ public class POSView extends JFrame {
     private static class BillRenderer extends DefaultListCellRenderer {
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected, boolean focus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, selected, focus);
-            label.setBorder(new EmptyBorder(8, 10, 8, 10));
-            label.setBackground(index % 2 == 0 ? AppTheme.SURFACE : Color.WHITE);
+            label.setOpaque(true);
+            label.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, selected ? 4 : 0, 0, 0, selected ? AppTheme.PRIMARY : AppTheme.BORDER),
+                    new EmptyBorder(8, selected ? 8 : 10, 8, 10)
+            ));
+            label.setBackground(selected ? new Color(255, 237, 213) : (index % 2 == 0 ? AppTheme.SURFACE : Color.WHITE));
             label.setForeground(AppTheme.TEXT);
+            if (selected) {
+                label.setFont(label.getFont().deriveFont(Font.BOLD));
+            }
             return label;
         }
     }

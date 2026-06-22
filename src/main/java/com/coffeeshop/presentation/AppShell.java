@@ -58,16 +58,17 @@ public final class AppShell {
         text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
 
         JLabel title = new JLabel(role + " Workspace");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(AppTheme.TEXT);
 
-        JLabel sub = new JLabel(subtitle);
-        sub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        sub.setForeground(AppTheme.MUTED);
-
         text.add(title);
-        text.add(Box.createVerticalStrut(3));
-        text.add(sub);
+        if (subtitle != null && !subtitle.isBlank()) {
+            JLabel sub = new JLabel(subtitle);
+            sub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            sub.setForeground(AppTheme.MUTED);
+            text.add(Box.createVerticalStrut(3));
+            text.add(sub);
+        }
 
         // Date — right side, no logout button in header (moved to sidebar bottom)
         JLabel date = new JLabel(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));

@@ -71,14 +71,14 @@ public class InMemoryRepository implements Repository {
         menu.add(new MenuItemRecord(23, "Matcha cream cheese", 55000, "MATCHA", true));
         menu.add(new MenuItemRecord(24, "Sinh to bo", 52000, "SMOOTHIE", true));
 
-        toppings.add(new Topping(1, "Tran chau", 10000, true));
+        toppings.add(new Topping(1, "Trân châu trắng", 10000, true));
         toppings.add(new Topping(2, "Pudding", 9000, true));
         toppings.add(new Topping(3, "Kem cheese", 12000, true));
         toppings.add(new Topping(4, "Extra shot", 8000, true));
-        toppings.add(new Topping(5, "Size L", 7000, true));
+        toppings.add(new Topping(5, "Kem muối", 7000, true));
         toppings.add(new Topping(6, "Thach cafe", 9000, true));
         toppings.add(new Topping(7, "Kem vani", 11000, true));
-        toppings.add(new Topping(8, "Duong den", 6000, true));
+        toppings.add(new Topping(8, "Trân châu đường đen", 6000, true));
 
         inventory.add(new InventoryItem(1, "Coffee beans", "g", 5000, 500));
         inventory.add(new InventoryItem(2, "Fresh milk", "ml", 10000, 1000));
@@ -92,6 +92,10 @@ public class InMemoryRepository implements Repository {
         inventory.add(new InventoryItem(10, "Avocado", "g", 4500, 450));
         inventory.add(new InventoryItem(11, "Brown sugar syrup", "ml", 3000, 300));
         inventory.add(new InventoryItem(12, "Vanilla syrup", "ml", 2500, 250));
+        inventory.add(new InventoryItem(13, "Pudding", "g", 3000, 300));
+        inventory.add(new InventoryItem(14, "Coffee jelly", "g", 3000, 300));
+        inventory.add(new InventoryItem(15, "Vanilla cream", "g", 2500, 250));
+        inventory.add(new InventoryItem(16, "Salted cream", "g", 2500, 250));
 
         // Recipe items mapping:
         // 1: Coffee beans
@@ -106,6 +110,10 @@ public class InMemoryRepository implements Repository {
         // 10: Avocado
         // 11: Brown sugar syrup
         // 12: Vanilla syrup
+        // 13: Pudding
+        // 14: Coffee jelly
+        // 15: Vanilla cream
+        // 16: Salted cream
         recipeItems.add(new RecipeItem(1, 1, 18));
         recipeItems.add(new RecipeItem(2, 1, 15)); recipeItems.add(new RecipeItem(2, 2, 80));
         recipeItems.add(new RecipeItem(3, 3, 8)); recipeItems.add(new RecipeItem(3, 4, 40));

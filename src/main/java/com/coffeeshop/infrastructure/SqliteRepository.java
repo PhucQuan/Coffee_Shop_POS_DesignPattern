@@ -249,14 +249,14 @@ public class SqliteRepository implements Repository, AutoCloseable {
             executeSeed("INSERT INTO beverages VALUES (23, 'Matcha cream cheese', 55000, 'MATCHA', 1)");
             executeSeed("INSERT INTO beverages VALUES (24, 'Sinh to bo', 52000, 'SMOOTHIE', 1)");
 
-            executeSeed("INSERT INTO toppings VALUES (1, 'Tran chau', 10000, 1)");
+            executeSeed("INSERT INTO toppings VALUES (1, 'Trân châu trắng', 10000, 1)");
             executeSeed("INSERT INTO toppings VALUES (2, 'Pudding', 9000, 1)");
             executeSeed("INSERT INTO toppings VALUES (3, 'Kem cheese', 12000, 1)");
             executeSeed("INSERT INTO toppings VALUES (4, 'Extra shot', 8000, 1)");
-            executeSeed("INSERT INTO toppings VALUES (5, 'Size L', 7000, 1)");
+            executeSeed("INSERT INTO toppings VALUES (5, 'Kem muối', 7000, 1)");
             executeSeed("INSERT INTO toppings VALUES (6, 'Thach cafe', 9000, 1)");
             executeSeed("INSERT INTO toppings VALUES (7, 'Kem vani', 11000, 1)");
-            executeSeed("INSERT INTO toppings VALUES (8, 'Duong den', 6000, 1)");
+            executeSeed("INSERT INTO toppings VALUES (8, 'Trân châu đường đen', 6000, 1)");
 
             executeSeed("INSERT INTO inventory_items VALUES (1, 'Coffee beans', 'g', 5000, 500)");
             executeSeed("INSERT INTO inventory_items VALUES (2, 'Fresh milk', 'ml', 10000, 1000)");
@@ -270,6 +270,10 @@ public class SqliteRepository implements Repository, AutoCloseable {
             executeSeed("INSERT INTO inventory_items VALUES (10, 'Avocado', 'g', 4500, 450)");
             executeSeed("INSERT INTO inventory_items VALUES (11, 'Brown sugar syrup', 'ml', 3000, 300)");
             executeSeed("INSERT INTO inventory_items VALUES (12, 'Vanilla syrup', 'ml', 2500, 250)");
+            executeSeed("INSERT INTO inventory_items VALUES (13, 'Pudding', 'g', 3000, 300)");
+            executeSeed("INSERT INTO inventory_items VALUES (14, 'Coffee jelly', 'g', 3000, 300)");
+            executeSeed("INSERT INTO inventory_items VALUES (15, 'Vanilla cream', 'g', 2500, 250)");
+            executeSeed("INSERT INTO inventory_items VALUES (16, 'Salted cream', 'g', 2500, 250)");
 
             executeSeed("INSERT INTO recipe_items VALUES (1, 1, 18)");
             executeSeed("INSERT INTO recipe_items VALUES (2, 1, 15)");

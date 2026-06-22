@@ -13,6 +13,7 @@ import com.coffeeshop.infrastructure.OrderStatusHistoryRecord;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.nio.file.Path;
 import java.time.format.DateTimeFormatter;
@@ -20,9 +21,18 @@ import java.util.Map;
 
 public class AdminView extends JFrame {
     private final AppContext context;
+    private final CardLayout adminLayout = new CardLayout();
+    private final JPanel adminPages = new JPanel(adminLayout);
     private final JTextArea reportArea = new JTextArea();
-    private final BarChartPanel topItemsChart = new BarChartPanel();
+    private final BarChartPanel menuOverviewChart = new BarChartPanel();
+    private final BarChartPanel toppingOverviewChart = new BarChartPanel();
     private final JLabel revenueCard = new JLabel("Revenue: 0d");
+    private final DefaultTableModel menuReportModel = new DefaultTableModel(new Object[]{"Menu", "Qty"}, 0) {
+        public boolean isCellEditable(int row, int column) { return false; }
+    };
+    private final DefaultTableModel toppingReportModel = new DefaultTableModel(new Object[]{"Topping", "Qty"}, 0) {
+        public boolean isCellEditable(int row, int column) { return false; }
+    };
     private final DefaultListModel<MenuItemRecord> menuModel = new DefaultListModel<>();
     private final DefaultListModel<Topping> toppingModel = new DefaultListModel<>();
     private final DefaultListModel<InventoryItem> inventoryModel = new DefaultListModel<>();
@@ -62,38 +72,31 @@ public class AdminView extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        JTabbedPane tabs = new JTabbedPane();
-        tabs.setFont(tabs.getFont().deriveFont(Font.BOLD, 13f));
-        tabs.addTab("Overview", overviewPanel());
-        tabs.addTab("Orders", ordersPanel());
-        tabs.addTab("History", historyPanel());
-        tabs.addTab("Menu", menuPanel());
-        tabs.addTab("Topping", toppingPanel());
-        tabs.addTab("Inventory", inventoryPanel());
-        tabs.addTab("Users", usersPanel());
-        tabs.addTab("Operations", operationsPanel());
-        tabs.addTab("Revenue report", reportPanel());
+        adminPages.setOpaque(false);
+        adminPages.add(overviewPanel(), "Overview");
+        adminPages.add(ordersPanel(), "Orders");
+        adminPages.add(historyPanel(), "History");
+        adminPages.add(menuPanel(), "Menu");
+        adminPages.add(toppingPanel(), "Topping");
+        adminPages.add(inventoryPanel(), "Inventory");
+        adminPages.add(usersPanel(), "Users");
+        adminPages.add(operationsPanel(), "Operations");
+        adminPages.add(reportPanel(), "Reports");
         setContentPane(AppShell.wrap(this, context, "Admin",
                 "Manage menu, orders, inventory, users, and reports.",
-                tabs, nav -> selectAdminTab(tabs, nav), "Overview", "Orders", "History", "Menu", "Topping", "Inventory", "Users", "Operations", "Reports"));
+                adminPages, this::selectAdminPage, "Overview", "Orders", "History", "Menu", "Topping", "Inventory", "Users", "Operations", "Reports"));
     }
 
-    private void selectAdminTab(JTabbedPane tabs, String nav) {
-        String target = "Reports".equals(nav) ? "Revenue report" : nav;
-        for (int i = 0; i < tabs.getTabCount(); i++) {
-            if (tabs.getTitleAt(i).equals(target)) {
-                tabs.setSelectedIndex(i);
-                if ("Overview".equals(target)) {
-                    topItemsChart.setData(context.reportService.getTopSellingItems());
-                }
-                if ("Orders".equals(target) || "History".equals(target)) refreshOrderModels();
-                if ("Inventory".equals(target)) refreshInventoryModel();
-                if ("Users".equals(target)) refreshUserModel();
-                if ("Operations".equals(target)) refreshOperationsPanel();
-                if ("Revenue report".equals(target)) refreshReport();
-                return;
-            }
+    private void selectAdminPage(String nav) {
+        adminLayout.show(adminPages, nav);
+        if ("Overview".equals(nav)) {
+            refreshOverviewCharts();
         }
+        if ("Orders".equals(nav) || "History".equals(nav)) refreshOrderModels();
+        if ("Inventory".equals(nav)) refreshInventoryModel();
+        if ("Users".equals(nav)) refreshUserModel();
+        if ("Operations".equals(nav)) refreshOperationsPanel();
+        if ("Reports".equals(nav)) refreshReport();
     }
 
     private JPanel overviewPanel() {
@@ -102,7 +105,7 @@ public class AdminView extends JFrame {
         panel.setBorder(new EmptyBorder(24, 24, 24, 24));
         JButton refresh = AppTheme.ghostButton("Refresh overview");
         refresh.addActionListener(e -> {
-            topItemsChart.setData(context.reportService.getTopSellingItems());
+            refreshOverviewCharts();
             panel.repaint();
         });
 
@@ -113,13 +116,21 @@ public class AdminView extends JFrame {
         cards.add(metricCard("Paid", String.valueOf(countOrders("PAID"))));
         cards.add(metricCard("Revenue", String.format("%,.0f d", context.reportService.getRevenue())));
 
-        topItemsChart.setData(context.reportService.getTopSellingItems());
-        topItemsChart.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        menuOverviewChart.setBorder(BorderFactory.createTitledBorder("Menu"));
+        toppingOverviewChart.setBorder(BorderFactory.createTitledBorder("Topping"));
+        refreshOverviewCharts();
+        JPanel charts = AppTheme.roundedPanel(new GridLayout(1, 2, 16, 0), AppTheme.PANEL, null, 16, new Insets(16, 16, 16, 16));
+        charts.add(menuOverviewChart);
+        charts.add(toppingOverviewChart);
         panel.add(cards, BorderLayout.NORTH);
-        panel.add(AppTheme.roundedPanel(new BorderLayout(), AppTheme.PANEL, null, 16, new Insets(16, 16, 16, 16)), BorderLayout.CENTER);
-        ((JPanel) panel.getComponent(1)).add(topItemsChart, BorderLayout.CENTER);
+        panel.add(charts, BorderLayout.CENTER);
         panel.add(refresh, BorderLayout.SOUTH);
         return panel;
+    }
+
+    private void refreshOverviewCharts() {
+        menuOverviewChart.setData(context.reportService.getMenuSales());
+        toppingOverviewChart.setData(context.reportService.getToppingSales());
     }
 
     private JPanel metricCard(String title, String value) {
@@ -272,13 +283,39 @@ public class AdminView extends JFrame {
         revenueCard.setForeground(AppTheme.PRIMARY);
         top.add(revenueCard, BorderLayout.WEST);
         top.add(refresh, BorderLayout.EAST);
-        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topItemsChart, new JScrollPane(reportArea));
-        split.setDividerLocation(260);
+        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, reportStatsPanel(), new JScrollPane(reportArea));
+        split.setDividerLocation(280);
         split.setBorder(null);
         panel.add(top, BorderLayout.NORTH);
         panel.add(split, BorderLayout.CENTER);
         refreshReport();
         return panel;
+    }
+
+    private JPanel reportStatsPanel() {
+        JPanel panel = new JPanel(new GridLayout(1, 2, 16, 0));
+        panel.setOpaque(false);
+        panel.add(reportTableCard("Menu sales", menuReportModel));
+        panel.add(reportTableCard("Topping sales", toppingReportModel));
+        return panel;
+    }
+
+    private JPanel reportTableCard(String title, DefaultTableModel model) {
+        JTable table = new JTable(model);
+        table.setRowHeight(30);
+        table.setShowGrid(false);
+        table.setFillsViewportHeight(true);
+        table.setForeground(AppTheme.TEXT);
+        table.setBackground(AppTheme.SURFACE);
+        table.getTableHeader().setReorderingAllowed(false);
+        table.getTableHeader().setFont(table.getTableHeader().getFont().deriveFont(Font.BOLD, 12f));
+        table.getTableHeader().setForeground(AppTheme.MUTED);
+        table.getTableHeader().setBackground(AppTheme.PANEL);
+        table.getColumnModel().getColumn(1).setMaxWidth(80);
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBorder(BorderFactory.createLineBorder(AppTheme.BORDER));
+        scroll.getViewport().setBackground(AppTheme.SURFACE);
+        return wrapWithTitle(title, scroll);
     }
 
     private JPanel operationsPanel() {
@@ -388,13 +425,21 @@ public class AdminView extends JFrame {
     private void refreshReport() {
         StringBuilder builder = new StringBuilder();
         revenueCard.setText("Revenue: " + String.format("%,.0f", context.reportService.getRevenue()) + "d");
-        topItemsChart.setData(context.reportService.getTopSellingItems());
+        refreshReportTable(menuReportModel, context.reportService.getMenuSales());
+        refreshReportTable(toppingReportModel, context.reportService.getToppingSales());
         builder.append("Revenue: ").append(String.format("%,.0f", context.reportService.getRevenue())).append("d\n\n");
         builder.append("Top selling items:\n");
         for (Map.Entry<String, Long> entry : context.reportService.getTopSellingItems().entrySet()) {
             builder.append("- ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
         }
         reportArea.setText(builder.toString());
+    }
+
+    private void refreshReportTable(DefaultTableModel model, Map<String, Long> data) {
+        model.setRowCount(0);
+        for (Map.Entry<String, Long> entry : data.entrySet()) {
+            model.addRow(new Object[]{entry.getKey(), entry.getValue()});
+        }
     }
 
     private void refreshOperationsPanel() {

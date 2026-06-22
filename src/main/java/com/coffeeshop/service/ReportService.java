@@ -31,4 +31,33 @@ public class ReportService {
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
     }
+
+    public Map<String, Long> getMenuSales() {
+        return repository.getOrders().stream()
+                .flatMap(order -> order.getItems().stream())
+                .collect(Collectors.groupingBy(item -> baseMenuName(item.getBeverage().getDescription()), Collectors.summingLong(OrderItem::getQuantity)))
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+    }
+
+    public Map<String, Long> getToppingSales() {
+        Map<String, Long> totals = new LinkedHashMap<>();
+        repository.getOrders().stream()
+                .flatMap(order -> order.getItems().stream())
+                .forEach(item -> {
+                    String[] parts = item.getBeverage().getDescription().split("\\s+\\+\\s+");
+                    for (int i = 1; i < parts.length; i++) {
+                        totals.merge(parts[i].trim(), (long) item.getQuantity(), Long::sum);
+                    }
+                });
+        return totals.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+    }
+
+    private String baseMenuName(String description) {
+        String[] parts = description.split("\\s+\\+\\s+", 2);
+        return parts[0].trim();
+    }
 }

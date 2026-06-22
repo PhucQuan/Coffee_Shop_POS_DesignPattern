@@ -76,9 +76,16 @@ public class InventoryService {
         }
 
         String description = item.getBeverage().getDescription();
-        if (description.contains("Tran chau")) add(requirements, "Pearl", 30 * quantity);
+        if (hasAny(description, "Tran chau", "Trân châu trắng")) add(requirements, "Pearl", 30 * quantity);
+        if (description.contains("Pudding")) add(requirements, "Pudding", 35 * quantity);
+        if (description.contains("Kem cheese")) add(requirements, "Cream cheese", 25 * quantity);
         if (description.contains("Extra shot")) add(requirements, "Coffee beans", 8 * quantity);
         if (description.contains("Size L")) add(requirements, "Cup L", quantity);
+        if (description.contains("Kem muối")) add(requirements, "Salted cream", 25 * quantity);
+        if (description.contains("Thach cafe")) add(requirements, "Coffee jelly", 35 * quantity);
+        if (description.contains("Kem vani")) add(requirements, "Vanilla cream", 25 * quantity);
+        if (hasAny(description, "Duong den", "Trân châu đường đen")) add(requirements, "Brown sugar syrup", 20 * quantity);
+        if (description.contains("Trân châu đường đen")) add(requirements, "Pearl", 30 * quantity);
     }
 
     private void validateAvailable(Map<String, Double> requirements) {
@@ -108,5 +115,12 @@ public class InventoryService {
 
     private void add(Map<String, Double> requirements, String name, double quantity) {
         requirements.merge(name, quantity, Double::sum);
+    }
+
+    private boolean hasAny(String value, String... tokens) {
+        for (String token : tokens) {
+            if (value.contains(token)) return true;
+        }
+        return false;
     }
 }
