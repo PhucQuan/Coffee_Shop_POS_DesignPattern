@@ -179,7 +179,7 @@ public class TestRunner {
         assertThrows(IllegalArgumentException.class, () -> menuService.addBeverage("", 10000, "COFFEE"), "TC09 empty beverage name");
         assertThrows(IllegalArgumentException.class, () -> menuService.addBeverage("Test", -1, "COFFEE"), "TC09 negative beverage price");
         assertThrows(IllegalArgumentException.class, () -> menuService.addBeverage("Test", 10000, "INVALID"), "TC09 invalid category");
-        assertThrows(IllegalArgumentException.class, () -> menuService.addTopping("Tran chau", 10000), "TC09 duplicate topping");
+        assertThrows(IllegalArgumentException.class, () -> menuService.addTopping("Trân châu trắng", 10000), "TC09 duplicate topping");
         passed++;
     }
 
