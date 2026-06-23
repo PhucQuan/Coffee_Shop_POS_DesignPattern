@@ -35,14 +35,23 @@ public final class AppShell {
                               JComponent content, Consumer<String> navHandler, String... navItems) {
         JPanel root = new JPanel(new BorderLayout());
         root.setBackground(AppTheme.BG);
-        root.add(sidebar(owner, context, role, navHandler, navItems), BorderLayout.WEST);
+        JPanel sidebar = sidebar(owner, context, role, navHandler, navItems);
 
         JPanel main = new JPanel(new BorderLayout(0, 14));
         main.setBackground(AppTheme.BG);
         main.setBorder(new EmptyBorder(20, 20, 20, 20));
         main.add(header(role, subtitle), BorderLayout.NORTH);
         main.add(content, BorderLayout.CENTER);
-        root.add(main, BorderLayout.CENTER);
+
+        JSplitPane shellSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidebar, main);
+        shellSplit.setBorder(null);
+        shellSplit.setDividerSize(10);
+        shellSplit.setContinuousLayout(true);
+        shellSplit.setOneTouchExpandable(true);
+        shellSplit.setResizeWeight(0);
+        shellSplit.setDividerLocation(188);
+        shellSplit.setBackground(AppTheme.BG);
+        root.add(shellSplit, BorderLayout.CENTER);
         return root;
     }
 
