@@ -76,8 +76,60 @@ public final class DrinkIconFactory {
         String path = "/assets/drinks/" + slug(name) + ".png";
         URL url = DrinkIconFactory.class.getResource(path);
         if (url == null) return null;
-        Image image = new ImageIcon(url).getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
-        return new ImageIcon(image);
+        ImageIcon sourceIcon = new ImageIcon(url);
+        if (sourceIcon.getIconWidth() <= 0 || sourceIcon.getIconHeight() <= 0) return null;
+
+        BufferedImage source = new BufferedImage(
+                sourceIcon.getIconWidth(),
+                sourceIcon.getIconHeight(),
+                BufferedImage.TYPE_INT_ARGB
+        );
+        Graphics2D sourceGraphics = source.createGraphics();
+        sourceGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        sourceGraphics.drawImage(sourceIcon.getImage(), 0, 0, null);
+        sourceGraphics.dispose();
+
+        Rectangle bounds = opaqueBounds(source);
+        BufferedImage cropped = source.getSubimage(bounds.x, bounds.y, bounds.width, bounds.height);
+        int inset = Math.max(4, size / 14);
+        int target = Math.max(1, size - inset * 2);
+        double scale = Math.min((double) target / cropped.getWidth(), (double) target / cropped.getHeight());
+        int drawW = Math.max(1, (int) Math.round(cropped.getWidth() * scale));
+        int drawH = Math.max(1, (int) Math.round(cropped.getHeight() * scale));
+        int drawX = (size - drawW) / 2;
+        int drawY = (size - drawH) / 2;
+
+        BufferedImage canvas = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = canvas.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(cropped, drawX, drawY, drawW, drawH, null);
+        g.dispose();
+        return new ImageIcon(canvas);
+    }
+
+    private static Rectangle opaqueBounds(BufferedImage image) {
+        int minX = image.getWidth();
+        int minY = image.getHeight();
+        int maxX = -1;
+        int maxY = -1;
+
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                int alpha = (image.getRGB(x, y) >>> 24) & 0xff;
+                if (alpha > 8) {
+                    minX = Math.min(minX, x);
+                    minY = Math.min(minY, y);
+                    maxX = Math.max(maxX, x);
+                    maxY = Math.max(maxY, y);
+                }
+            }
+        }
+
+        if (maxX < minX || maxY < minY) {
+            return new Rectangle(0, 0, image.getWidth(), image.getHeight());
+        }
+        return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
 
     private static String slug(String text) {

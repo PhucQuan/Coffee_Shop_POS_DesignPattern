@@ -9,6 +9,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -45,11 +47,11 @@ public final class AppShell {
 
         JSplitPane shellSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidebar, main);
         shellSplit.setBorder(null);
-        shellSplit.setDividerSize(10);
+        shellSplit.setDividerSize(6);
         shellSplit.setContinuousLayout(true);
-        shellSplit.setOneTouchExpandable(true);
+        shellSplit.setOneTouchExpandable(false);
         shellSplit.setResizeWeight(0);
-        shellSplit.setDividerLocation(188);
+        shellSplit.setDividerLocation(196);
         shellSplit.setBackground(AppTheme.BG);
         root.add(shellSplit, BorderLayout.CENTER);
         return root;
@@ -94,7 +96,7 @@ public final class AppShell {
     private static JPanel sidebar(JFrame owner, AppContext context, String role,
                                   Consumer<String> navHandler, String[] navItems) {
         WarmSidebar sidebar = new WarmSidebar();
-        sidebar.setPreferredSize(new Dimension(188, 0));
+        sidebar.setPreferredSize(new Dimension(196, 0));
         sidebar.setLayout(new BorderLayout());
 
         // ── Brand block ───────────────────────────────────────────────────────
@@ -106,13 +108,13 @@ public final class AppShell {
         // App name
         JLabel appName = new JLabel("PurrCoffee");
         appName.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        appName.setForeground(new Color(248, 238, 220));
+        appName.setForeground(AppTheme.SIDEBAR_TEXT);
         appName.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // Role pill — small coloured label
         JLabel roleLbl = new JLabel(role.toUpperCase());
         roleLbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
-        roleLbl.setForeground(AppTheme.PRIMARY);
+        roleLbl.setForeground(AppTheme.SIDEBAR_MUTED);
         roleLbl.setAlignmentX(Component.LEFT_ALIGNMENT);
         roleLbl.setBorder(new EmptyBorder(5, 0, 0, 0));
 
@@ -125,8 +127,18 @@ public final class AppShell {
         nav.setOpaque(false);
         nav.setLayout(new BoxLayout(nav, BoxLayout.Y_AXIS));
         nav.setBorder(new EmptyBorder(0, 10, 8, 10));
+        List<SideNavButton> navButtons = new ArrayList<>();
         for (int i = 0; i < navItems.length; i++) {
-            nav.add(navBtn(navItems[i], i == 0, navHandler));
+            SideNavButton button = new SideNavButton(navItems[i], i == 0);
+            button.setEnabled(navHandler != null);
+            if (navHandler != null) {
+                button.addActionListener(e -> {
+                    setActive(navButtons, button);
+                    navHandler.accept(button.getText());
+                });
+            }
+            navButtons.add(button);
+            nav.add(button);
             nav.add(Box.createVerticalStrut(3));
         }
         sidebar.add(nav, BorderLayout.CENTER);
@@ -140,7 +152,7 @@ public final class AppShell {
         // Thin warm divider
         JPanel divider = new JPanel();
         divider.setOpaque(true);
-        divider.setBackground(new Color(90, 54, 24));
+        divider.setBackground(new Color(255, 255, 255, 40));
         divider.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
         divider.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -169,6 +181,12 @@ public final class AppShell {
         return btn;
     }
 
+    private static void setActive(List<SideNavButton> buttons, SideNavButton activeButton) {
+        for (SideNavButton button : buttons) {
+            button.setActive(button == activeButton);
+        }
+    }
+
     // ── Custom painted sidebar ────────────────────────────────────────────────
 
     /** Warm coffee-brown sidebar with very subtle gradient */
@@ -178,12 +196,12 @@ public final class AppShell {
             Graphics2D g = (Graphics2D) g0.create();
             // Vertical gradient: slightly lighter at top (warmth)
             GradientPaint gp = new GradientPaint(
-                    0, 0, new Color(72, 38, 12),
+                    0, 0, AppTheme.SIDEBAR_HOVER_BG,
                     0, getHeight(), AppTheme.SIDEBAR_BG);
             g.setPaint(gp);
             g.fillRect(0, 0, getWidth(), getHeight());
             // 1 px right-edge separator (no wide decorative border)
-            g.setColor(new Color(100, 62, 28));
+            g.setColor(new Color(255, 255, 255, 32));
             g.drawLine(getWidth() - 1, 0, getWidth() - 1, getHeight());
             g.dispose();
         }
@@ -191,14 +209,14 @@ public final class AppShell {
 
     /** Sidebar navigation button */
     private static final class SideNavButton extends JButton {
-        private final boolean active;
+        private boolean active;
         private boolean hovered;
 
         SideNavButton(String text, boolean active) {
             super(text);
             this.active = active;
             setFont(new Font("Segoe UI", active ? Font.BOLD : Font.PLAIN, 13));
-            setForeground(active ? new Color(255, 248, 235) : AppTheme.SIDEBAR_TEXT);
+            setForeground(AppTheme.SIDEBAR_TEXT);
             setBorder(new EmptyBorder(10, 14, 10, 14));
             setFocusPainted(false);
             setContentAreaFilled(false);
@@ -214,6 +232,12 @@ public final class AppShell {
             });
         }
 
+        private void setActive(boolean active) {
+            this.active = active;
+            setFont(new Font("Segoe UI", active ? Font.BOLD : Font.PLAIN, 13));
+            repaint();
+        }
+
         @Override
         protected void paintComponent(Graphics g0) {
             Graphics2D g = (Graphics2D) g0.create();
@@ -223,16 +247,16 @@ public final class AppShell {
 
             if (active) {
                 // Warm tinted bg + 3px left accent bar
-                g.setColor(new Color(255, 235, 190, 22));
+                g.setColor(new Color(255, 255, 255, 34));
                 g.fillRoundRect(0, 0, w, h, 8, 8);
                 // Accent bar — primary copper (3px)
                 g.setColor(AppTheme.PRIMARY);
                 g.fillRoundRect(0, 4, 3, h - 8, 3, 3);
-                setForeground(new Color(255, 248, 235));
+                setForeground(AppTheme.SIDEBAR_TEXT);
             } else if (hovered && isEnabled()) {
-                g.setColor(new Color(255, 255, 255, 10));
+                g.setColor(new Color(255, 255, 255, 16));
                 g.fillRoundRect(0, 0, w, h, 8, 8);
-                setForeground(new Color(240, 228, 210));
+                setForeground(AppTheme.SIDEBAR_TEXT);
             } else {
                 setForeground(AppTheme.SIDEBAR_TEXT);
             }

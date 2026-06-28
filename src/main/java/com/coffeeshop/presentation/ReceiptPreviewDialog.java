@@ -16,14 +16,16 @@ public class ReceiptPreviewDialog extends JDialog {
         receiptArea.setEditable(false);
         receiptArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
         receiptArea.setMargin(new Insets(12, 12, 12, 12));
+        receiptArea.setBackground(AppTheme.SURFACE);
 
-        JButton close = new JButton("Close");
+        JButton close = AppTheme.ghostButton("Close");
         close.addActionListener(e -> dispose());
-        JButton print = new JButton("Print simulation");
+        JButton print = AppTheme.button("Print simulation", AppTheme.PRIMARY);
         print.addActionListener(e -> JOptionPane.showMessageDialog(this, "Receipt sent to virtual printer."));
-        JButton savePng = new JButton("Save PNG");
+        JButton savePng = AppTheme.ghostButton("Save PNG");
         savePng.addActionListener(e -> saveReceiptImage(receiptText, receiptImageService));
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        actions.setBackground(AppTheme.PANEL);
         actions.add(savePng);
         actions.add(print);
         actions.add(close);
