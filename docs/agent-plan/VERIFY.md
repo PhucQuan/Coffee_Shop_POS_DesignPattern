@@ -38,7 +38,7 @@ Smoke flow:
 12. In receipt preview, click Save PNG and confirm an image is created.
 13. Confirm total and status are displayed.
 14. Click New order and confirm a fresh Pending order starts.
-15. Use `+ Qty`, `- Qty`, and `Remove` in Cart before sending to kitchen.
+15. Use `+ 1`, `- 1`, and `Remove` in Cart before sending to kitchen.
 16. Confirm disabled buttons are greyed out when the order state does not allow the action.
 
 Admin flow:

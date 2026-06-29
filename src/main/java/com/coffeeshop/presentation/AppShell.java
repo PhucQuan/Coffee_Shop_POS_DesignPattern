@@ -107,13 +107,13 @@ public final class AppShell {
 
         // App name
         JLabel appName = new JLabel("PurrCoffee");
-        appName.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        appName.setFont(new Font("Segoe UI", Font.BOLD, 20));
         appName.setForeground(AppTheme.SIDEBAR_TEXT);
         appName.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // Role pill — small coloured label
         JLabel roleLbl = new JLabel(role.toUpperCase());
-        roleLbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        roleLbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
         roleLbl.setForeground(AppTheme.SIDEBAR_MUTED);
         roleLbl.setAlignmentX(Component.LEFT_ALIGNMENT);
         roleLbl.setBorder(new EmptyBorder(5, 0, 0, 0));
@@ -164,7 +164,7 @@ public final class AppShell {
         }));
 
         JLabel foot = new JLabel("Design Patterns POS");
-        foot.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        foot.setFont(new Font("Segoe UI", Font.BOLD, 10));
         foot.setForeground(AppTheme.SIDEBAR_MUTED);
         foot.setAlignmentX(Component.LEFT_ALIGNMENT);
         foot.setBorder(new EmptyBorder(8, 10, 0, 0));
@@ -196,12 +196,12 @@ public final class AppShell {
             Graphics2D g = (Graphics2D) g0.create();
             // Vertical gradient: slightly lighter at top (warmth)
             GradientPaint gp = new GradientPaint(
-                    0, 0, AppTheme.SIDEBAR_HOVER_BG,
+                    0, 0, new Color(92, 45, 20),
                     0, getHeight(), AppTheme.SIDEBAR_BG);
             g.setPaint(gp);
             g.fillRect(0, 0, getWidth(), getHeight());
             // 1 px right-edge separator (no wide decorative border)
-            g.setColor(new Color(255, 255, 255, 32));
+            g.setColor(new Color(255, 185, 120, 70));
             g.drawLine(getWidth() - 1, 0, getWidth() - 1, getHeight());
             g.dispose();
         }
@@ -215,9 +215,9 @@ public final class AppShell {
         SideNavButton(String text, boolean active) {
             super(text);
             this.active = active;
-            setFont(new Font("Segoe UI", active ? Font.BOLD : Font.PLAIN, 13));
+            setFont(new Font("Segoe UI", Font.BOLD, 14));
             setForeground(AppTheme.SIDEBAR_TEXT);
-            setBorder(new EmptyBorder(10, 14, 10, 14));
+            setBorder(new EmptyBorder(10, 16, 10, 16));
             setFocusPainted(false);
             setContentAreaFilled(false);
             setBorderPainted(false);
@@ -234,7 +234,7 @@ public final class AppShell {
 
         private void setActive(boolean active) {
             this.active = active;
-            setFont(new Font("Segoe UI", active ? Font.BOLD : Font.PLAIN, 13));
+            setFont(new Font("Segoe UI", Font.BOLD, 14));
             repaint();
         }
 
@@ -247,14 +247,14 @@ public final class AppShell {
 
             if (active) {
                 // Warm tinted bg + 3px left accent bar
-                g.setColor(new Color(255, 255, 255, 34));
+                g.setColor(new Color(126, 67, 34, 235));
                 g.fillRoundRect(0, 0, w, h, 8, 8);
                 // Accent bar — primary copper (3px)
-                g.setColor(AppTheme.PRIMARY);
-                g.fillRoundRect(0, 4, 3, h - 8, 3, 3);
+                g.setColor(new Color(226, 130, 58));
+                g.fillRoundRect(0, 4, 4, h - 8, 4, 4);
                 setForeground(AppTheme.SIDEBAR_TEXT);
             } else if (hovered && isEnabled()) {
-                g.setColor(new Color(255, 255, 255, 16));
+                g.setColor(new Color(126, 67, 34, 150));
                 g.fillRoundRect(0, 0, w, h, 8, 8);
                 setForeground(AppTheme.SIDEBAR_TEXT);
             } else {

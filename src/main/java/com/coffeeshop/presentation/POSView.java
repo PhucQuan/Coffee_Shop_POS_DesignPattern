@@ -424,8 +424,6 @@ public class POSView extends JFrame {
 
         JButton newOrder = compactButton("New order");
         applyDiscountButton = compactButton("Apply");
-        sendKitchenButton = compactActionButton("Send kitchen", AppTheme.PRIMARY);
-        readyButton = compactActionButton("Ready", AppTheme.SUCCESS);
         momoButton = compactActionButton("Pay Momo", AppTheme.ACCENT);
         vnpayButton = compactActionButton("Pay VNPay", AppTheme.ACCENT);
         JButton receipt = compactButton("Receipt");
@@ -453,19 +451,13 @@ public class POSView extends JFrame {
         row1.setOpaque(false);
         row1.add(newOrder);
         row1.add(cancelOrderButton);
-        JPanel row2 = new JPanel(new GridLayout(1, 2, 8, 0));
-        row2.setOpaque(false);
-        row2.add(sendKitchenButton);
-        row2.add(readyButton);
         orderRows.add(row1);
-        orderRows.add(Box.createVerticalStrut(6));
-        orderRows.add(row2);
         orderRows.add(Box.createVerticalStrut(6));
         orderRows.add(receipt);
 
         JPanel orderCard = AppTheme.roundedPanel(new BorderLayout(0, 14),
                 AppTheme.PANEL, AppTheme.BORDER, 18, new Insets(18, 18, 18, 18));
-        orderCard.add(sectionHeader("Order flow", "Move the ticket from pending to ready."), BorderLayout.NORTH);
+        orderCard.add(sectionHeader("Order flow", "Create tickets and handle order exceptions."), BorderLayout.NORTH);
         orderCard.add(orderRows, BorderLayout.CENTER);
 
         JPanel payment = new JPanel(new GridLayout(1, 2, 8, 0));
@@ -475,7 +467,7 @@ public class POSView extends JFrame {
 
         JPanel paymentCard = AppTheme.roundedPanel(new BorderLayout(0, 14),
                 AppTheme.PANEL, AppTheme.BORDER, 18, new Insets(18, 18, 18, 18));
-        paymentCard.add(sectionHeader("Payment", "Enable checkout when the order is marked ready."), BorderLayout.NORTH);
+        paymentCard.add(sectionHeader("Payment", "Pay first, then the ticket is sent to kitchen."), BorderLayout.NORTH);
         paymentStatusLabel.setForeground(AppTheme.MUTED);
         paymentStatusLabel.setBorder(new EmptyBorder(2, 0, 0, 0));
         paymentCard.add(payment, BorderLayout.CENTER);
@@ -512,8 +504,6 @@ public class POSView extends JFrame {
         increaseQtyButton.addActionListener(e -> changeSelectedItemQuantity(1));
         removeItemButton.addActionListener(e -> removeSelectedBillItem());
         billList.addListSelectionListener(e -> updateActionState());
-        sendKitchenButton.addActionListener(e -> changeState(() -> context.orderService.sendToKitchen(currentOrder)));
-        readyButton.addActionListener(e -> changeState(() -> context.orderService.markReady(currentOrder)));
         momoButton.addActionListener(e -> pay(new MomoAdapter(new Random(1))));
         vnpayButton.addActionListener(e -> pay(new VnpayAdapter(new Random(1))));
         receipt.addActionListener(e -> showReceipt());
@@ -809,6 +799,10 @@ public class POSView extends JFrame {
     }
 
     private void pay(PaymentGateway gateway) {
+        if (!"PENDING".equals(currentOrder.getStatus()) || currentOrder.getItems().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Only pending orders with items can be paid.");
+            return;
+        }
         paymentStatusLabel.setText("Payment: processing " + paymentMethodText(gateway.getGatewayName()) + "...");
         PaymentDialog dialog = new PaymentDialog(this, currentOrder, gateway, context.paymentService);
         dialog.setVisible(true);
@@ -947,6 +941,7 @@ public class POSView extends JFrame {
         boolean ready = "READY".equals(currentOrder.getStatus());
         boolean hasItems = !currentOrder.getItems().isEmpty();
         boolean itemSelected = selectedBillItem() != null;
+        boolean paid = currentOrder.getPayment() != null && "SUCCESS".equals(currentOrder.getPayment().getStatus());
 
         if (decreaseQtyButton != null) decreaseQtyButton.setEnabled(pending && itemSelected);
         if (increaseQtyButton != null) increaseQtyButton.setEnabled(pending && itemSelected);
@@ -954,9 +949,9 @@ public class POSView extends JFrame {
         if (applyDiscountButton != null) applyDiscountButton.setEnabled(pending && hasItems);
         if (sendKitchenButton != null) sendKitchenButton.setEnabled(pending && hasItems);
         if (readyButton != null) readyButton.setEnabled(preparing);
-        if (momoButton != null) momoButton.setEnabled(ready);
-        if (vnpayButton != null) vnpayButton.setEnabled(ready);
-        if (cancelOrderButton != null) cancelOrderButton.setEnabled((pending || preparing || ready) && !"PAID".equals(currentOrder.getStatus()));
+        if (momoButton != null) momoButton.setEnabled(pending && hasItems && !paid);
+        if (vnpayButton != null) vnpayButton.setEnabled(pending && hasItems && !paid);
+        if (cancelOrderButton != null) cancelOrderButton.setEnabled(pending && !paid);
     }
 
     private JPanel menuCard(MenuItemRecord item) {

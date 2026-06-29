@@ -18,7 +18,7 @@ public class ReportService {
 
     public double getRevenue() {
         return repository.getOrders().stream()
-                .filter(order -> "PAID".equals(order.getStatus()))
+                .filter(order -> order.getPayment() != null && "SUCCESS".equals(order.getPayment().getStatus()))
                 .mapToDouble(Order::getTotalAmount)
                 .sum();
     }

@@ -21,10 +21,10 @@ public final class AppTheme {
     public static final Color DETAIL_PANEL = new Color(248, 239, 232);
     public static final Color DETAIL_BORDER = new Color(232, 216, 207);
 
-    public static final Color SIDEBAR_BG = new Color(151, 125, 117);
-    public static final Color SIDEBAR_TEXT = new Color(252, 247, 242);
-    public static final Color SIDEBAR_MUTED = new Color(242, 230, 223);
-    public static final Color SIDEBAR_HOVER_BG = new Color(172, 149, 140);
+    public static final Color SIDEBAR_BG = new Color(74, 36, 15);
+    public static final Color SIDEBAR_TEXT = new Color(255, 251, 245);
+    public static final Color SIDEBAR_MUTED = new Color(255, 190, 142);
+    public static final Color SIDEBAR_HOVER_BG = new Color(97, 50, 23);
 
     public static final Color SUCCESS = new Color(126, 163, 140);
     public static final Color WARNING = new Color(214, 170, 126);

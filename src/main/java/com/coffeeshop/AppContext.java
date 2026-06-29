@@ -53,7 +53,7 @@ public class AppContext {
         this.menuService = new MenuService(repository);
         this.inventoryService = new InventoryService(repository);
         this.orderService = new OrderService(repository, publisher, inventoryService);
-        this.paymentService = new PaymentService(repository);
+        this.paymentService = new PaymentService(repository, inventoryService, publisher);
         this.reportService = new ReportService(repository);
         this.operationsService = new OperationsService(repository);
         publisher.subscribe(cashierObserver);
