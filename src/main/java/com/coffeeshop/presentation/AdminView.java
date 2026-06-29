@@ -864,6 +864,7 @@ public class AdminView extends JFrame {
         return context.repository.getOrders().stream()
                 .filter(order -> !isJunkOrder(order))
                 .filter(order -> order.getPayment() != null && "SUCCESS".equals(order.getPayment().getStatus()))
+                .filter(order -> !"CANCELLED".equals(order.getStatus()))
                 .count();
     }
 

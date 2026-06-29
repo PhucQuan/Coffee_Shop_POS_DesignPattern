@@ -18,13 +18,14 @@ public class ReportService {
 
     public double getRevenue() {
         return repository.getOrders().stream()
-                .filter(order -> order.getPayment() != null && "SUCCESS".equals(order.getPayment().getStatus()))
+                .filter(this::isCompletedSale)
                 .mapToDouble(Order::getTotalAmount)
                 .sum();
     }
 
     public Map<String, Long> getTopSellingItems() {
         return repository.getOrders().stream()
+                .filter(this::isCompletedSale)
                 .flatMap(order -> order.getItems().stream())
                 .collect(Collectors.groupingBy(item -> item.getBeverage().getDescription(), Collectors.summingLong(OrderItem::getQuantity)))
                 .entrySet().stream()
@@ -34,6 +35,7 @@ public class ReportService {
 
     public Map<String, Long> getMenuSales() {
         return repository.getOrders().stream()
+                .filter(this::isCompletedSale)
                 .flatMap(order -> order.getItems().stream())
                 .collect(Collectors.groupingBy(item -> baseMenuName(item.getBeverage().getDescription()), Collectors.summingLong(OrderItem::getQuantity)))
                 .entrySet().stream()
@@ -44,6 +46,7 @@ public class ReportService {
     public Map<String, Long> getToppingSales() {
         Map<String, Long> totals = new LinkedHashMap<>();
         repository.getOrders().stream()
+                .filter(this::isCompletedSale)
                 .flatMap(order -> order.getItems().stream())
                 .forEach(item -> {
                     String[] parts = item.getBeverage().getDescription().split("\\s+\\+\\s+");
@@ -59,5 +62,11 @@ public class ReportService {
     private String baseMenuName(String description) {
         String[] parts = description.split("\\s+\\+\\s+", 2);
         return parts[0].trim();
+    }
+
+    private boolean isCompletedSale(Order order) {
+        return order.getPayment() != null
+                && "SUCCESS".equals(order.getPayment().getStatus())
+                && !"CANCELLED".equals(order.getStatus());
     }
 }
