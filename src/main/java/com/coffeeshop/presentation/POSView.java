@@ -153,6 +153,24 @@ public class POSView extends JFrame {
         split.setDividerLocation(340);
         split.setBorder(null);
         panel.add(split, BorderLayout.CENTER);
+
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottom.setOpaque(false);
+        JButton loadBtn = primaryButton("Load to POS / Checkout");
+        bottom.add(loadBtn);
+        panel.add(bottom, BorderLayout.SOUTH);
+
+        loadBtn.addActionListener(e -> {
+            Order selected = cashierOrderList.getSelectedValue();
+            if (selected == null) {
+                JOptionPane.showMessageDialog(panel, "Please select an order from the list.");
+                return;
+            }
+            currentOrder = selected;
+            refreshBill();
+            JOptionPane.showMessageDialog(panel, "Loaded Order #" + selected.getId() + " to the active checkout sidebar. Please switch to 'POS' or 'Cart' tab to proceed with payment.");
+        });
+
         refresh.addActionListener(e -> refreshOrdersPage());
         refreshOrdersPage();
         return panel;
