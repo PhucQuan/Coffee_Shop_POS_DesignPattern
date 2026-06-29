@@ -27,8 +27,11 @@ public class BarChartPanel extends JPanel {
         int width = getWidth() - 50;
         int x = 24;
         int y = 42;
-        int barHeight = 24;
-        int gap = 16;
+        int rowCount = Math.max(1, data.size());
+        int availableHeight = Math.max(120, getHeight() - 64);
+        int rowHeight = Math.max(22, Math.min(40, availableHeight / rowCount));
+        int barHeight = Math.max(14, Math.min(24, rowHeight - 8));
+        int labelOffset = Math.max(0, (barHeight - 14) / 2);
         long max = data.values().stream().mapToLong(Long::longValue).max().orElse(1);
         if (data.isEmpty()) {
             g.setColor(Color.DARK_GRAY);
@@ -38,14 +41,13 @@ public class BarChartPanel extends JPanel {
         }
         int index = 0;
         for (Map.Entry<String, Long> entry : data.entrySet()) {
-            if (index >= 5) break;
-            int currentY = y + index * (barHeight + gap);
+            int currentY = y + index * rowHeight;
             int barWidth = (int) Math.max(8, (width - 180) * (entry.getValue() / (double) max));
             g.setColor(new Color(46, 116, 181));
             g.fillRoundRect(x + 150, currentY - 16, barWidth, barHeight, 8, 8);
             g.setColor(Color.DARK_GRAY);
-            g.drawString(shorten(entry.getKey()), x, currentY);
-            g.drawString(String.valueOf(entry.getValue()), x + 158 + barWidth, currentY);
+            g.drawString(shorten(entry.getKey()), x, currentY + labelOffset);
+            g.drawString(String.valueOf(entry.getValue()), x + 158 + barWidth, currentY + labelOffset);
             index++;
         }
         g.dispose();

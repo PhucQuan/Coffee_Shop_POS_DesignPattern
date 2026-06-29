@@ -20,7 +20,7 @@ Target length: 3-5 minutes.
 4. Explain Decorator Pattern:
    - base drink is wrapped by topping/size decorators
    - final price is calculated by wrappers
-5. Use `+ Qty` or `- Qty`.
+5. Use `+ 1` or `- 1`.
 6. Explain that cart changes call `OrderService`, not direct UI logic.
 
 ## 3. Discount and order lifecycle

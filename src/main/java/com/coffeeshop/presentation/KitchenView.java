@@ -16,10 +16,8 @@ import java.time.format.DateTimeFormatter;
 
 public class KitchenView extends JFrame implements OrderObserver {
     private final AppContext context;
-    private final DefaultListModel<Order> pendingModel = new DefaultListModel<>();
     private final DefaultListModel<Order> preparingModel = new DefaultListModel<>();
     private final DefaultListModel<Order> readyModel = new DefaultListModel<>();
-    private final JList<Order> pendingList = new JList<>(pendingModel);
     private final JList<Order> preparingList = new JList<>(preparingModel);
     private final JList<Order> readyList = new JList<>(readyModel);
     private final DefaultListModel<String> itemModel = new DefaultListModel<>();
@@ -29,9 +27,7 @@ public class KitchenView extends JFrame implements OrderObserver {
     private final JLabel selectedTotal = new JLabel(AppTheme.money(0));
     private final JLabel queueCount = new JLabel("0 active");
     private Order currentSelectedOrder;
-    private JButton receiveButton;
     private JButton completeButton;
-    private JButton cancelButton;
 
     public KitchenView(AppContext context) {
         this.context = context;
@@ -41,7 +37,7 @@ public class KitchenView extends JFrame implements OrderObserver {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setContentPane(AppShell.wrap(this, context, "Kitchen",
-                "Kanban Board: Receive pending orders, prepare drinks, and mark orders ready.",
+                "Kanban Board: Complete prepared drinks and mark orders ready.",
                 buildContent(), nav -> {}, "Kanban"));
         context.publisher.subscribe(this);
         addWindowListener(new WindowAdapter() {
@@ -72,9 +68,8 @@ public class KitchenView extends JFrame implements OrderObserver {
         top.add(queueCount, BorderLayout.EAST);
         panel.add(top, BorderLayout.NORTH);
 
-        JPanel kanban = new JPanel(new GridLayout(1, 3, 16, 0));
+        JPanel kanban = new JPanel(new GridLayout(1, 2, 16, 0));
         kanban.setOpaque(false);
-        kanban.add(createColumn("Pending", pendingList));
         kanban.add(createColumn("Preparing", preparingList));
         kanban.add(createColumn("Ready", readyList));
         panel.add(kanban, BorderLayout.CENTER);
@@ -95,7 +90,6 @@ public class KitchenView extends JFrame implements OrderObserver {
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         list.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && list.getSelectedValue() != null) {
-                if (list != pendingList) pendingList.clearSelection();
                 if (list != preparingList) preparingList.clearSelection();
                 if (list != readyList) readyList.clearSelection();
                 currentSelectedOrder = list.getSelectedValue();
@@ -131,22 +125,16 @@ public class KitchenView extends JFrame implements OrderObserver {
         itemList.setCellRenderer(new ItemRenderer());
         panel.add(new JScrollPane(itemList), BorderLayout.CENTER);
 
-        JPanel actions = new JPanel(new GridLayout(2, 2, 8, 8));
+        JPanel actions = new JPanel(new GridLayout(1, 2, 8, 8));
         actions.setOpaque(false);
         JButton refreshBtn = AppTheme.ghostButton("Refresh");
-        receiveButton = AppTheme.button("Receive", AppTheme.WARNING);
         completeButton = AppTheme.button("Complete", AppTheme.SUCCESS);
-        cancelButton = AppTheme.button("Cancel", AppTheme.DANGER);
         actions.add(refreshBtn);
-        actions.add(receiveButton);
         actions.add(completeButton);
-        actions.add(cancelButton);
         panel.add(actions, BorderLayout.SOUTH);
 
         refreshBtn.addActionListener(e -> refresh());
-        receiveButton.addActionListener(e -> executeAction(order -> context.orderService.sendToKitchen(order)));
         completeButton.addActionListener(e -> executeAction(order -> context.orderService.markReady(order)));
-        cancelButton.addActionListener(e -> executeAction(order -> context.orderService.cancel(order)));
         return panel;
     }
 
@@ -163,23 +151,20 @@ public class KitchenView extends JFrame implements OrderObserver {
     }
 
     private void refresh() {
-        pendingModel.clear();
         preparingModel.clear();
         readyModel.clear();
         
         context.repository.getOrders().forEach(order -> {
             switch (order.getStatus()) {
-                case "PENDING" -> pendingModel.addElement(order);
                 case "PREPARING" -> preparingModel.addElement(order);
                 case "READY" -> readyModel.addElement(order);
             }
         });
         
-        queueCount.setText((pendingModel.getSize() + preparingModel.getSize() + readyModel.getSize()) + " active");
+        queueCount.setText((preparingModel.getSize() + readyModel.getSize()) + " active");
         
         if (currentSelectedOrder != null) {
-            boolean found = selectInList(pendingList, pendingModel) ||
-                            selectInList(preparingList, preparingModel) ||
+            boolean found = selectInList(preparingList, preparingModel) ||
                             selectInList(readyList, readyModel);
             if (!found) {
                 currentSelectedOrder = null;
@@ -229,12 +214,8 @@ public class KitchenView extends JFrame implements OrderObserver {
     }
 
     private void updateButtons(Order order) {
-        boolean pending = order != null && "PENDING".equals(order.getStatus());
         boolean preparing = order != null && "PREPARING".equals(order.getStatus());
-        boolean cancellable = order != null && !"PAID".equals(order.getStatus()) && !"CANCELLED".equals(order.getStatus());
-        if (receiveButton != null) receiveButton.setEnabled(pending);
         if (completeButton != null) completeButton.setEnabled(preparing);
-        if (cancelButton != null) cancelButton.setEnabled(cancellable);
     }
 
     public void onOrderStatusChanged(Order order, String newStatus) {

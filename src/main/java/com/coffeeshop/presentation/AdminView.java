@@ -26,6 +26,9 @@ public class AdminView extends JFrame {
     private final JTextArea reportArea = new JTextArea();
     private final BarChartPanel menuOverviewChart = new BarChartPanel();
     private final BarChartPanel toppingOverviewChart = new BarChartPanel();
+    private final JLabel totalOrdersMetric = new JLabel("0");
+    private final JLabel paidOrdersMetric = new JLabel("0");
+    private final JLabel revenueMetric = new JLabel("0 d");
     private final JLabel revenueCard = new JLabel("Revenue: 0d");
     private final DefaultTableModel menuReportModel = new DefaultTableModel(new Object[]{"Menu", "Qty"}, 0) {
         public boolean isCellEditable(int row, int column) { return false; }
@@ -75,28 +78,23 @@ public class AdminView extends JFrame {
         adminPages.setOpaque(false);
         adminPages.add(overviewPanel(), "Overview");
         adminPages.add(ordersPanel(), "Orders");
-        adminPages.add(historyPanel(), "History");
         adminPages.add(menuPanel(), "Menu");
         adminPages.add(toppingPanel(), "Topping");
         adminPages.add(inventoryPanel(), "Inventory");
         adminPages.add(usersPanel(), "Users");
-        adminPages.add(operationsPanel(), "Operations");
-        adminPages.add(reportPanel(), "Reports");
         setContentPane(AppShell.wrap(this, context, "Admin",
                 "Manage menu, orders, inventory, users, and reports.",
-                adminPages, this::selectAdminPage, "Overview", "Orders", "History", "Menu", "Topping", "Inventory", "Users", "Operations", "Reports"));
+                adminPages, this::selectAdminPage, "Overview", "Orders", "Menu", "Topping", "Inventory", "Users"));
     }
 
     private void selectAdminPage(String nav) {
         adminLayout.show(adminPages, nav);
         if ("Overview".equals(nav)) {
-            refreshOverviewCharts();
+            refreshOverview();
         }
-        if ("Orders".equals(nav) || "History".equals(nav)) refreshOrderModels();
+        if ("Orders".equals(nav)) refreshOrderModels();
         if ("Inventory".equals(nav)) refreshInventoryModel();
         if ("Users".equals(nav)) refreshUserModel();
-        if ("Operations".equals(nav)) refreshOperationsPanel();
-        if ("Reports".equals(nav)) refreshReport();
     }
 
     private JPanel overviewPanel() {
@@ -105,20 +103,19 @@ public class AdminView extends JFrame {
         panel.setBorder(new EmptyBorder(24, 24, 24, 24));
         JButton refresh = AppTheme.ghostButton("Refresh overview");
         refresh.addActionListener(e -> {
-            refreshOverviewCharts();
+            refreshOverview();
             panel.repaint();
         });
 
-        JPanel cards = new JPanel(new GridLayout(1, 4, 20, 20));
+        JPanel cards = new JPanel(new GridLayout(1, 3, 20, 20));
         cards.setOpaque(false);
-        cards.add(metricCard("Total orders", String.valueOf(context.repository.getOrders().size())));
-        cards.add(metricCard("Pending", String.valueOf(countOrders("PENDING"))));
-        cards.add(metricCard("Paid", String.valueOf(countOrders("PAID"))));
-        cards.add(metricCard("Revenue", String.format("%,.0f d", context.reportService.getRevenue())));
+        cards.add(metricCard("Total orders", totalOrdersMetric));
+        cards.add(metricCard("Paid", paidOrdersMetric));
+        cards.add(metricCard("Revenue", revenueMetric));
 
         menuOverviewChart.setBorder(BorderFactory.createTitledBorder("Menu"));
         toppingOverviewChart.setBorder(BorderFactory.createTitledBorder("Topping"));
-        refreshOverviewCharts();
+        refreshOverview();
         JPanel charts = AppTheme.roundedPanel(new GridLayout(1, 2, 16, 0), AppTheme.PANEL, null, 16, new Insets(16, 16, 16, 16));
         charts.add(menuOverviewChart);
         charts.add(toppingOverviewChart);
@@ -128,14 +125,20 @@ public class AdminView extends JFrame {
         return panel;
     }
 
-    private void refreshOverviewCharts() {
+    private void refreshOverview() {
+        totalOrdersMetric.setText(String.valueOf(countVisibleOrders()));
+        paidOrdersMetric.setText(String.valueOf(countPaidOrders()));
+        revenueMetric.setText(String.format("%,.0f d", context.reportService.getRevenue()));
         menuOverviewChart.setData(context.reportService.getMenuSales());
         toppingOverviewChart.setData(context.reportService.getToppingSales());
+        menuOverviewChart.revalidate();
+        toppingOverviewChart.revalidate();
+        menuOverviewChart.repaint();
+        toppingOverviewChart.repaint();
     }
 
-    private JPanel metricCard(String title, String value) {
+    private JPanel metricCard(String title, JLabel valueLabel) {
         JPanel card = AppTheme.roundedPanel(new GridLayout(2, 1, 0, 8), AppTheme.PANEL, null, 16, new Insets(20, 20, 20, 20));
-        JLabel valueLabel = new JLabel(value);
         valueLabel.setForeground(AppTheme.PRIMARY);
         valueLabel.setFont(valueLabel.getFont().deriveFont(Font.BOLD, 24f));
         JLabel titleLabel = AppTheme.muted(title);
@@ -176,12 +179,11 @@ public class AdminView extends JFrame {
             }
         });
         panel.add(wrapWithTitle("Menu catalog", new JScrollPane(menuList)), BorderLayout.CENTER);
-        JPanel side = new JPanel();
+        JPanel side = new JPanel(new BorderLayout(0, 16));
         side.setOpaque(false);
-        side.setLayout(new BoxLayout(side, BoxLayout.Y_AXIS));
-        side.add(beverageForm());
-        side.add(Box.createVerticalStrut(16));
-        side.add(recipeForm());
+        side.setPreferredSize(new Dimension(440, 0));
+        side.add(beverageForm(), BorderLayout.NORTH);
+        side.add(recipeForm(), BorderLayout.CENTER);
         panel.add(side, BorderLayout.EAST);
         refreshMenuModel();
         refreshInventoryModel();
@@ -223,17 +225,11 @@ public class AdminView extends JFrame {
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         actions.setOpaque(false);
         JButton refresh = AppTheme.ghostButton("Refresh");
-        JButton sendKitchen = AppTheme.button("Send to kitchen", AppTheme.WARNING);
-        JButton ready = AppTheme.button("Mark ready", AppTheme.SUCCESS);
         JButton cancel = AppTheme.button("Cancel order", AppTheme.DANGER);
         actions.add(refresh);
-        actions.add(sendKitchen);
-        actions.add(ready);
         actions.add(cancel);
 
         refresh.addActionListener(e -> refreshOrderModels());
-        sendKitchen.addActionListener(e -> selectedAdminOrder(order -> context.orderService.sendToKitchen(order)));
-        ready.addActionListener(e -> selectedAdminOrder(order -> context.orderService.markReady(order)));
         cancel.addActionListener(e -> selectedAdminOrder(order -> context.orderService.cancel(order)));
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(activeOrderList), new JScrollPane(activeOrderDetailArea));
@@ -392,6 +388,8 @@ public class AdminView extends JFrame {
                     refreshInventoryModel();
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(this, "Invalid amount.", "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (RuntimeException ex) {
+                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Restock error", JOptionPane.WARNING_MESSAGE);
                 }
             }
         });
@@ -498,7 +496,9 @@ public class AdminView extends JFrame {
 
     private JPanel beverageForm() {
         JPanel form = new JPanel(new GridBagLayout());
-        form.setPreferredSize(new Dimension(280, 0));
+        form.setOpaque(false);
+        form.setPreferredSize(new Dimension(440, 260));
+        form.setMinimumSize(new Dimension(380, 240));
         form.setBorder(BorderFactory.createTitledBorder("Menu item"));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 6, 6, 6);
@@ -510,11 +510,12 @@ public class AdminView extends JFrame {
         addRow(form, gbc, 2, "Category", categoryBox);
         gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2; form.add(beverageActiveBox, gbc);
 
-        JButton add = AppTheme.button("Add", AppTheme.SUCCESS);
-        JButton update = AppTheme.button("Update", AppTheme.WARNING);
-        JButton disable = AppTheme.button("Disable", AppTheme.DANGER);
-        JButton clear = AppTheme.ghostButton("Clear");
-        JPanel buttons = new JPanel(new GridLayout(2, 2, 6, 6));
+        JButton add = compactAdminButton("Add", AppTheme.SUCCESS);
+        JButton update = compactAdminButton("Update", AppTheme.WARNING);
+        JButton disable = compactAdminButton("Disable", AppTheme.DANGER);
+        JButton clear = compactAdminGhostButton("Clear");
+        JPanel buttons = new JPanel(new GridLayout(2, 2, 10, 8));
+        buttons.setOpaque(false);
         buttons.add(add); buttons.add(update); buttons.add(disable); buttons.add(clear);
         gbc.gridy = 4; form.add(buttons, gbc);
 
@@ -538,8 +539,9 @@ public class AdminView extends JFrame {
 
     private JPanel recipeForm() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setPreferredSize(new Dimension(300, 360));
-        panel.setMaximumSize(new Dimension(300, 360));
+        panel.setOpaque(false);
+        panel.setPreferredSize(new Dimension(440, 360));
+        panel.setMinimumSize(new Dimension(380, 260));
         panel.setBorder(BorderFactory.createTitledBorder("Recipe"));
 
         recipeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -563,10 +565,11 @@ public class AdminView extends JFrame {
         addRow(form, gbc, 0, "Ingredient", recipeInventoryBox);
         addRow(form, gbc, 1, "Quantity", recipeQuantityField);
 
-        JButton add = AppTheme.button("Save line", AppTheme.SUCCESS);
-        JButton remove = AppTheme.button("Remove line", AppTheme.DANGER);
-        JButton clear = AppTheme.ghostButton("Clear");
-        JPanel buttons = new JPanel(new GridLayout(1, 3, 6, 6));
+        JButton add = compactAdminButton("Save line", AppTheme.SUCCESS);
+        JButton remove = compactAdminButton("Remove line", AppTheme.DANGER);
+        JButton clear = compactAdminGhostButton("Clear");
+        JPanel buttons = new JPanel(new GridLayout(1, 3, 10, 0));
+        buttons.setOpaque(false);
         buttons.add(add);
         buttons.add(remove);
         buttons.add(clear);
@@ -607,11 +610,12 @@ public class AdminView extends JFrame {
         addRow(form, gbc, 1, "Password", passwordField);
         addRow(form, gbc, 2, "Role", roleBox);
 
-        JButton add = AppTheme.button("Add user", AppTheme.SUCCESS);
-        JButton lock = AppTheme.button("Lock", AppTheme.DANGER);
-        JButton unlock = AppTheme.button("Unlock", AppTheme.WARNING);
-        JButton clear = AppTheme.ghostButton("Clear");
-        JPanel buttons = new JPanel(new GridLayout(2, 2, 6, 6));
+        JButton add = compactAdminButton("Add user", AppTheme.SUCCESS);
+        JButton lock = compactAdminButton("Lock", AppTheme.DANGER);
+        JButton unlock = compactAdminButton("Unlock", AppTheme.WARNING);
+        JButton clear = compactAdminGhostButton("Clear");
+        JPanel buttons = new JPanel(new GridLayout(2, 2, 10, 8));
+        buttons.setOpaque(false);
         buttons.add(add); buttons.add(lock); buttons.add(unlock); buttons.add(clear);
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -648,11 +652,12 @@ public class AdminView extends JFrame {
         addRow(form, gbc, 1, "Price", toppingPriceField);
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; form.add(toppingActiveBox, gbc);
 
-        JButton add = AppTheme.button("Add", AppTheme.SUCCESS);
-        JButton update = AppTheme.button("Update", AppTheme.WARNING);
-        JButton disable = AppTheme.button("Disable", AppTheme.DANGER);
-        JButton clear = AppTheme.ghostButton("Clear");
-        JPanel buttons = new JPanel(new GridLayout(2, 2, 6, 6));
+        JButton add = compactAdminButton("Add", AppTheme.SUCCESS);
+        JButton update = compactAdminButton("Update", AppTheme.WARNING);
+        JButton disable = compactAdminButton("Disable", AppTheme.DANGER);
+        JButton clear = compactAdminGhostButton("Clear");
+        JPanel buttons = new JPanel(new GridLayout(2, 2, 10, 8));
+        buttons.setOpaque(false);
         buttons.add(add); buttons.add(update); buttons.add(disable); buttons.add(clear);
         gbc.gridy = 3; form.add(buttons, gbc);
 
@@ -685,6 +690,22 @@ public class AdminView extends JFrame {
         panel.add(component, gbc);
     }
 
+    private JButton compactAdminButton(String text, Color color) {
+        JButton button = AppTheme.button(text, color);
+        button.setFont(button.getFont().deriveFont(Font.BOLD, 12f));
+        button.setMargin(new Insets(6, 10, 6, 10));
+        button.setPreferredSize(new Dimension(0, 38));
+        return button;
+    }
+
+    private JButton compactAdminGhostButton(String text) {
+        JButton button = AppTheme.ghostButton(text);
+        button.setFont(button.getFont().deriveFont(Font.PLAIN, 12f));
+        button.setMargin(new Insets(6, 10, 6, 10));
+        button.setPreferredSize(new Dimension(0, 38));
+        return button;
+    }
+
     private void refreshMenuModel() {
         menuModel.clear();
         context.menuService.getAllMenu().forEach(menuModel::addElement);
@@ -707,6 +728,9 @@ public class AdminView extends JFrame {
         activeOrderModel.clear();
         historyOrderModel.clear();
         context.repository.getOrders().forEach(order -> {
+            if (isJunkOrder(order)) {
+                return;
+            }
             historyOrderModel.addElement(order);
             if (!"PAID".equals(order.getStatus()) && !"CANCELLED".equals(order.getStatus())) {
                 activeOrderModel.addElement(order);
@@ -714,6 +738,10 @@ public class AdminView extends JFrame {
         });
         activeOrderDetailArea.setText("");
         historyOrderDetailArea.setText("");
+    }
+
+    private boolean isJunkOrder(Order order) {
+        return order == null || order.getItems().isEmpty() || order.getTotalAmount() <= 0;
     }
 
     private void refreshUserModel() {
@@ -821,7 +849,21 @@ public class AdminView extends JFrame {
 
     private long countOrders(String status) {
         return context.repository.getOrders().stream()
+                .filter(order -> !isJunkOrder(order))
                 .filter(order -> status.equals(order.getStatus()))
+                .count();
+    }
+
+    private long countVisibleOrders() {
+        return context.repository.getOrders().stream()
+                .filter(order -> !isJunkOrder(order))
+                .count();
+    }
+
+    private long countPaidOrders() {
+        return context.repository.getOrders().stream()
+                .filter(order -> !isJunkOrder(order))
+                .filter(order -> order.getPayment() != null && "SUCCESS".equals(order.getPayment().getStatus()))
                 .count();
     }
 
