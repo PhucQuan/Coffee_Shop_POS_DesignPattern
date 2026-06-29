@@ -28,6 +28,7 @@ public class KitchenView extends JFrame implements OrderObserver {
     private final JLabel queueCount = new JLabel("0 active");
     private Order currentSelectedOrder;
     private JButton completeButton;
+    private JButton deliverButton;
 
     public KitchenView(AppContext context) {
         this.context = context;
@@ -125,16 +126,23 @@ public class KitchenView extends JFrame implements OrderObserver {
         itemList.setCellRenderer(new ItemRenderer());
         panel.add(new JScrollPane(itemList), BorderLayout.CENTER);
 
-        JPanel actions = new JPanel(new GridLayout(1, 2, 8, 8));
+        JPanel actions = new JPanel(new GridLayout(1, 3, 8, 8));
         actions.setOpaque(false);
         JButton refreshBtn = AppTheme.ghostButton("Refresh");
         completeButton = AppTheme.button("Complete", AppTheme.SUCCESS);
+        deliverButton = AppTheme.button("Deliver", AppTheme.PRIMARY);
         actions.add(refreshBtn);
         actions.add(completeButton);
+        actions.add(deliverButton);
         panel.add(actions, BorderLayout.SOUTH);
 
         refreshBtn.addActionListener(e -> refresh());
         completeButton.addActionListener(e -> executeAction(order -> context.orderService.markReady(order)));
+        deliverButton.addActionListener(e -> executeAction(order -> {
+            order.getState().pay(order);
+            context.repository.saveOrder(order);
+            context.publisher.notifyObservers(order, order.getStatus());
+        }));
         return panel;
     }
 
@@ -215,7 +223,9 @@ public class KitchenView extends JFrame implements OrderObserver {
 
     private void updateButtons(Order order) {
         boolean preparing = order != null && "PREPARING".equals(order.getStatus());
+        boolean ready = order != null && "READY".equals(order.getStatus());
         if (completeButton != null) completeButton.setEnabled(preparing);
+        if (deliverButton != null) deliverButton.setEnabled(ready);
     }
 
     public void onOrderStatusChanged(Order order, String newStatus) {
