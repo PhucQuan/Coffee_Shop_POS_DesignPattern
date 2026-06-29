@@ -129,7 +129,7 @@ public class KitchenView extends JFrame implements OrderObserver {
         JPanel actions = new JPanel(new GridLayout(1, 3, 8, 8));
         actions.setOpaque(false);
         JButton refreshBtn = AppTheme.ghostButton("Refresh");
-        completeButton = AppTheme.button("Complete", AppTheme.SUCCESS);
+        completeButton = AppTheme.button("Done", AppTheme.SUCCESS);
         deliverButton = AppTheme.button("Deliver", AppTheme.PRIMARY);
         actions.add(refreshBtn);
         actions.add(completeButton);
