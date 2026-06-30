@@ -20,8 +20,8 @@ public class KitchenView extends JFrame implements OrderObserver {
     private final DefaultListModel<Order> readyModel = new DefaultListModel<>();
     private final JList<Order> preparingList = new JList<>(preparingModel);
     private final JList<Order> readyList = new JList<>(readyModel);
-    private final DefaultListModel<String> itemModel = new DefaultListModel<>();
-    private final JList<String> itemList = new JList<>(itemModel);
+    private final DefaultListModel<OrderItem> itemModel = new DefaultListModel<>();
+    private final JList<OrderItem> itemList = new JList<>(itemModel);
     private final JLabel selectedTitle = new JLabel("Select an order");
     private final JLabel selectedStatus = new JLabel("No order selected");
     private final JLabel selectedTotal = new JLabel(AppTheme.money(0));
@@ -216,7 +216,7 @@ public class KitchenView extends JFrame implements OrderObserver {
         selectedStatus.setText(order.getStatus() + " - " + order.getCreatedAt().format(DateTimeFormatter.ofPattern("HH:mm")));
         selectedTotal.setText(AppTheme.money(order.getTotalAmount()));
         for (OrderItem item : order.getItems()) {
-            itemModel.addElement(item.toString());
+            itemModel.addElement(item);
         }
         updateButtons(order);
     }
@@ -294,13 +294,42 @@ public class KitchenView extends JFrame implements OrderObserver {
         }
     }
 
-    private static final class ItemRenderer extends DefaultListCellRenderer {
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected, boolean focus) {
-            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, selected, focus);
-            label.setBorder(new EmptyBorder(10, 10, 10, 10));
-            label.setBackground(index % 2 == 0 ? AppTheme.SURFACE : Color.WHITE);
-            label.setForeground(AppTheme.TEXT);
-            return label;
+    private static final class ItemRenderer implements ListCellRenderer<OrderItem> {
+        public Component getListCellRendererComponent(JList<? extends OrderItem> list, OrderItem item, int index, boolean selected, boolean focus) {
+            JPanel row = new JPanel(new BorderLayout(8, 6));
+            row.setOpaque(true);
+            row.setBorder(new EmptyBorder(10, 12, 10, 12));
+            row.setBackground(selected ? AppTheme.TINT : (index % 2 == 0 ? AppTheme.SURFACE : Color.WHITE));
+
+            JPanel text = new JPanel();
+            text.setOpaque(false);
+            text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
+
+            JLabel name = new JLabel(item.getQuantity() + " x " + item.getBeverage().getDescription());
+            name.setForeground(AppTheme.TEXT);
+            name.setFont(name.getFont().deriveFont(Font.BOLD, 13f));
+            text.add(name);
+
+            if (item.getNote() != null && !item.getNote().isBlank()) {
+                JLabel note = new JLabel("Note: " + item.getNote());
+                note.setForeground(AppTheme.DANGER.darker());
+                note.setFont(note.getFont().deriveFont(Font.BOLD, 12f));
+                note.setBorder(new EmptyBorder(4, 0, 0, 0));
+                text.add(note);
+            } else {
+                JLabel noNote = AppTheme.muted("No customer note");
+                noNote.setBorder(new EmptyBorder(4, 0, 0, 0));
+                text.add(noNote);
+            }
+
+            JLabel price = new JLabel(AppTheme.money(item.getItemPrice()));
+            price.setForeground(AppTheme.TEXT);
+            price.setFont(price.getFont().deriveFont(Font.BOLD, 13f));
+
+            row.add(text, BorderLayout.CENTER);
+            row.add(price, BorderLayout.EAST);
+            return row;
         }
     }
 }
+

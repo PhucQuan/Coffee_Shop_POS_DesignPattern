@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Objects;
 
 public class POSView extends JFrame {
     private final AppContext context;
@@ -58,6 +59,12 @@ public class POSView extends JFrame {
     private final JLabel discountLabel = new JLabel();
     private final JLabel totalLabel = new JLabel();
     private final JLabel paymentStatusLabel = new JLabel("Payment: idle");
+    private final JTextArea itemNoteArea = new JTextArea(4, 20);
+    private final JLabel noteHintLabel = new JLabel("Select an item in cart, then enter and save the customer request.");
+    private final JLabel selectedCartItemLabel = new JLabel("No cart item selected");
+    private JButton saveNoteButton;
+    private JButton clearNoteButton;
+    private boolean noteSyncInProgress;
     private final JLabel selectedIconLabel = new JLabel();
     private final JLabel selectedNameLabel = new JLabel("Select a drink");
     private final JLabel selectedCategoryLabel = new JLabel("Pick from menu");
@@ -402,12 +409,55 @@ public class POSView extends JFrame {
                 AppTheme.SURFACE, AppTheme.BORDER, 18, new Insets(24, 24, 24, 24));
         itemColumn.add(sectionHeader("Items", "Select a line item to adjust quantity or remove it."), BorderLayout.NORTH);
         itemColumn.add(billScroll, BorderLayout.CENTER);
-        JPanel itemFooter = new JPanel(new BorderLayout(0, 10));
+
+        JPanel noteCard = AppTheme.roundedPanel(new BorderLayout(0, 12),
+                AppTheme.PANEL, AppTheme.BORDER, 16, new Insets(16, 16, 16, 16));
+
+        JPanel noteHeader = new JPanel();
+        noteHeader.setOpaque(false);
+        noteHeader.setLayout(new BoxLayout(noteHeader, BoxLayout.Y_AXIS));
+        noteHeader.add(sectionHeader("Customer note", "Select a cart item, then save the customer request for that specific drink."));
+        selectedCartItemLabel.setForeground(AppTheme.PRIMARY.darker());
+        selectedCartItemLabel.setFont(selectedCartItemLabel.getFont().deriveFont(Font.BOLD, 12f));
+        selectedCartItemLabel.setBorder(new EmptyBorder(6, 0, 0, 0));
+        noteHeader.add(selectedCartItemLabel);
+        noteCard.add(noteHeader, BorderLayout.NORTH);
+
+        styleNoteArea(itemNoteArea);
+        JScrollPane noteScroll = new JScrollPane(itemNoteArea);
+        noteScroll.setBorder(BorderFactory.createLineBorder(AppTheme.BORDER));
+        noteScroll.getViewport().setBackground(AppTheme.PANEL);
+        noteScroll.setPreferredSize(new Dimension(0, 92));
+        noteCard.add(noteScroll, BorderLayout.CENTER);
+
+        JPanel noteFooter = new JPanel(new BorderLayout(0, 10));
+        noteFooter.setOpaque(false);
+        noteHintLabel.setForeground(AppTheme.MUTED);
+        noteHintLabel.setBorder(new EmptyBorder(2, 0, 0, 0));
+        noteFooter.add(noteHintLabel, BorderLayout.NORTH);
+
+        JPanel noteActions = new JPanel(new GridLayout(1, 2, 8, 0));
+        noteActions.setOpaque(false);
+        saveNoteButton = compactActionButton("Save note", AppTheme.PRIMARY);
+        clearNoteButton = compactButton("Clear note");
+        noteActions.add(saveNoteButton);
+        noteActions.add(clearNoteButton);
+        noteFooter.add(noteActions, BorderLayout.SOUTH);
+        noteCard.add(noteFooter, BorderLayout.SOUTH);
+
+        JPanel itemFooter = new JPanel();
         itemFooter.setOpaque(false);
-        itemFooter.add(itemActions, BorderLayout.NORTH);
+        itemFooter.setLayout(new BoxLayout(itemFooter, BoxLayout.Y_AXIS));
+        itemActions.setAlignmentX(Component.LEFT_ALIGNMENT);
+        noteCard.setAlignmentX(Component.LEFT_ALIGNMENT);
+        itemFooter.add(itemActions);
+        itemFooter.add(Box.createVerticalStrut(12));
+        itemFooter.add(noteCard);
+        itemFooter.add(Box.createVerticalStrut(10));
         JLabel helper = AppTheme.muted("Tip: double-click a drink on the POS page to add it quickly.");
         helper.setBorder(new EmptyBorder(2, 2, 0, 0));
-        itemFooter.add(helper, BorderLayout.SOUTH);
+        helper.setAlignmentX(Component.LEFT_ALIGNMENT);
+        itemFooter.add(helper);
         itemColumn.add(itemFooter, BorderLayout.SOUTH);
 
         JPanel summary = new JPanel(new GridLayout(3, 1, 0, 8));
@@ -503,7 +553,13 @@ public class POSView extends JFrame {
         decreaseQtyButton.addActionListener(e -> changeSelectedItemQuantity(-1));
         increaseQtyButton.addActionListener(e -> changeSelectedItemQuantity(1));
         removeItemButton.addActionListener(e -> removeSelectedBillItem());
-        billList.addListSelectionListener(e -> updateActionState());
+        billList.addListSelectionListener(e -> {
+            syncSelectedItemNote();
+            updateActionState();
+        });
+        installNoteSync();
+        saveNoteButton.addActionListener(e -> saveSelectedItemNote());
+        clearNoteButton.addActionListener(e -> clearSelectedItemNote());
         momoButton.addActionListener(e -> pay(new MomoAdapter(new Random(1))));
         vnpayButton.addActionListener(e -> pay(new VnpayAdapter(new Random(1))));
         receipt.addActionListener(e -> showReceipt());
@@ -632,6 +688,17 @@ public class POSView extends JFrame {
         button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
     }
 
+    private void styleNoteArea(JTextArea area) {
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+        area.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        area.setForeground(AppTheme.TEXT);
+        area.setBackground(AppTheme.PANEL);
+        area.setCaretColor(AppTheme.TEXT);
+        area.setMargin(new Insets(10, 12, 10, 12));
+    }
+
+
     private JPanel summaryLine(String label, JLabel value) {
         JPanel row = new JPanel(new BorderLayout());
         row.setOpaque(false);
@@ -689,6 +756,7 @@ public class POSView extends JFrame {
         clearSelectedToppings();
         discountBox.setSelectedItem("No discount");
         paymentStatusLabel.setText("Payment: idle");
+        itemNoteArea.setText("");
         selectedMenuItem = null;
         refreshBill();
         refreshMenu();
@@ -851,6 +919,9 @@ public class POSView extends JFrame {
                         .append(" x ").append(item.getBeverage().getDescription())
                         .append("  |  ").append(AppTheme.money(item.getItemPrice()))
                         .append("\n");
+                if (item.getNote() != null && !item.getNote().isBlank()) {
+                    builder.append("  note: ").append(item.getNote()).append("\n");
+                }
             }
         }
         builder.append("\nSummary\n");
@@ -888,6 +959,85 @@ public class POSView extends JFrame {
         } catch (RuntimeException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage());
         }
+    }
+
+    private void installNoteSync() {
+        itemNoteArea.getDocument().addDocumentListener((SimpleDocumentListener) this::updateNoteDraftState);
+    }
+
+    private void syncSelectedItemNote() {
+        OrderItem item = selectedBillItem();
+        String note = item == null || item.getNote() == null ? "" : item.getNote();
+        noteSyncInProgress = true;
+        try {
+            if (!Objects.equals(itemNoteArea.getText(), note)) {
+                itemNoteArea.setText(note);
+                itemNoteArea.setCaretPosition(0);
+            }
+        } finally {
+            noteSyncInProgress = false;
+        }
+
+        boolean editable = item != null && "PENDING".equals(currentOrder.getStatus());
+        itemNoteArea.setEditable(editable);
+        itemNoteArea.setEnabled(item != null);
+
+        selectedCartItemLabel.setText(item == null
+                ? "No cart item selected"
+                : "Selected: " + item.getQuantity() + " x " + item.getBeverage().getDescription());
+
+        noteHintLabel.setText(item == null
+                ? "Choose a drink in the cart first, then write a note and press Save note."
+                : editable
+                ? "Type the customer request, then press Save note to apply it to this item."
+                : "Notes can only be edited while the order is pending.");
+
+        updateNoteDraftState();
+    }
+
+    private void updateNoteDraftState() {
+        if (noteSyncInProgress) {
+            return;
+        }
+        OrderItem item = selectedBillItem();
+        String savedNote = item == null || item.getNote() == null ? "" : item.getNote().trim();
+        String draftNote = itemNoteArea.getText() == null ? "" : itemNoteArea.getText().trim();
+        boolean editable = item != null && "PENDING".equals(currentOrder.getStatus());
+        boolean changed = !Objects.equals(savedNote, draftNote);
+
+        if (saveNoteButton != null) saveNoteButton.setEnabled(editable && changed);
+        if (clearNoteButton != null) clearNoteButton.setEnabled(editable && (!draftNote.isBlank() || !savedNote.isBlank()));
+    }
+
+    private void saveSelectedItemNote() {
+        OrderItem item = selectedBillItem();
+        if (item == null) {
+            JOptionPane.showMessageDialog(this, "Please select an item in the cart first.");
+            return;
+        }
+        if (!"PENDING".equals(currentOrder.getStatus())) {
+            JOptionPane.showMessageDialog(this, "Notes can only be edited while the order is pending.");
+            return;
+        }
+
+        String note = itemNoteArea.getText() == null ? "" : itemNoteArea.getText().trim();
+        item.setNote(note);
+        context.orderService.recalculate(currentOrder);
+        billList.repaint();
+        refreshReceiptPage();
+        refreshOrdersPage();
+        syncSelectedItemNote();
+        JOptionPane.showMessageDialog(this, note.isBlank() ? "Note cleared for selected item." : "Note saved for selected item.");
+    }
+
+    private void clearSelectedItemNote() {
+        OrderItem item = selectedBillItem();
+        if (item == null) {
+            JOptionPane.showMessageDialog(this, "Please select an item in the cart first.");
+            return;
+        }
+        itemNoteArea.setText("");
+        updateNoteDraftState();
     }
 
     private void removeSelectedBillItem() {
@@ -932,6 +1082,7 @@ public class POSView extends JFrame {
         discountLabel.setText("-" + AppTheme.money(currentOrder.getDiscountAmount()));
         totalLabel.setText(AppTheme.money(currentOrder.getTotalAmount()));
         updateActionState();
+        syncSelectedItemNote();
         refreshReceiptPage();
     }
 
@@ -952,6 +1103,7 @@ public class POSView extends JFrame {
         if (momoButton != null) momoButton.setEnabled(pending && hasItems && !paid);
         if (vnpayButton != null) vnpayButton.setEnabled(pending && hasItems && !paid);
         if (cancelOrderButton != null) cancelOrderButton.setEnabled(pending && !paid);
+        updateNoteDraftState();
     }
 
     private JPanel menuCard(MenuItemRecord item) {
@@ -1049,6 +1201,12 @@ public class POSView extends JFrame {
             text.add(name);
             text.add(Box.createVerticalStrut(4));
             text.add(meta);
+            if (item.getNote() != null && !item.getNote().isBlank()) {
+                JLabel note = AppTheme.muted("Note: " + item.getNote());
+                note.setForeground(AppTheme.PRIMARY.darker());
+                text.add(Box.createVerticalStrut(4));
+                text.add(note);
+            }
 
             JLabel price = new JLabel(AppTheme.money(item.getItemPrice()));
             price.setForeground(AppTheme.PRIMARY);
@@ -1148,3 +1306,6 @@ public class POSView extends JFrame {
         }
     }
 }
+
+
+
