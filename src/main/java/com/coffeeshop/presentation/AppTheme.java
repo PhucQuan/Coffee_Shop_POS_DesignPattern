@@ -1,5 +1,6 @@
 package com.coffeeshop.presentation;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -38,10 +39,40 @@ public final class AppTheme {
 
     public static void installLookAndFeel() {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {
+            FlatLightLaf.setup();
+        } catch (Exception e) {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception ignored) {
+            }
         }
         setGlobalFont(new Font(FONT, Font.PLAIN, 13));
+
+        // Modern FlatLaf Styling properties
+        UIManager.put("Button.arc", 14);
+        UIManager.put("Component.arc", 14);
+        UIManager.put("TextComponent.arc", 12);
+        UIManager.put("CheckBox.arc", 6);
+        UIManager.put("ProgressBar.arc", 12);
+
+        UIManager.put("ScrollBar.thumbArc", 999);
+        UIManager.put("ScrollBar.thumbInsets", new Insets(2, 2, 2, 2));
+        UIManager.put("ScrollBar.track", BG);
+        UIManager.put("ScrollBar.thumb", BORDER);
+
+        UIManager.put("Table.rowHeight", 38);
+        UIManager.put("Table.showHorizontalLines", true);
+        UIManager.put("Table.showVerticalLines", false);
+        UIManager.put("Table.intercellSpacing", new Dimension(0, 1));
+        UIManager.put("Table.gridColor", new Color(238, 230, 222));
+        UIManager.put("TableHeader.height", 36);
+        UIManager.put("TableHeader.font", new Font(FONT, Font.BOLD, 12));
+
+        UIManager.put("TabbedPane.tabHeight", 40);
+        UIManager.put("TabbedPane.showTabSeparators", false);
+        UIManager.put("TabbedPane.selectedBackground", PANEL);
+
+        UIManager.put("Popup.dropShadowNeeded", true);
         UIManager.put("Panel.background", BG);
         UIManager.put("ScrollPane.background", SURFACE);
         UIManager.put("Viewport.background", SURFACE);

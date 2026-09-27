@@ -137,6 +137,201 @@ def setup_doc():
     return doc
 
 
+def add_white_box_unit(doc, number, method, source, decisions, complexity, paths, tests, data_flow):
+    doc.add_heading(f"{number}. {method}", level=2)
+    doc.add_paragraph(f"Đơn vị kiểm thử: {source}")
+    doc.add_paragraph(f"Các điểm quyết định: {decisions}. Độ phức tạp chu trình McCabe: V(G) = {complexity}.")
+    doc.add_paragraph("Các đường đi độc lập:")
+    add_numbered(doc, paths)
+    table(doc, ["TC", "Dữ liệu/tiền điều kiện", "Đường đi", "Kết quả mong đợi"], tests,
+          widths=[1.2, 5.6, 3.2, 5.0])
+    doc.add_paragraph("Kiểm thử dòng dữ liệu (định nghĩa – sử dụng):")
+    table(doc, ["Biến", "Định nghĩa", "Sử dụng", "Kết luận"], data_flow,
+          widths=[2.5, 4.0, 5.0, 3.5])
+
+
+def add_white_box_chapter(doc):
+    doc.add_page_break()
+    doc.add_heading("CHƯƠNG IV. THỰC HIỆN KIỂM THỬ HỘP TRẮNG 8 ĐƠN VỊ MÃ NGUỒN", level=1)
+    doc.add_paragraph(
+        "Chương này kiểm thử hộp trắng tại mức hàm. Mỗi hàm được phân tích theo đồ thị điều khiển, "
+        "độ phức tạp chu trình McCabe, các đường đi độc lập và kiểm thử dòng dữ liệu. Các tình huống "
+        "được đối chiếu với TestRunner của dự án; lỗi được kiểm tra bằng ngoại lệ mong đợi."
+    )
+    doc.add_paragraph(
+        "Quy ước: V(G) = số điểm quyết định + 1. Với biểu thức điều kiện ghép có toán tử &&, mỗi "
+        "điều kiện con được xét riêng vì Java đánh giá theo kiểu ngắn mạch. Các đường đi dừng ở ngoại lệ "
+        "được xem là đường đi hợp lệ cần kiểm thử."
+    )
+
+    add_white_box_unit(doc, "IV.1", "Hàm pay", "PaymentService.pay(Order order, PaymentGateway gateway)",
+        "(1) đơn đã thanh toán; (2) cổng thanh toán thành công; (3) đơn ở PENDING; (4) publisher khác null",
+        5,
+        [
+            "P1: (1) đúng → ném IllegalStateException.",
+            "P2: (1) sai → (2) sai → trả về PaymentResult thất bại, không đổi đơn.",
+            "P3: (1) sai → (2) đúng → (3) đúng → trừ kho, PENDING → PREPARING → lưu đơn → (4) sai.",
+            "P4: (1) sai → (2) đúng → (3) sai → gọi state.pay, lưu đơn → (4) sai.",
+            "P5: (1) sai → (2) đúng → lưu đơn → (4) đúng → thông báo observer."
+        ],
+        [
+            ("WB01", "Đơn có Payment SUCCESS", "P1", "Ném lỗi, chống thanh toán lặp."),
+            ("WB02", "Đơn READY, FakeFailingGateway", "P2", "Trả fail; trạng thái vẫn READY, payment null."),
+            ("WB03", "Đơn PENDING có món, gateway thành công", "P3", "Kho bị trừ và đơn chuyển PREPARING."),
+            ("WB04", "Đơn READY, Momo thành công", "P4", "Đơn PAID, lưu Payment SUCCESS."),
+            ("WB05", "Đơn READY, publisher có observer", "P5", "Observer nhận trạng thái PAID.")
+        ],
+        [
+            ("result", "gateway.processPayment", "isSuccess, transactionCode", "Mọi định nghĩa đều được dùng trước khi trả về."),
+            ("payment", "Tạo khi result thành công", "setPayment, savePayment", "Không tạo payment ở nhánh thất bại."),
+            ("order.status", "State.sendToKitchen/pay", "saveOrder, notifyObservers", "Trạng thái sau chuyển đổi được lưu và thông báo.")
+        ])
+
+    add_white_box_unit(doc, "IV.2", "Hàm addItem", "OrderService.addItem(Order order, int beverageId, Beverage beverage, int quantity, String note)",
+        "(1) đơn có PENDING; (2) mô tả đồ uống trùng; (3) ghi chú trùng", 4,
+        [
+            "P1: (1) sai → ném InvalidStateTransitionException.",
+            "P2: (1) đúng → duyệt item, (2) sai → tạo OrderItem mới → tính lại.",
+            "P3: (1) đúng → (2) đúng → (3) sai → tạo OrderItem mới → tính lại.",
+            "P4: (1) đúng → (2) đúng → (3) đúng → cộng số lượng vào item cũ → tính lại → trả item cũ."
+        ],
+        [
+            ("WB06", "Đơn PREPARING", "P1", "Không cho thêm món."),
+            ("WB07", "Đơn PENDING, giỏ trống", "P2", "Thêm một OrderItem mới."),
+            ("WB08", "Cùng đồ uống nhưng ghi chú khác", "P3", "Tạo dòng món riêng."),
+            ("WB09", "Cùng đồ uống và cùng ghi chú", "P4", "Gộp dòng món, quantity tăng.")
+        ],
+        [
+            ("note chuẩn hóa", "note == null ? \"\" : note", "So sánh ghi chú, tạo OrderItem", "Null được dùng nhất quán như chuỗi rỗng."),
+            ("existing", "Vòng lặp order.getItems", "setQuantity, return", "Chỉ dùng khi cả mô tả và ghi chú trùng."),
+            ("item", "new OrderItem", "state.addItem", "Item mới được thêm trước khi tính lại tổng.")
+        ])
+
+    add_white_box_unit(doc, "IV.3", "Hàm updateItemQuantity", "OrderService.updateItemQuantity(Order order, int itemId, int quantity)",
+        "(1) đơn có PENDING; (2) quantity <= 0; (3) itemId tìm thấy trong danh sách", 4,
+        [
+            "P1: (1) sai → ném InvalidStateTransitionException.",
+            "P2: (1) đúng → (2) đúng → gọi removeItem → tính lại.",
+            "P3: (1) đúng → (2) sai → (3) sai → ném IllegalArgumentException.",
+            "P4: (1) đúng → (2) sai → (3) đúng → cập nhật quantity → tính lại."
+        ],
+        [
+            ("WB10", "Đơn READY", "P1", "Không cho sửa số lượng."),
+            ("WB11", "Đơn PENDING, quantity = 0", "P2", "Xóa dòng món."),
+            ("WB12", "Đơn PENDING, itemId không tồn tại, quantity = 2", "P3", "Ném lỗi không tìm thấy item."),
+            ("WB13", "Đơn PENDING, itemId hợp lệ, quantity = 3", "P4", "Số lượng và tổng tiền được cập nhật.")
+        ],
+        [
+            ("quantity", "Tham số", "So sánh <= 0, setQuantity", "Giá trị không dương đi theo nhánh xóa."),
+            ("item", "stream.findFirst", "setQuantity", "Không có sử dụng khi item vắng mặt."),
+            ("order", "Tham số", "removeItem/recalculate", "Mọi nhánh thành công đều cập nhật lại tổng.")
+        ])
+
+    add_white_box_unit(doc, "IV.4", "Hàm recalculate", "OrderService.recalculate(Order order)",
+        "Không có điểm quyết định trực tiếp trong hàm", 1,
+        ["P1: Lấy strategy theo discountType → tính giảm giá → chặn tổng âm bằng Math.max → gán các trường → lưu đơn."],
+        [
+            ("WB14", "Đơn subtotal 100.000, discount PERCENT_10", "P1", "discount = 10.000; total = 90.000."),
+            ("WB15", "Đơn subtotal 20.000, strategy cho giảm 30.000", "P1", "total = 0, không âm."),
+            ("WB16", "discountType không hợp lệ", "P1", "Resolver rơi về chiến lược NONE theo cài đặt hiện có.")
+        ],
+        [
+            ("discountStrategy", "Resolver.fromName", "calculateDiscount/getName", "Chiến lược lấy được được dùng để tính và chuẩn hóa tên."),
+            ("discount", "calculateDiscount", "setDiscountAmount, finalTotal", "Sử dụng đầy đủ trước khi lưu."),
+            ("finalTotal", "Math.max", "setTotalAmount", "Ngăn dữ liệu tổng tiền âm.")
+        ])
+
+    add_white_box_unit(doc, "IV.5", "Hàm restockItem", "InventoryService.restockItem(int id, double amount)",
+        "(1) amount <= 0", 2,
+        ["P1: (1) đúng → ném IllegalArgumentException.", "P2: (1) sai → tìm nguyên liệu theo id → cộng kho với loại giao dịch MANUAL_RESTOCK."],
+        [
+            ("WB17", "id = 1, amount = 0", "P1", "Từ chối nhập kho bằng 0."),
+            ("WB18", "id = 1, amount = -5", "P1", "Từ chối nhập kho âm."),
+            ("WB19", "id nguyên liệu hợp lệ, amount = 10", "P2", "Tồn kho tăng 10 và được ghi nhận.")
+        ],
+        [
+            ("amount", "Tham số", "So sánh, adjustInventory", "Chỉ giá trị dương mới tới thao tác cập nhật."),
+            ("item", "getInventoryItemById", "item.getId", "Id thực tế của nguyên liệu được dùng để cập nhật kho.")
+        ])
+
+    add_white_box_unit(doc, "IV.6", "Hàm deductForOrder", "InventoryService.deductForOrder(Order order)",
+        "(1) order.isInventoryDeducted; (2) từng nguyên liệu trong requirements", 3,
+        [
+            "P1: (1) đúng → return, tránh trừ kho lặp.",
+            "P2: (1) sai → tính requirements → kho không đủ → validateAvailable ném InventoryException.",
+            "P3: (1) sai → tính requirements → kho đủ → duyệt requirements, trừ từng nguyên liệu → đánh dấu đã trừ."
+        ],
+        [
+            ("WB20", "Đơn đã isInventoryDeducted = true", "P1", "Tồn kho không thay đổi."),
+            ("WB21", "Đơn cần 10g coffee beans, kho chỉ có 5g", "P2", "Ném InventoryException; không trừ một phần."),
+            ("WB22", "Đơn hợp lệ, kho đủ", "P3", "Tồn kho giảm đúng công thức và cờ đã trừ = true.")
+        ],
+        [
+            ("requirements", "calculateRequirements", "validateAvailable, forEach", "Chỉ trừ kho khi toàn bộ requirements hợp lệ."),
+            ("item", "getItem(name)", "adjustInventory", "Mỗi nguyên liệu được trừ đúng id."),
+            ("inventoryDeducted", "setInventoryDeducted(true)", "Lần gọi kế tiếp", "Ngăn cặp định nghĩa–sử dụng bất thường gây trừ hai lần.")
+        ])
+
+    add_white_box_unit(doc, "IV.7", "Hàm createBeverage", "MenuService.createBeverage(MenuItemRecord item)",
+        "switch category: COFFEE, TEA, MATCHA, SMOOTHIE và default", 5,
+        [
+            "P1: category COFFEE → CoffeeFactory → tạo BaseCoffee.",
+            "P2: category TEA → TeaFactory → tạo MilkTea.",
+            "P3: category MATCHA → MatchaFactory → tạo Matcha.",
+            "P4: category SMOOTHIE → SmoothieFactory → tạo Smoothie.",
+            "P5: category khác → ném IllegalArgumentException."
+        ],
+        [
+            ("WB23", "MenuItem category COFFEE", "P1", "Tạo beverage cà phê đúng tên/giá."),
+            ("WB24", "MenuItem category TEA", "P2", "Tạo beverage trà sữa."),
+            ("WB25", "MenuItem category MATCHA", "P3", "Tạo beverage matcha."),
+            ("WB26", "MenuItem category SMOOTHIE", "P4", "Tạo beverage sinh tố."),
+            ("WB27", "MenuItem category JUICE", "P5", "Ném lỗi category không hỗ trợ.")
+        ],
+        [
+            ("factory", "switch item.getCategory", "factory.createBeverage", "Mỗi nhánh gán đúng factory trước khi dùng."),
+            ("item.name", "Dữ liệu menu", "createBeverage", "Tên được truyền nguyên vẹn vào đối tượng đồ uống."),
+            ("item.basePrice", "Dữ liệu menu", "createBeverage", "Giá cơ sở được dùng trực tiếp để tính giá đồ uống.")
+        ])
+
+    add_white_box_unit(doc, "IV.8", "Hàm saveRecipeItem", "MenuService.saveRecipeItem(MenuItemRecord beverage, InventoryItem inventoryItem, double quantityRequired)",
+        "(1) beverage null; (2) inventoryItem null; (3) quantityRequired <= 0", 4,
+        [
+            "P1: (1) đúng → ném IllegalArgumentException.",
+            "P2: (1) sai → (2) đúng → ném IllegalArgumentException.",
+            "P3: (1) sai → (2) sai → (3) đúng → ném IllegalArgumentException.",
+            "P4: (1) sai → (2) sai → (3) sai → tạo RecipeItem và lưu repository."
+        ],
+        [
+            ("WB28", "beverage = null", "P1", "Báo phải chọn đồ uống."),
+            ("WB29", "inventoryItem = null", "P2", "Báo phải chọn nguyên liệu."),
+            ("WB30", "quantityRequired = 0", "P3", "Từ chối định lượng không dương."),
+            ("WB31", "Đồ uống và nguyên liệu hợp lệ, quantity = 180", "P4", "Công thức được lưu đúng mã và định lượng.")
+        ],
+        [
+            ("beverage", "Tham số", "Kiểm tra null, getId", "Không đọc getId khi biến null."),
+            ("inventoryItem", "Tham số", "Kiểm tra null, getId", "Không đọc getId khi biến null."),
+            ("quantityRequired", "Tham số", "So sánh, new RecipeItem", "Chỉ định lượng dương mới được lưu.")
+        ])
+
+    doc.add_heading("IV.9. Tổng hợp kết quả", level=2)
+    table(doc, ["Đơn vị", "V(G)", "Số đường cơ sở", "Trạng thái"], [
+        ("pay", "5", "5", "Đạt bao phủ nhánh chính"),
+        ("addItem", "4", "4", "Đạt bao phủ điều kiện ghép"),
+        ("updateItemQuantity", "4", "4", "Đạt bao phủ lỗi và thành công"),
+        ("recalculate", "1", "1", "Đạt đường đi tuần tự"),
+        ("restockItem", "2", "2", "Đạt nhánh dữ liệu biên"),
+        ("deductForOrder", "3", "3", "Đạt nhánh chống trừ lặp và thiếu kho"),
+        ("createBeverage", "5", "5", "Đạt mọi nhánh factory"),
+        ("saveRecipeItem", "4", "4", "Đạt các nhánh kiểm tra đầu vào")
+    ], widths=[4.5, 2.5, 4, 5])
+    doc.add_paragraph(
+        "Tổng cộng có 28 đường đi cơ sở. Bộ dữ liệu WB01–WB31 bao phủ các nhánh hợp lệ, nhánh lỗi, "
+        "nhánh ngoại lệ và các cặp định nghĩa–sử dụng quan trọng. Khi chạy TestRunner, các tình huống "
+        "tương ứng được kiểm chứng cùng với các kiểm thử tích hợp sẵn có của dự án."
+    )
+
+
 def main():
     doc = setup_doc()
     add_title_page(doc)
@@ -351,6 +546,8 @@ def main():
         "ERD: ve bang users, beverages, toppings, orders, order_items, payments, inventory_items.",
         "Khi dat ten class trong so do, dung dung ten class trong tai lieu nay de khop code."
     ])
+
+    add_white_box_chapter(doc)
 
     doc.add_page_break()
     doc.add_heading("Phu luc A - Tai khoan demo", level=1)

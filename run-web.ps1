@@ -10,4 +10,6 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 Remove-Item -LiteralPath $sourceList -ErrorAction SilentlyContinue
 $resources = Join-Path $root "src\main\resources"
 if (Test-Path $resources) { Copy-Item -Path (Join-Path $resources "*") -Destination $out -Recurse -Force }
-java -cp "$out;$libs" com.coffeeshop.Main
+Write-Host "Starting Coffee Shop POS Web Server on http://localhost:8088 ..." -ForegroundColor Green
+Start-Process "http://localhost:8088"
+java -cp "$out;$libs" com.coffeeshop.api.WebServer

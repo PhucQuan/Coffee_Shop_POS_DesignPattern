@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --coffee-900: #2b170c;
+  --coffee-800: #3e200a;
+  --coffee-700: #583115;
+  --coffee-600: #7d4924;
+  --coffee-500: #a36538;
+  --coffee-400: #c2917a;
+  --coffee-300: #ddb7a4;
+  --coffee-200: #eed5c7;
+  --coffee-100: #f7ebe3;
+  --coffee-50:  #fffaf6;
+
+  --cream-surface: #fffdfa;
+  --cream-card: #ffffff;
+  --cream-border: #ede4db;
+
+  --accent-green: #3b7a57;
+  --accent-green-light: #e8f4ed;
+  --accent-amber: #d97706;
+  --accent-amber-light: #fef3c7;
+  --accent-red: #dc2626;
+  --accent-red-light: #fee2e2;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--coffee-50);
+  color: var(--coffee-900);
+}
+
+.mono-font {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d8c8bd;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #baa497;
+}
+
+/* Glassmorphism & Shadow */
+.pos-card {
+  background: var(--cream-card);
+  border: 1px solid var(--cream-border);
+  box-shadow: 0 4px 20px -2px rgba(62, 32, 10, 0.05), 0 2px 6px -1px rgba(62, 32, 10, 0.03);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.drink-card {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
+}
+.drink-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px -6px rgba(62, 32, 10, 0.12), 0 4px 10px -2px rgba(62, 32, 10, 0.06);
+  border-color: var(--coffee-400);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--coffee-700) 0%, var(--coffee-800) 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(62, 32, 10, 0.25);
+  transition: all 0.2s ease;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--coffee-600) 0%, var(--coffee-700) 100%);
+  box-shadow: 0 6px 20px rgba(62, 32, 10, 0.35);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-secondary {
+  background: #f4eae3;
+  color: var(--coffee-800);
+  border: 1px solid #e5d6cc;
+  transition: all 0.15s ease;
+}
+.btn-secondary:hover {
+  background: #ede0d7;
+  color: var(--coffee-900);
+}
+
+.category-tab.active {
+  background-color: var(--coffee-800);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(62, 32, 10, 0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Badge pulse */
+.pulse-badge {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Receipt Print Styling */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #receiptModalContent, #receiptModalContent * {
+    visibility: visible;
+  }
+  #receiptModalContent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    margin: 0;
+    padding: 10px;
+    box-shadow: none;
+    border: none;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "coffee-shop-pos-e2e",
+  "version": "1.0.0",
+  "description": "Black-box Testing for Coffee Shop POS using Playwright",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "codegen": "playwright codegen http://localhost:8088",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}

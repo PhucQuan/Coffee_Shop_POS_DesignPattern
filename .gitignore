@@ -14,3 +14,5 @@ Thumbs.db
 pos_data.db
 run_output.txt
 sources.txt
+node_modules/
+dist/
