@@ -8,7 +8,8 @@
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "codegen": "playwright codegen http://localhost:8088",
-    "report": "playwright show-report"
+    "report": "playwright show-report",
+    "export:videos": "node organize-videos.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0"

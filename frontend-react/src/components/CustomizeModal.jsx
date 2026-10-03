@@ -134,6 +134,7 @@ export default function CustomizeModal({ drink, onClose, onConfirm }) {
               3. Ghi Chú Đặc Biệt:
             </label>
             <input
+              id="modalItemNote"
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
@@ -157,6 +158,7 @@ export default function CustomizeModal({ drink, onClose, onConfirm }) {
               Hủy
             </button>
             <button
+              id="btnModalAddToCart"
               onClick={handleConfirm}
               className="px-6 py-2.5 rounded-xl text-xs font-extrabold btn-primary"
             >

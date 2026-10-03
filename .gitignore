@@ -16,3 +16,5 @@ run_output.txt
 sources.txt
 node_modules/
 dist/
+test-results/
+playwright-report/

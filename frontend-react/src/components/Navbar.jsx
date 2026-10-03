@@ -18,6 +18,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
         {/* Tab Switcher */}
         <nav className="hidden md:flex items-center gap-1.5 bg-[#f7ebe3] p-1 rounded-2xl">
           <button
+            data-tab-target="pos"
             onClick={() => setActiveTab('pos')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
               activeTab === 'pos'
@@ -29,6 +30,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
             Thu Ngân (POS)
           </button>
           <button
+            data-tab-target="kitchen"
             onClick={() => setActiveTab('kitchen')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
               activeTab === 'kitchen'
@@ -40,6 +42,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
             Màn Hình Bếp (KDS)
           </button>
           <button
+            data-tab-target="admin"
             onClick={() => setActiveTab('admin')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
               activeTab === 'admin'

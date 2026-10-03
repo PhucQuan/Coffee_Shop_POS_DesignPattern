@@ -9,7 +9,7 @@ export default function ReceiptModal({ order, onClose }) {
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200">
         {/* Printable Receipt */}
-        <div id="printableReceipt" className="p-6 bg-white font-mono text-xs">
+        <div id="receiptModalContent" className="p-6 bg-white font-mono text-xs">
           <div className="text-center pb-3 border-b border-dashed border-gray-300">
             <h2 className="text-base font-extrabold tracking-wider text-black">PURRCOFFEE POS</h2>
             <p className="text-[10px] text-gray-500">123 Đại Lộ Hoàng Hôn, Quận 1, TP. HCM</p>
@@ -69,6 +69,7 @@ export default function ReceiptModal({ order, onClose }) {
             In Hóa Đơn
           </button>
           <button
+            id="btnCloseReceipt"
             onClick={onClose}
             className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-[#f4eae3] text-[#583115] hover:bg-[#ede0d7]"
           >

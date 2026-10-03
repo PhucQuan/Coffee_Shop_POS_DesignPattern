@@ -27,7 +27,7 @@ export default function CartSidebar({
           <div>
             <h2 className="font-extrabold text-[#2b170c] text-base leading-tight">Đơn hàng hiện tại</h2>
             <p className="text-[11px] text-[#a36538]">
-              Số lượng: <span className="font-bold text-[#583115]">{totalQty}</span> món
+              Số lượng: <span id="cartCountBadge" className="font-bold text-[#583115]">{totalQty}</span> món
             </p>
           </div>
         </div>
@@ -116,6 +116,7 @@ export default function CartSidebar({
             <span>🏷️</span> Mã giảm giá:
           </span>
           <select
+            id="discountSelect"
             value={discountType}
             onChange={(e) => setDiscountType(e.target.value)}
             className="bg-white border border-[#ede4db] rounded-xl px-2.5 py-1.5 text-xs font-semibold text-[#2b170c] focus:outline-none focus:border-[#7d4924]"
@@ -130,19 +131,20 @@ export default function CartSidebar({
         <div className="space-y-1.5 pt-2 border-t border-dashed border-[#ede4db]">
           <div className="flex justify-between text-xs text-[#8a7668]">
             <span>Tạm tính (Subtotal):</span>
-            <span className="font-bold text-[#2b170c]">{formatVND(subtotal)}</span>
+            <span id="cartSubtotal" className="font-bold text-[#2b170c]">{formatVND(subtotal)}</span>
           </div>
           <div className="flex justify-between text-xs text-emerald-600 font-semibold">
             <span>Khuyến mãi (Discount):</span>
-            <span>{discountAmount > 0 ? `-${formatVND(discountAmount)}` : '0 ₫'}</span>
+            <span id="cartDiscount">{discountAmount > 0 ? `-${formatVND(discountAmount)}` : '0 ₫'}</span>
           </div>
           <div className="flex justify-between items-baseline pt-2 border-t border-[#ede4db]">
             <span className="font-bold text-sm text-[#2b170c]">Tổng thanh toán:</span>
-            <span className="text-xl font-extrabold text-[#7d4924]">{formatVND(total)}</span>
+            <span id="cartTotal" className="text-xl font-extrabold text-[#7d4924]">{formatVND(total)}</span>
           </div>
         </div>
 
         <button
+          id="btnOpenCheckout"
           onClick={onOpenCheckout}
           disabled={cart.length === 0}
           className="w-full py-3.5 px-4 rounded-2xl text-sm font-extrabold btn-primary flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
@@ -150,6 +152,7 @@ export default function CartSidebar({
           <CreditCard className="w-5 h-5" />
           Thanh Toán Đơn Hàng
         </button>
+
       </div>
     </aside>
   );

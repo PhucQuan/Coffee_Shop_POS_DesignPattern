@@ -1,290 +1,200 @@
-# HƯỚNG DẪN CÀI ĐẶT & SỬ DỤNG PLAYWRIGHT (BLACK-BOX TESTING)
+# HƯỚNG DẪN KIỂM THỬ HỘP ĐEN & QUAY VIDEO VỚI PLAYWRIGHT
 > **Dự án:** Coffee Shop POS (Hệ thống Bán Hàng & Quản Lý Quán Cà Phê)  
-> **Dành cho:** Tất cả thành viên trong nhóm (Dễ hiểu cho người mới bắt đầu từ con số 0)  
+> **Áp dụng Design Patterns:** Factory Method, Decorator, Strategy, Adapter, State, Observer  
+> **Dành cho:** Tất cả thành viên trong nhóm & Báo cáo đồ án môn học  
 
 ---
 
-## ☕ 1. TỔNG QUAN: PLAYWRIGHT & KIỂM THỬ HỘP ĐEN (BLACK-BOX)
+## 📋 THỨ TỰ LÀM & CÁCH SỬ DỤNG NHANH NHẤT (1-CLICK)
 
-### 1.1. Kiểm thử hộp đen (Black-box Testing) là gì?
-- Kiểm thử hộp đen là phương pháp kiểm thử **từ góc nhìn của người dùng thực tế** (Khách hàng, Thu ngân, Pha chế, Quản lý).
-- Bạn **không cần quan tâm code bên trong viết gì**, mà chỉ quan tâm:
-  - Nhập dữ liệu đầu vào (Input): Click chọn món, gõ tên tìm kiếm, chọn mã giảm giá, ấn thanh toán.
-  - Kết quả đầu ra (Output): Giá tiền có tính đúng không? Món có vào giỏ không? Đơn có nhảy sang màn hình Bếp không? Có thông báo lỗi khi thao tác sai không?
+Nếu bạn muốn chạy kiểm thử ngay lập tức và tự động xuất trọn bộ video HD:
 
-### 1.2. Playwright là gì?
-- **Playwright** là công cụ tự động hóa trình duyệt web hàng đầu hiện nay của Microsoft.
-- Playwright sẽ tự động bật trình duyệt (Chrome/Edge/Firefox), tự click chuột, tự gõ phím, tự kiểm tra giao diện đúng y như người thật đang thao tác với tốc độ cực nhanh và chính xác.
-
----
-
-## 🛠️ 2. HƯỚNG DẪN CÀI ĐẶT TỪ A - Z (DÀNH CHO NGƯỜI MỚI)
-
-Mọi thành viên trong nhóm chỉ cần làm tuần tự theo 3 bước sau:
-
-### Bước 2.1: Cài đặt Node.js (Môi trường chạy Playwright)
-1. Tải bản **Node.js LTS (bản ổn định khuyến nghị)** từ trang chủ: [https://nodejs.org](https://nodejs.org/)
-2. Chạy file cài đặt, bấm **Next -> Next -> Finish** (giữ nguyên mặc định).
-3. Mở **PowerShell** hoặc **Terminal** kiểm tra xem đã cài thành công chưa:
-   ```powershell
-   node -v
-   npm -v
-   ```
-   *(Nếu hiện ra phiên bản dạng `v20.x.x` hoặc `v18.x.x` là thành công!)*
+### Cách 1: Chạy 1-Click tự động (Khuyên dùng nhất)
+1. Vào thư mục gốc của dự án `Coffee_Shop_POS_DesignPattern`.
+2. **Nhấp đúp chuột (Double-click)** vào file:
+   👉 **`run-e2e-tests.bat`** *(hoặc chuột phải chọn Run with PowerShell đối với `run-e2e-tests.ps1`)*.
+3. Hệ thống sẽ tự động:
+   - Cài đặt thư viện Playwright & Chromium (nếu chạy lần đầu).
+   - Tự động mở trình duyệt và thực thi tuần tự **5 kịch bản kiểm thử**.
+   - Tự động ghi hình toàn bộ thao tác màn hình với chất lượng HD (1280x720).
+   - Tự động gom và đổi tên 5 file video vào thư mục **`e2e-tests/videos/`**.
+   - Tự động bật thư mục chứa Video và mở trang **Báo cáo HTML trực quan** trên trình duyệt.
 
 ---
 
-### Bước 2.2: Khởi tạo thư mục kiểm thử Playwright trong dự án
-Mở cửa sổ dòng lệnh tại thư mục gốc của dự án (`Coffee_Shop_POS_DesignPattern`), gõ các lệnh sau:
+### Cách 2: Chạy bằng dòng lệnh (Dành cho thành viên muốn kiểm soát chi tiết)
+Mở PowerShell tại thư mục `e2e-tests` và thực hiện theo thứ tự:
 
 ```powershell
-# 1. Tạo thư mục chứa các bài test
-mkdir e2e-tests
+# Bước 1: Di chuyển vào thư mục test
 cd e2e-tests
 
-# 2. Khởi tạo Playwright
-npm init playwright@latest
-```
+# Bước 2: Cài đặt dependencies (chỉ cần làm lần đầu)
+npm install
+npx playwright install chromium
 
-Khi chạy lệnh `npm init playwright@latest`, màn hình sẽ hỏi 4 câu hỏi:
-- *Do you want to use TypeScript or JavaScript?* ➜ Dùng phím mũi tên chọn **JavaScript** (cho dễ viết và dễ đọc).
-- *Where to put your end-to-end tests?* ➜ Nhấn **Enter** (mặc định là thư mục `tests`).
-- *Add a GitHub Actions workflow?* ➜ Chọn **false** (nhập `n` rồi Enter).
-- *Install Playwright browsers?* ➜ Chọn **true** (nhập `y` rồi Enter, Playwright sẽ tự tải Chrome/Firefox về máy).
+# Bước 3: Chạy test và tự động quay video (chế độ mở giao diện để quan sát)
+npx playwright test --headed
 
-Sau khi chạy xong, thư mục `e2e-tests` của bạn sẽ có dạng:
-```text
-e2e-tests/
-├── tests/              <- Nơi chứa các file kịch bản test
-│   └── example.spec.js
-├── node_modules/       <- Thư viện tự động tải về
-├── playwright.config.js<- File cấu hình Playwright
-└── package.json
+# Bước 4: Trích xuất và đặt tên chuẩn cho toàn bộ video kiểm thử
+node organize-videos.js
+
+# Bước 5: Mở báo cáo kiểm thử HTML (có tích hợp video xem trực tiếp)
+npx playwright show-report
 ```
 
 ---
 
-### Bước 2.3: Cài tiện ích mở rộng trên VS Code (Khuyên dùng)
-Nếu các thành viên dùng Visual Studio Code:
-1. Mở mục **Extensions** (phím tắt `Ctrl + Shift + X`).
-2. Tìm kiếm **Playwright Test for VSCode** (do Microsoft phát triển).
-3. Bấm **Install**.  
-*(Tiện ích này có nút bấm Run hình tam giác xanh ngay cạnh từng dòng test để chạy cực kỳ tiện lợi).*
+## 🎥 NƠI LƯU TRỮ VÀ XEM VIDEO KIỂM THỬ
+
+Sau khi chạy xong, tất cả video demo chất lượng cao đã sẵn sàng tại:
+📂 **`e2e-tests/videos/`**
+
+| Tên File Video | Kịch Bản Kiểm Thử | Design Pattern Liên Quan | Định Dạng |
+| :--- | :--- | :--- | :---: |
+| **`TC01_GiaoDien_TimKiem_DanhMuc.webm`** | Tìm kiếm món & Lọc danh mục | UI / Filter Strategy | 1280x720 HD |
+| **`TC02_TuyBienMon_Decorator_ThemVaoGio.webm`** | Tùy biến Size L, Topping, Ghi chú | **Decorator Pattern** | 1280x720 HD |
+| **`TC03_KhuyenMai_StrategyPattern.webm`** | Áp dụng mã giảm giá 10%, VIP 15%, BOGO | **Strategy Pattern** | 1280x720 HD |
+| **`TC04_ThanhToan_AdapterPattern_HoaDon.webm`** | Thanh toán Tiền mặt, VNPay QR & In hóa đơn | **Adapter Pattern** | 1280x720 HD |
+| **`TC05_KitchenKDS_StatePattern_Admin.webm`** | Luân chuyển đơn pha chế & Báo cáo doanh thu | **State & Observer Pattern** | 1280x720 HD |
+
+> 💡 **Mẹo xem video:**  
+> - Định dạng `.webm` chuẩn HTML5 có thể mở xem trực tiếp bằng bất kỳ trình duyệt nào (Chrome, Edge, Cốc Cốc) hoặc phần mềm VLC, Windows Media Player.  
+> - Bạn có thể xem ngay trên trang Báo cáo Playwright (`npx playwright show-report`) bằng cách click vào từng bài test!
 
 ---
 
-## 🚀 3. KHỞI ĐỘNG HỆ THỐNG TRƯỚC KHI TEST
+## 📊 BẢNG ĐẶC TẢ CHI TIẾT 5 KỊCH BẢN KIỂM THỬ HỘP ĐEN
 
-Để Playwright có thể tương tác với Web Coffee Shop POS, bạn cần chạy giao diện Web lên trước:
+Dưới đây là nội dung chuẩn dùng để đưa vào **Chương Kiểm Thử (Black-box Testing)** trong báo cáo đồ án Word / PDF:
 
-### Cách 1: Chạy WebServer có sẵn của dự án
-Mở một cửa sổ PowerShell tại thư mục gốc và chạy:
-```powershell
-# Chạy Web Server của ứng dụng (cổng 8088)
-javac -encoding UTF-8 -d build/classes (Get-ChildItem -Path src/main/java -Recurse -Filter *.java | ForEach-Object { $_.FullName })
-java -cp "build/classes;libs/*" com.coffeeshop.api.WebServer
-```
-Trình duyệt sẽ mở địa chỉ: `http://localhost:8088`
-
-### Cách 2: Chạy trực tiếp bằng VS Code Live Server
-Nếu bạn có cài extension **Live Server** trong VS Code:
-- Click chuột phải vào file `frontend/index.html` ➜ chọn **Open with Live Server** (mặc định mở tại `http://127.0.0.1:5500/frontend/index.html`).
-
----
-
-## 🎯 4. VŨ KHÍ TỐI THƯỢNG CHO NGƯỜI MỚI: TỰ GHI CODE (CODEGEN)
-
-> 💡 **Mẹo cực hay:** Nếu bạn chưa biết viết code Playwright như thế nào, Playwright có tính năng **Record (Tự ghi hình thao tác thành mã nguồn)**!
-
-Các bạn mở terminal trong thư mục `e2e-tests` và gõ:
-```powershell
-npx playwright codegen http://localhost:8088
-```
-- Một cửa sổ trình duyệt và một cửa sổ code sẽ hiện lên song song.
-- Bạn dùng chuột bấm chọn món, bấm nút thanh toán, gõ chữ tìm kiếm...
-- **Playwright sẽ tự động sinh code JavaScript tương ứng theo từng cú click chuột của bạn!**
-- Bạn chỉ việc copy đoạn code đó dán vào file test là xong!
+### 1. Kịch bản TC01: Kiểm tra Giao diện Thu Ngân, Tìm kiếm món & Lọc Danh mục
+- **Mã kịch bản:** TC_BB_01
+- **Mục tiêu:** Kiểm tra khả năng tải giao diện POS, phản hồi tìm kiếm từ khóa thời gian thực và lọc theo từng tab nhóm đồ uống.
+- **Tiền điều kiện:** Ứng dụng POS đang mở tại trang chủ.
+- **Các bước thực hiện:**
+  1. Truy cập vào trang chủ POS (`/`).
+  2. Click vào ô tìm kiếm (`#menuSearch`), nhập từ khóa `"Bạc xỉu"`.
+  3. Kiểm tra danh sách hiển thị chỉ còn món `"Bạc xỉu"`.
+  4. Xóa từ khóa tìm kiếm.
+  5. Click vào tab danh mục `"🍵 Trà trái cây"`.
+  6. Click vào tab danh mục `"🍃 Matcha"`.
+  7. Click vào tab `"Tất cả món"`.
+- **Kết quả mong đợi:** Các món ăn hiển thị tức thì, đúng danh mục, không giật lag.
+- **Kết quả thực tế:** **PASS (Đạt)** - Video: `TC01_GiaoDien_TimKiem_DanhMuc.webm`.
 
 ---
 
-## 📝 5. CÁC KỊCH BẢN TEST HỘP ĐEN MẪU CHO DỰ ÁN
+### 2. Kịch bản TC02: Tùy biến đồ uống (Decorator Pattern) & Thêm vào Giỏ hàng
+- **Mã kịch bản:** TC_BB_02
+- **Mục tiêu:** Kiểm thử tính năng bọc thêm các thành phần động cho sản phẩm đồ uống (chọn Size, Topping trân châu/thạch, ghi chú làm riêng) theo đúng nguyên lý **Decorator Pattern**.
+- **Tiền điều kiện:** Menu đồ uống đang hiển thị đầy đủ.
+- **Các bước thực hiện:**
+  1. Click vào thẻ món `"Cà phê sữa"`.
+  2. Modal *Decorator Customizer* mở ra.
+  3. Chọn `"Size L (Lớn)"` (+10.000₫).
+  4. Chọn Topping `"Trân châu trắng"` (+10.000₫).
+  5. Nhập ghi chú: `"70% đường, nhiều đá"`.
+  6. Kiểm tra tổng đơn giá món được Decorator cộng dồn chính xác.
+  7. Nhấn nút `"+ Thêm Vào Đơn"`.
+  8. Kiểm tra giỏ hàng: số lượng món tăng, nút `"Thanh Toán Đơn Hàng"` được kích hoạt (enabled).
+- **Kết quả mong đợi:** Món được thêm chính xác vào giỏ hàng với đúng các option decorator đã chọn.
+- **Kết quả thực tế:** **PASS (Đạt)** - Video: `TC02_TuyBienMon_Decorator_ThemVaoGio.webm`.
 
-Tạo một file mới tại: `e2e-tests/tests/coffee_pos_blackbox.spec.js` và dán toàn bộ nội dung dưới đây vào:
+---
+
+### 3. Kịch bản TC03: Áp dụng mã khuyến mãi & Chiết khấu (Strategy Pattern)
+- **Mã kịch bản:** TC_BB_03
+- **Mục tiêu:** Kiểm thử việc thay đổi thuật toán tính chiết khấu linh hoạt theo **Strategy Pattern** (Giảm 10%, VIP 15%, BOGO Mua 1 Tặng 1).
+- **Tiền điều kiện:** Giỏ hàng đã có ít nhất một món đồ uống.
+- **Các bước thực hiện:**
+  1. Chọn dropdown mã giảm giá (`#discountSelect`).
+  2. Chọn Strategy: `"Giảm giá 10% (Thành viên)"` (`PERCENT_10`).
+  3. Kiểm tra dòng *Khuyến mãi* tự động trừ đúng 10% giá trị tạm tính.
+  4. Chọn Strategy: `"Khách VIP (Giảm 15%)"` (`VIP`).
+  5. Kiểm tra dòng *Khuyến mãi* cập nhật thành 15%.
+  6. Chọn `"Không áp dụng (0%)"`.
+  7. Kiểm tra dòng *Khuyến mãi* về `0 ₫`.
+- **Kết quả mong đợi:** Tổng tiền thanh toán cập nhật chính xác theo từng Strategy được chọn trong thời gian thực.
+- **Kết quả thực tế:** **PASS (Đạt)** - Video: `TC03_KhuyenMai_StrategyPattern.webm`.
+
+---
+
+### 4. Kịch bản TC04: Quy trình Thanh toán đa kênh (Adapter Pattern) & Xuất Hóa Đơn
+- **Mã kịch bản:** TC_BB_04
+- **Mục tiêu:** Kiểm thử việc tích hợp các cổng thanh toán khác nhau thông qua **Adapter Pattern** (Tiền mặt Cash, VNPay QR Code) và xuất hóa đơn hoàn tất giao dịch.
+- **Tiền điều kiện:** Giỏ hàng có món và tổng tiền thanh toán > 0.
+- **Các bước thực hiện:**
+  1. Nhấn nút `"Thanh Toán Đơn Hàng"`.
+  2. Modal Checkout mở ra hiển thị tổng tiền cần thanh toán.
+  3. Chọn phương thức `"VNPay QR"` -> Kiểm tra hệ thống Adapter tự động sinh mã VietQR theo đúng số tiền đơn hàng.
+  4. Chuyển sang phương thức `"Tiền mặt"`.
+  5. Nhấn nút `"Xác Nhận Đã Thu Tiền"`.
+  6. Kiểm tra Hóa đơn bán lẻ (Receipt Preview) xuất hiện với đầy đủ: Mã đơn, Thời gian, Chi tiết món, Tạm tính, Giảm giá, Tổng cộng.
+  7. Nhấn `"Đóng"` hóa đơn.
+- **Kết quả mong đợi:** Giao dịch hoàn tất, hóa đơn in chuẩn, giỏ hàng được làm rỗng để sẵn sàng cho đơn tiếp theo.
+- **Kết quả thực tế:** **PASS (Đạt)** - Video: `TC04_ThanhToan_AdapterPattern_HoaDon.webm`.
+
+---
+
+### 5. Kịch bản TC05: Màn hình Bếp (Kitchen KDS - State Pattern) & Quản Trị (Admin)
+- **Mã kịch bản:** TC_BB_05
+- **Mục tiêu:** Kiểm thử việc đồng bộ trạng thái đơn hàng thời gian thực theo **State Pattern** (Chờ Pha Chế ➔ Đang Pha Chế ➔ Đã Xong/Giao Khách) và đồng bộ doanh thu sang Màn hình Quản trị (**Observer Pattern**).
+- **Tiền điều kiện:** Đơn hàng đã được thanh toán từ quầy thu ngân.
+- **Các bước thực hiện:**
+  1. Bấm tab `"Màn Hình Bếp (KDS)"` trên thanh điều hướng.
+  2. Kiểm tra giao diện Kanban gồm 3 cột trạng thái: *Chờ Pha Chế*, *Đang Pha Chế*, *Đã Xong / Giao Khách*.
+  3. Thao tác nút chuyển trạng thái đơn hàng (ví dụ bấm *"Bắt đầu pha chế"*, *"Hoàn thành món"*).
+  4. Bấm tab `"Báo Cáo & Quản Trị"`.
+  5. Kiểm tra các thẻ KPI: Tổng Doanh Thu, Tổng Đơn Hàng, Đơn Hoàn Thành.
+  6. Kiểm tra bảng *Tồn Kho Nguyên Liệu* và *Lịch Sử Giao Dịch*.
+  7. Bấm quay lại tab `"Thu Ngân (POS)"`.
+- **Kết quả mong đợi:** Trạng thái đơn luân chuyển chính xác theo vòng đời (State Lifecycle), doanh thu được cập nhật tự động.
+- **Kết quả thực tế:** **PASS (Đạt)** - Video: `TC05_KitchenKDS_StatePattern_Admin.webm`.
+
+---
+
+## ⚙️ CẤU HÌNH QUAY VIDEO HD TRONG `playwright.config.js`
+
+Để Playwright tự động ghi hình toàn bộ quá trình kiểm thử với chất lượng sắc nét nhất, cấu hình trong file `e2e-tests/playwright.config.js` đã được thiết lập:
 
 ```javascript
-// @ts-check
-const { test, expect } = require('@playwright/test');
-
-// Địa chỉ chạy web app
-const BASE_URL = 'http://localhost:8088';
-
-test.describe('BỘ KIỂM THỬ HỘP ĐEN - HỆ THỐNG COFFEE SHOP POS', () => {
-
-    test.beforeEach(async ({ page }) => {
-        // Trước mỗi bài test, tự động mở trang chủ POS
-        await page.goto(BASE_URL);
-        await page.waitForLoadState('networkidle');
-    });
-
-    // =========================================================================
-    // TEST CASE 01: KIỂM THỬ TÌM KIẾM MÓN & LỌC DANH MỤC (MENU & SEARCH)
-    // =========================================================================
-    test('TC01 - Blackbox: Tìm kiếm đồ uống theo từ khóa và lọc danh mục', async ({ page }) => {
-        // 1. Nhập từ khóa tìm kiếm "bạc xỉu" vào ô search
-        const searchInput = page.locator('#menuSearch');
-        await searchInput.fill('bạc xỉu');
-
-        // 2. Kiểm tra xem trên màn hình có hiển thị món "Bạc xỉu" không
-        const productTitle = page.locator('h3:has-text("Bạc xỉu")');
-        await expect(productTitle).toBeVisible();
-
-        // 3. Xóa tìm kiếm và thử bấm chuyển sang tab danh mục "Trà trái cây & Trà sữa"
-        await searchInput.fill('');
-        const teaCategoryTab = page.locator('button[data-category="TEA"]');
-        await teaCategoryTab.click();
-
-        // 4. Kiểm tra danh mục trà được lọc (ví dụ có Trà đào)
-        await expect(page.locator('text=Trà đào')).toBeVisible();
-    });
-
-    // =========================================================================
-    // TEST CASE 02: KIỂM THỬ CHỌN MÓN VÀO GIỎ HÀNG (CART MANAGEMENT)
-    // =========================================================================
-    test('TC02 - Blackbox: Chọn món đồ uống và kiểm tra giỏ hàng cập nhật tiền', async ({ page }) => {
-        // 1. Chọn món đầu tiên có trên màn hình (nhấn vào card đồ uống)
-        const firstDrink = page.locator('.drink-card').first();
-        await firstDrink.click();
-
-        // 2. Nếu có modal tùy chọn (Topping/Size), bấm nút "Thêm vào giỏ"
-        const btnAddToCart = page.locator('#btnAddModalToCart, button:has-text("Thêm vào đơn")');
-        if (await btnAddToCart.isVisible()) {
-            await btnAddToCart.click();
-        }
-
-        // 3. Kiểm tra số lượng món trong giỏ hàng tăng lên >= 1
-        const cartBadge = page.locator('#cartCountBadge');
-        await expect(cartBadge).not.toHaveText('0');
-
-        // 4. Kiểm tra nút thanh toán được kích hoạt (không còn bị disabled)
-        const btnCheckout = page.locator('#btnOpenCheckout');
-        await expect(btnCheckout).toBeEnabled();
-    });
-
-    // =========================================================================
-    // TEST CASE 03: KIỂM THỬ CHIẾT KHẤU GIẢM GIÁ (STRATEGY DISCOUNT)
-    // =========================================================================
-    test('TC03 - Blackbox: Áp dụng mã giảm giá VIP/Thành viên và tính lại tiền', async ({ page }) => {
-        // 1. Thêm một món vào giỏ
-        await page.locator('.drink-card').first().click();
-        const btnAdd = page.locator('#btnAddModalToCart, button:has-text("Thêm vào đơn")');
-        if (await btnAdd.isVisible()) await btnAdd.click();
-
-        // 2. Chọn mã giảm giá "Giảm giá 10% (Thành viên)"
-        const discountSelect = page.locator('#discountSelect');
-        await discountSelect.selectOption('PERCENT_10');
-
-        // 3. Kiểm tra mục Khuyến mãi (Discount) không còn là 0 đ
-        const discountText = page.locator('#cartDiscount');
-        await expect(discountText).not.toHaveText('0 ₫');
-    });
-
-    // =========================================================================
-    // TEST CASE 04: KIỂM THỬ QUY TRÌNH THANH TOÁN (CHECKOUT MODAL)
-    // =========================================================================
-    test('TC04 - Blackbox: Mở Modal Thanh Toán và thực hiện thanh toán tiền mặt', async ({ page }) => {
-        // 1. Chọn món vào giỏ
-        await page.locator('.drink-card').first().click();
-        const btnAdd = page.locator('#btnAddModalToCart, button:has-text("Thêm vào đơn")');
-        if (await btnAdd.isVisible()) await btnAdd.click();
-
-        // 2. Nhấn nút "Thanh Toán Đơn Hàng"
-        await page.locator('#btnOpenCheckout').click();
-
-        // 3. Kiểm tra modal thanh toán hiển thị
-        const checkoutModal = page.locator('#checkoutModal');
-        await expect(checkoutModal).toBeVisible();
-
-        // 4. Chọn hình thức thanh toán Tiền mặt (Cash) hoặc Momo
-        const cashMethod = page.locator('input[value="CASH"], button:has-text("Tiền mặt")').first();
-        if (await cashMethod.isVisible()) {
-            await cashMethod.click();
-        }
-
-        // 5. Bấm nút hoàn tất thanh toán
-        const btnConfirm = page.locator('#btnConfirmPayment, button:has-text("Xác nhận thanh toán")').first();
-        if (await btnConfirm.isVisible()) {
-            await btnConfirm.click();
-        }
-    });
-
-    // =========================================================================
-    // TEST CASE 05: KIỂM THỬ ĐIỀU HƯỚNG MÀN HÌNH BẾP (KITCHEN KDS)
-    // =========================================================================
-    test('TC05 - Blackbox: Chuyển sang Màn hình Pha Chế (Kitchen KDS)', async ({ page }) => {
-        // 1. Nhấp tab "Màn Hình Bếp (KDS)" trên thanh Menu điều hướng trên cùng
-        const kitchenTab = page.locator('button[data-tab-target="kitchen"]');
-        await kitchenTab.click();
-
-        // 2. Kiểm tra màn hình bếp hiển thị tiêu đề
-        const kdsTitle = page.locator('h2:has-text("Màn Hình Pha Chế")');
-        await expect(kdsTitle).toBeVisible();
-
-        // 3. Kiểm tra có đủ 3 cột trạng thái Kanban: "Chờ Pha Chế", "Đang Pha Chế", "Sẵn Sàng"
-        await expect(page.locator('text=Chờ Pha Chế')).toBeVisible();
-        await expect(page.locator('text=Đang Pha Chế')).toBeVisible();
-        await expect(page.locator('text=Sẵn Sàng Giao Khách')).toBeVisible();
-    });
+module.exports = defineConfig({
+  testDir: './tests',
+  fullyParallel: false, // Chạy tuần tự để video quay mượt mà, không bị chồng chéo
+  workers: 1,
+  reporter: [
+    ['html', { open: 'never' }],
+    ['list']
+  ],
+  use: {
+    baseURL: 'http://localhost:8088',
+    trace: 'on',
+    screenshot: 'on',
+    video: {
+      mode: 'on',                     // Luôn luôn ghi video cho tất cả bài test
+      size: { width: 1280, height: 720 }, // Độ phân giải chuẩn HD 720p sắc nét
+    },
+    viewport: { width: 1280, height: 720 },
+    launchOptions: {
+      slowMo: 400,                   // Độ trễ 400ms giữa các thao tác để video tự nhiên, dễ theo dõi
+    },
+  },
+  webServer: {
+    command: 'python -m http.server 8088 --directory ../frontend-react/dist',
+    port: 8088,
+    reuseExistingServer: true,       // Tự động kết nối nếu server đã mở
+    timeout: 15000,
+  },
 });
 ```
 
 ---
 
-## ⚡ 6. CÁC CÂU LỆNH CHẠY TEST DÀNH CHO NHÓM
+## 💡 CÁCH CHUYỂN ĐỔI SANG `.MP4` HOẶC CẮT GHÉP VIDEO (NẾU CẦN)
 
-Di chuyển vào thư mục `e2e-tests` và chạy các lệnh tương ứng:
+Mặc định Playwright xuất định dạng `.webm` (chuẩn quốc tế, dung lượng nhẹ, chất lượng cao). Nếu bạn cần nộp bài định dạng `.mp4`:
 
-### 1. Chạy có mở giao diện trình duyệt để xem tận mắt (Khuyên dùng khi demo)
-```powershell
-npx playwright test --headed
-```
-*Trình duyệt Chrome sẽ tự động bật lên, tự click và chạy qua từng bước cho bạn xem!*
-
-### 2. Chạy giao diện tương tác UI Mode (Cực đẹp & Dễ debug lỗi)
-```powershell
-npx playwright test --ui
-```
-*Lệnh này mở giao diện quản lý trực quan của Playwright, có nút Play từng test, xem lại lịch sử từng giây (Timeline) xem chuột đã click vào đâu.*
-
-### 3. Chạy kiểm thử ngầm tốc độ cao (Headless Mode)
-```powershell
-npx playwright test
-```
-
-### 4. Xem báo cáo kết quả chi tiết (HTML Report)
-Sau khi chạy xong, gõ lệnh:
-```powershell
-npx playwright show-report
-```
-*Trình duyệt sẽ hiển thị bảng báo cáo: Bao nhiêu test case PASS (Xanh), bao nhiêu test case FAILED (Đỏ), thời gian chạy, kèm video và ảnh chụp lúc gặp lỗi (nếu có).*
-
----
-
-## ❓ 7. CÂU HỎI THƯỜNG GẶP (TROUBLESHOOTING)
-
-### Q1: Bị lỗi `page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:8088`?
-👉 **Nguyên nhân:** Bạn chưa bật WebServer của dự án trước khi chạy test.  
-👉 **Cách khắc phục:** Mở 1 cửa sổ terminal riêng, chạy `java -cp "build/classes;libs/*" com.coffeeshop.api.WebServer` (hoặc bật Live Server) rồi mới chạy `npx playwright test`.
-
-### Q2: Muốn chụp ảnh màn hình (Screenshot) tự động khi test xong?
-Thêm dòng này vào cuối test case:
-```javascript
-await page.screenshot({ path: 'screenshot-ket-qua.png', fullPage: true });
-```
-Ảnh chụp giao diện sẽ tự động lưu lại để bạn dán vào Word báo cáo!
-
-### Q3: Làm sao để kiểm tra một nút hoặc chữ có hiển thị trên màn hình không?
-Sử dụng hàm `expect`:
-```javascript
-await expect(page.locator('#ten-id')).toBeVisible(); // Kiểm tra hiển thị
-await expect(page.locator('#tong-tien')).toHaveText('50,000 ₫'); // Kiểm tra đúng nội dung chữ
-```
+1. **Xem trực tiếp:** Kéo thả file `.webm` vào trình duyệt Chrome/Edge là xem và nghe được ngay.
+2. **Đổi sang MP4 online (miễn phí):** Sử dụng các trang như CloudConvert hoặc Convertio.
+3. **Đổi bằng VLC Media Player:** Mở VLC -> *Media* -> *Convert / Save* -> Chọn file `.webm` -> Chọn profile *Video - H.264 + MP3 (MP4)* -> Start.

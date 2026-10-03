@@ -159,6 +159,7 @@ export default function App() {
                 <div className="relative flex-1 max-w-md">
                   <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a36538]" />
                   <input
+                    id="menuSearch"
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -198,6 +199,7 @@ export default function App() {
                 ].map(cat => (
                   <button
                     key={cat.id}
+                    data-category={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
                     className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap shadow-xs border ${
                       selectedCategory === cat.id
@@ -211,7 +213,7 @@ export default function App() {
               </div>
 
               {/* Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-5">
+              <div id="menuGridContainer" className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-5">
                 {filteredMenu.map(item => (
                   <DrinkCard key={item.id} item={item} onOpenModal={setCustomizingDrink} />
                 ))}

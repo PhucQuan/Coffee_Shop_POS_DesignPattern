@@ -30,6 +30,7 @@ export default function CheckoutModal({ total, onClose, onConfirmPayment }) {
         <div className="p-6 space-y-4">
           <div className="grid grid-cols-3 gap-3">
             <button
+              data-gateway="CASH"
               onClick={() => setGateway('CASH')}
               className={`p-3 rounded-2xl border-2 text-center transition-all ${
                 gateway === 'CASH'
@@ -41,6 +42,7 @@ export default function CheckoutModal({ total, onClose, onConfirmPayment }) {
               <span className="text-xs font-bold text-[#2b170c] block">Tiền mặt</span>
             </button>
             <button
+              data-gateway="VNPAY"
               onClick={() => setGateway('VNPAY')}
               className={`p-3 rounded-2xl border-2 text-center transition-all ${
                 gateway === 'VNPAY'
@@ -52,6 +54,7 @@ export default function CheckoutModal({ total, onClose, onConfirmPayment }) {
               <span className="text-xs font-bold text-[#2b170c] block">VNPay QR</span>
             </button>
             <button
+              data-gateway="MOMO"
               onClick={() => setGateway('MOMO')}
               className={`p-3 rounded-2xl border-2 text-center transition-all ${
                 gateway === 'MOMO'
@@ -66,7 +69,7 @@ export default function CheckoutModal({ total, onClose, onConfirmPayment }) {
 
           {/* Dynamic Simulated QR code for online gateways */}
           {(gateway === 'VNPAY' || gateway === 'MOMO') && (
-            <div className="text-center p-4 bg-[#fffaf6] border border-[#ede4db] rounded-2xl animate-in fade-in duration-150">
+            <div id="qrCodeContainer" className="text-center p-4 bg-[#fffaf6] border border-[#ede4db] rounded-2xl animate-in fade-in duration-150">
               <p className="text-xs font-bold text-[#7d4924] mb-2">
                 {gateway === 'VNPAY' ? 'Quét mã VietQR / VNPay để thanh toán' : 'Quét mã MoMo QR để thanh toán'}
               </p>
@@ -102,6 +105,7 @@ export default function CheckoutModal({ total, onClose, onConfirmPayment }) {
             Quay lại
           </button>
           <button
+            id="btnConfirmPayment"
             onClick={() => onConfirmPayment(gateway)}
             className="flex-1 py-3 rounded-xl text-xs font-extrabold btn-primary flex items-center justify-center gap-1.5"
           >
