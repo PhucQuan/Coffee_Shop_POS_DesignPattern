@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slide Thuyết Trình: Coffee Shop POS & Kiểm Thử Playwright</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+    .slide { display: none; }
+    .slide.active { display: flex; animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body class="bg-[#1c130d] text-white min-h-screen flex flex-col justify-between selection:bg-[#c2917a] selection:text-white overflow-hidden">
+
+  <!-- TOP BAR -->
+  <header class="h-14 px-8 border-b border-[#3b271b] bg-[#241710]/80 backdrop-blur-md flex items-center justify-between z-10">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-[#c2917a] to-[#7d4924] flex items-center justify-center font-black text-white text-sm shadow-md">☕</div>
+      <span class="font-extrabold text-sm tracking-wide text-[#f5ebe3]">PURRCOFFEE POS • BÁO CÁO ĐỒ ÁN</span>
+    </div>
+    <div class="flex items-center gap-4 text-xs">
+      <button onclick="toggleSpeakerNotes()" class="px-3 py-1.5 rounded-lg bg-[#3b271b] hover:bg-[#523726] text-[#dfc3b2] font-semibold transition-all flex items-center gap-1.5">
+        <span>🎙️</span> <span id="notesBtnText">Bật Kịch Bản Nói (Phím S)</span>
+      </button>
+      <span class="text-[#a88a77] font-mono"><span id="currentSlideNum">1</span> / <span id="totalSlidesNum">7</span></span>
+    </div>
+  </header>
+
+  <!-- SLIDE CONTAINER -->
+  <main class="flex-1 flex items-center justify-center p-6 md:p-12 relative overflow-y-auto">
+
+    <!-- SLIDE 1: TITLE SLIDE -->
+    <div class="slide active flex-col items-center justify-center text-center max-w-4xl w-full" data-title="Giới Thiệu Đề Tài">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#3b271b] text-[#dfc3b2] text-xs font-bold uppercase tracking-wider mb-6 border border-[#523726]">
+        ☕ Đồ Án Thiết Kế Mẫu Kiến Trúc & Kiểm Thử Phần Mềm
+      </div>
+      <h1 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#fff3eb] via-[#e5bc99] to-[#c2917a] leading-tight tracking-tight mb-6">
+        HỆ THỐNG COFFEE SHOP POS
+      </h1>
+      <p class="text-lg md:text-xl text-[#dfc3b2] font-medium max-w-2xl mx-auto mb-8 leading-relaxed">
+        Ứng dụng Kiến Trúc Design Patterns & Tự Động Hóa Kiểm Thử Hộp Đen Toàn Diện với Microsoft Playwright
+      </p>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full max-w-3xl pt-6 border-t border-[#3b271b] text-left">
+        <div class="bg-[#241710] p-4 rounded-2xl border border-[#3b271b]">
+          <p class="text-[11px] text-[#a88a77] uppercase font-bold">Mô hình</p>
+          <p class="text-sm font-extrabold text-[#fff3eb] mt-0.5">Desktop & Web POS</p>
+        </div>
+        <div class="bg-[#241710] p-4 rounded-2xl border border-[#3b271b]">
+          <p class="text-[11px] text-[#a88a77] uppercase font-bold">Design Patterns</p>
+          <p class="text-sm font-extrabold text-[#e5bc99] mt-0.5">6 Mẫu Cốt Lõi</p>
+        </div>
+        <div class="bg-[#241710] p-4 rounded-2xl border border-[#3b271b]">
+          <p class="text-[11px] text-[#a88a77] uppercase font-bold">Kiểm thử</p>
+          <p class="text-sm font-extrabold text-emerald-400 mt-0.5">Playwright E2E</p>
+        </div>
+        <div class="bg-[#241710] p-4 rounded-2xl border border-[#3b271b]">
+          <p class="text-[11px] text-[#a88a77] uppercase font-bold">Ghi hình</p>
+          <p class="text-sm font-extrabold text-blue-400 mt-0.5">Tự Quay Video HD</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: KIẾN TRÚC DESIGN PATTERNS -->
+    <div class="slide flex-col max-w-5xl w-full" data-title="Kiến Trúc Design Patterns">
+      <div class="mb-6">
+        <span class="text-xs font-bold text-[#c2917a] uppercase tracking-wider">Phần 1: Kiến Trúc Phần Mềm</span>
+        <h2 class="text-3xl font-black text-[#fff3eb] mt-1">6 Mẫu Design Pattern Cốt Lõi Được Áp Dụng</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-[#241710] p-5 rounded-2xl border border-[#3b271b] hover:border-[#c2917a] transition-all">
+          <div class="text-2xl mb-2">🏭</div>
+          <h3 class="font-bold text-[#fff3eb] text-base">Factory Method</h3>
+          <p class="text-xs text-[#a88a77] mt-1">Khởi tạo các dòng đồ uống (Coffee, Tea, Matcha, Smoothie) đóng gói logic tạo đối tượng tách biệt.</p>
+        </div>
+        <div class="bg-[#241710] p-5 rounded-2xl border border-[#3b271b] hover:border-[#c2917a] transition-all">
+          <div class="text-2xl mb-2">🎀</div>
+          <h3 class="font-bold text-[#fff3eb] text-base">Decorator Pattern</h3>
+          <p class="text-xs text-[#a88a77] mt-1">Tùy biến đồ uống động: Tăng Size L (+10k), thêm Topping trân châu/kem cheese, ghi chú mà không sửa class gốc.</p>
+        </div>
+        <div class="bg-[#241710] p-5 rounded-2xl border border-[#3b271b] hover:border-[#c2917a] transition-all">
+          <div class="text-2xl mb-2">🏷️</div>
+          <h3 class="font-bold text-[#fff3eb] text-base">Strategy Pattern</h3>
+          <p class="text-xs text-[#a88a77] mt-1">Linh hoạt thuật toán khuyến mãi: Giảm 10% thành viên, VIP giảm 15%, BOGO Mua 1 tặng 1 trong lúc thanh toán.</p>
+        </div>
+        <div class="bg-[#241710] p-5 rounded-2xl border border-[#3b271b] hover:border-[#c2917a] transition-all">
+          <div class="text-2xl mb-2">🔌</div>
+          <h3 class="font-bold text-[#fff3eb] text-base">Adapter Pattern</h3>
+          <p class="text-xs text-[#a88a77] mt-1">Tích hợp đa kênh thanh toán (Tiền mặt Cash, VietQR VNPay, MoMo) qua một giao diện IPaymentGateway duy nhất.</p>
+        </div>
+        <div class="bg-[#241710] p-5 rounded-2xl border border-[#3b271b] hover:border-[#c2917a] transition-all">
+          <div class="text-2xl mb-2">🚦</div>
+          <h3 class="font-bold text-[#fff3eb] text-base">State Pattern</h3>
+          <p class="text-xs text-[#a88a77] mt-1">Quản lý vòng đời đơn tại Bếp (Kitchen KDS): Chờ Pha Chế (Pending) ➔ Đang Làm (Preparing) ➔ Sẵn Sàng (Ready).</p>
+        </div>
+        <div class="bg-[#241710] p-5 rounded-2xl border border-[#3b271b] hover:border-[#c2917a] transition-all">
+          <div class="text-2xl mb-2">📢</div>
+          <h3 class="font-bold text-[#fff3eb] text-base">Observer Pattern</h3>
+          <p class="text-xs text-[#a88a77] mt-1">Tự động phát thông báo khi đơn được thanh toán: Bếp nhận đơn pha chế, Quản trị cập nhật doanh thu & trừ tồn kho.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: TỔNG QUAN KIỂM THỬ PLAYWRIGHT -->
+    <div class="slide flex-col max-w-5xl w-full" data-title="Kiểm Thử Với Playwright">
+      <div class="mb-6">
+        <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Phần 2: Kiểm Thử Phần Mềm</span>
+        <h2 class="text-3xl font-black text-[#fff3eb] mt-1">Tại Sao Sử Dụng Microsoft Playwright E2E?</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+          <div class="bg-[#241710] p-4 rounded-2xl border border-[#3b271b] flex items-start gap-4">
+            <span class="text-xl p-2 rounded-xl bg-emerald-950 text-emerald-400">⚡</span>
+            <div>
+              <h4 class="font-bold text-sm text-[#fff3eb]">Thao Tác Thật Như Người Dùng (Real User Simulation)</h4>
+              <p class="text-xs text-[#a88a77] mt-1">Tự động bật trình duyệt Chrome, click chuột, gõ phím tìm kiếm, chọn dropdown và xác thực dữ liệu giao diện.</p>
+            </div>
+          </div>
+          <div class="bg-[#241710] p-4 rounded-2xl border border-[#3b271b] flex items-start gap-4">
+            <span class="text-xl p-2 rounded-xl bg-blue-950 text-blue-400">🎥</span>
+            <div>
+              <h4 class="font-bold text-sm text-[#fff3eb]">Tự Động Quay Video HD Từng Bài Test</h4>
+              <p class="text-xs text-[#a88a77] mt-1">Cấu hình video tự động ghi hình toàn bộ màn hình 1280x720, lưu thành file .webm xem ngay trên web hoặc nộp bài.</p>
+            </div>
+          </div>
+          <div class="bg-[#241710] p-4 rounded-2xl border border-[#3b271b] flex items-start gap-4">
+            <span class="text-xl p-2 rounded-xl bg-purple-950 text-purple-400">📊</span>
+            <div>
+              <h4 class="font-bold text-sm text-[#fff3eb]">Báo Cáo Trực Quan (HTML Interactive Report)</h4>
+              <p class="text-xs text-[#a88a77] mt-1">Báo cáo chuẩn gồm thời gian thực thi, DOM snapshot, trace log và video được đính kèm trực tiếp.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-[#180f09] p-5 rounded-2xl border border-[#3b271b] flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-[#3b271b] mb-3">
+              <span class="text-xs font-bold text-[#c2917a]">playwright.config.js</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-900 text-emerald-300 font-mono">HD Recording</span>
+            </div>
+            <pre class="text-[11px] text-[#e0cfc5] leading-relaxed overflow-x-auto"><code>use: {
+  baseURL: 'http://localhost:8088',
+  video: {
+    mode: 'on', // Quay video mọi test
+    size: { width: 1280, height: 720 },
+  },
+  launchOptions: {
+    slowMo: 400, // Độ trễ dễ quan sát
+  },
+}</code></pre>
+          </div>
+          <div class="mt-4 p-3 rounded-xl bg-[#241710] border border-[#3b271b] text-xs text-[#dfc3b2]">
+            ✅ Đảm bảo tính lặp lại (reproducibility) và loại bỏ hoàn toàn sai sót do thao tác thủ công.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: CODE PLAYWRIGHT TEST NHỮNG GÌ? -->
+    <div class="slide flex-col max-w-5xl w-full" data-title="Code Test Những Gì?">
+      <div class="mb-4">
+        <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Phần 3: Trọng Tâm Kỹ Thuật</span>
+        <h2 class="text-3xl font-black text-[#fff3eb] mt-1">Code Playwright Test Thực Chất Đang Test Những Gì?</h2>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="bg-[#241710] p-4 rounded-2xl border border-[#3b271b]">
+          <span class="text-xs font-bold text-amber-300 uppercase tracking-wider">1. Định Vị (Locators)</span>
+          <p class="text-xs text-[#a88a77] mt-1 mb-3">Tìm chính xác thành phần UI trên DOM cây giao diện:</p>
+          <ul class="text-xs text-[#e0cfc5] space-y-1.5 font-mono">
+            <li>• <span class="text-yellow-400">#menuSearch</span> (Ô tìm kiếm)</li>
+            <li>• <span class="text-yellow-400">#discountSelect</span> (Dropdown mã)</li>
+            <li>• <span class="text-yellow-400">#btnOpenCheckout</span> (Nút tính tiền)</li>
+            <li>• <span class="text-yellow-400">button[data-tab-target]</span></li>
+          </ul>
+        </div>
+        <div class="bg-[#241710] p-4 rounded-2xl border border-[#3b271b]">
+          <span class="text-xs font-bold text-blue-300 uppercase tracking-wider">2. Hành Động (Actions)</span>
+          <p class="text-xs text-[#a88a77] mt-1 mb-3">Mô phỏng hành vi của người thu ngân:</p>
+          <ul class="text-xs text-[#e0cfc5] space-y-1.5 font-mono">
+            <li>• <span class="text-blue-400">page.click()</span> : Bấm chọn món</li>
+            <li>• <span class="text-blue-400">page.fill()</span> : Gõ "Bạc xỉu", Note</li>
+            <li>• <span class="text-blue-400">selectOption()</span> : Đổi mã giảm</li>
+            <li>• <span class="text-blue-400">waitForTimeout()</span> : Dừng xem QR</li>
+          </ul>
+        </div>
+        <div class="bg-[#241710] p-4 rounded-2xl border border-[#3b271b]">
+          <span class="text-xs font-bold text-emerald-300 uppercase tracking-wider">3. Khẳng Định (Assertions)</span>
+          <p class="text-xs text-[#a88a77] mt-1 mb-3">Kiểm tra kết quả Design Pattern có chạy đúng:</p>
+          <ul class="text-xs text-[#e0cfc5] space-y-1.5 font-mono">
+            <li>• <span class="text-emerald-400">expect().toBeVisible()</span></li>
+            <li>• <span class="text-emerald-400">expect().toBeEnabled()</span></li>
+            <li>• <span class="text-emerald-400">expect().not.toHaveText('0')</span></li>
+            <li>• Kiểm tra đơn giá cộng dồn</li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-4 p-4 rounded-2xl bg-[#180f09] border border-[#3b271b]">
+        <p class="text-xs font-bold text-[#c2917a] mb-1">💡 Mối liên kết giữa Code Test & Design Patterns:</p>
+        <p class="text-xs text-[#dfc3b2]">
+          Playwright không chỉ test click nút, mà đang <strong>kiểm chứng logic toán học và trạng thái</strong>: Decorator có tính cộng tiền Size L (+10k) không? Strategy có trừ chuẩn 10%/15% không? Adapter có sinh mã VietQR theo đúng số tiền tổng không?
+        </p>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: 5 KỊCH BẢN KIỂM THỬ CHI TIẾT -->
+    <div class="slide flex-col max-w-5xl w-full" data-title="5 Kịch Bản Kiểm Thử">
+      <div class="mb-4">
+        <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">Phần 4: Ma Trận Kiểm Thử</span>
+        <h2 class="text-3xl font-black text-[#fff3eb] mt-1">Bộ 5 Kịch Bản Hộp Đen (Black-box Test Suite)</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border border-[#3b271b] rounded-2xl overflow-hidden">
+          <thead class="bg-[#2e1d14] text-[#dfc3b2] font-bold uppercase text-[11px]">
+            <tr>
+              <th class="p-3">Mã TC</th>
+              <th class="p-3">Tên Kịch Bản</th>
+              <th class="p-3">Design Pattern</th>
+              <th class="p-3">Hành Động Kiểm Thử</th>
+              <th class="p-3 text-center">Kết Quả</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#3b271b] bg-[#241710]">
+            <tr>
+              <td class="p-3 font-mono font-bold text-yellow-400">TC01</td>
+              <td class="p-3 font-semibold text-[#fff3eb]">Tìm kiếm & Lọc Danh mục</td>
+              <td class="p-3 text-[#c2917a]">UI Filter</td>
+              <td class="p-3 text-[#a88a77]">Tìm "Bạc xỉu", chuyển tab Trà, Matcha, All</td>
+              <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 font-bold">PASS 100%</span></td>
+            </tr>
+            <tr>
+              <td class="p-3 font-mono font-bold text-yellow-400">TC02</td>
+              <td class="p-3 font-semibold text-[#fff3eb]">Tùy biến món uống</td>
+              <td class="p-3 text-[#c2917a]">Decorator</td>
+              <td class="p-3 text-[#a88a77]">Chọn Size L, thêm Trân châu, ghi chú, kiểm tra giỏ</td>
+              <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 font-bold">PASS 100%</span></td>
+            </tr>
+            <tr>
+              <td class="p-3 font-mono font-bold text-yellow-400">TC03</td>
+              <td class="p-3 font-semibold text-[#fff3eb]">Khuyến mãi & Chiết khấu</td>
+              <td class="p-3 text-[#c2917a]">Strategy</td>
+              <td class="p-3 text-[#a88a77]">Áp mã 10%, VIP 15%, BOGO, kiểm tra trừ tiền</td>
+              <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 font-bold">PASS 100%</span></td>
+            </tr>
+            <tr>
+              <td class="p-3 font-mono font-bold text-yellow-400">TC04</td>
+              <td class="p-3 font-semibold text-[#fff3eb]">Thanh toán & Xuất hóa đơn</td>
+              <td class="p-3 text-[#c2917a]">Adapter</td>
+              <td class="p-3 text-[#a88a77]">Sinh mã VietQR VNPay, thanh toán tiền mặt, xem Receipt</td>
+              <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 font-bold">PASS 100%</span></td>
+            </tr>
+            <tr>
+              <td class="p-3 font-mono font-bold text-yellow-400">TC05</td>
+              <td class="p-3 font-semibold text-[#fff3eb]">Bếp KDS & Quản trị Admin</td>
+              <td class="p-3 text-[#c2917a]">State & Observer</td>
+              <td class="p-3 text-[#a88a77]">Chuyển trạng thái đơn Ready, kiểm tra doanh thu KPI</td>
+              <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 font-bold">PASS 100%</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: KẾT QUẢ ĐẠT ĐƯỢC & BỘ VIDEO -->
+    <div class="slide flex-col max-w-5xl w-full" data-title="Kết Quả & Bộ Video HD">
+      <div class="mb-5">
+        <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Phần 5: Thành Quả Kiểm Thử</span>
+        <h2 class="text-3xl font-black text-[#fff3eb] mt-1">Hệ Thống Video Kiểm Thử & Báo Cáo Tự Động</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="bg-[#241710] p-5 rounded-2xl border border-[#3b271b]">
+          <h4 class="font-bold text-[#fff3eb] text-sm flex items-center gap-2 mb-3">
+            <span>🎬</span> Trọn Bộ 6 Video Đã Ghi Hình Sẵn Sàng
+          </h4>
+          <ul class="text-xs space-y-2 text-[#dfc3b2]">
+            <li class="p-2 rounded-xl bg-[#1c130d] border border-[#3b271b] flex justify-between items-center">
+              <span class="font-bold text-emerald-400">⭐ DEMO_TOAN_BO_QUY_TRINH</span>
+              <span class="text-[10px] text-gray-400">49s • 3.1 MB</span>
+            </li>
+            <li class="p-2 rounded-xl bg-[#1c130d] border border-[#3b271b] flex justify-between items-center">
+              <span>TC01: GiaoDien_TimKiem_DanhMuc</span>
+              <span class="text-[10px] text-gray-400">12s • 851 KB</span>
+            </li>
+            <li class="p-2 rounded-xl bg-[#1c130d] border border-[#3b271b] flex justify-between items-center">
+              <span>TC02: TuyBienMon_Decorator</span>
+              <span class="text-[10px] text-gray-400">11s • 739 KB</span>
+            </li>
+            <li class="p-2 rounded-xl bg-[#1c130d] border border-[#3b271b] flex justify-between items-center">
+              <span>TC03: KhuyenMai_StrategyPattern</span>
+              <span class="text-[10px] text-gray-400">11s • 718 KB</span>
+            </li>
+            <li class="p-2 rounded-xl bg-[#1c130d] border border-[#3b271b] flex justify-between items-center">
+              <span>TC04: ThanhToan_Adapter_HoaDon</span>
+              <span class="text-[10px] text-gray-400">17s • 1.4 MB</span>
+            </li>
+            <li class="p-2 rounded-xl bg-[#1c130d] border border-[#3b271b] flex justify-between items-center">
+              <span>TC05: KitchenKDS_State_Admin</span>
+              <span class="text-[10px] text-gray-400">14s • 988 KB</span>
+            </li>
+          </ul>
+        </div>
+        <div class="bg-[#241710] p-5 rounded-2xl border border-[#3b271b] flex flex-col justify-between">
+          <div>
+            <h4 class="font-bold text-[#fff3eb] text-sm flex items-center gap-2 mb-3">
+              <span>📊</span> Chỉ Số Kiểm Thử Tự Động
+            </h4>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <div class="bg-[#1c130d] p-3 rounded-xl border border-[#3b271b] text-center">
+                <p class="text-2xl font-black text-emerald-400">100%</p>
+                <p class="text-[11px] text-[#a88a77]">Tỷ lệ Pass bài test</p>
+              </div>
+              <div class="bg-[#1c130d] p-3 rounded-xl border border-[#3b271b] text-center">
+                <p class="text-2xl font-black text-blue-400">1.2 phút</p>
+                <p class="text-[11px] text-[#a88a77]">Tổng thời gian chạy</p>
+              </div>
+            </div>
+            <p class="text-xs text-[#a88a77] leading-relaxed">
+              Tích hợp cơ chế <strong>organize-videos.js</strong> tự động gán nhãn kịch bản và xuất ra thư mục <code>e2e-tests/videos/</code> giúp thành viên lấy video nộp bài ngay lập tức mà không cần cắt ghép thủ công.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-[#3b271b] flex items-center justify-between text-xs">
+            <span class="text-[#dfc3b2]">Hỗ trợ Bandicam Live:</span>
+            <span class="font-mono text-emerald-400 font-bold">quay-video-bandicam.bat</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: KẾT LUẬN & HỎI ĐÁP -->
+    <div class="slide flex-col items-center justify-center text-center max-w-4xl w-full" data-title="Kết Luận & Q&A">
+      <div class="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#c2917a] to-[#7d4924] flex items-center justify-center text-3xl mb-6 shadow-xl mx-auto">
+        ☕
+      </div>
+      <h2 class="text-4xl md:text-5xl font-black text-[#fff3eb] mb-4">
+        CẢM ƠN THẦY CÔ & CÁC BẠN ĐÃ LẮNG NGHE!
+      </h2>
+      <p class="text-base text-[#dfc3b2] max-w-xl mx-auto mb-8 leading-relaxed">
+        Hệ thống Coffee Shop POS đã chứng minh sự kết hợp chặt chẽ giữa <strong>Kiến trúc Mẫu (Design Patterns)</strong> và <strong>Tự động hóa kiểm thử (Playwright E2E)</strong> để tạo ra phần mềm chuẩn mực, ổn định và dễ mở rộng.
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold">
+        <span class="px-4 py-2 rounded-xl bg-[#241710] border border-[#3b271b] text-[#dfc3b2]">
+          📂 Repository: PhucQuan/Coffee_Shop_POS_DesignPattern
+        </span>
+        <span class="px-4 py-2 rounded-xl bg-[#241710] border border-[#3b271b] text-emerald-400">
+          ✅ E2E Tests: 5/5 PASSED
+        </span>
+      </div>
+      <div class="mt-8 text-sm font-bold text-[#c2917a]">
+        👉 Sẵn Sàng Bước Vào Phần Trình Diễn Live Demo Playwright!
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SPEAKER NOTES DRAWER (TOGGLEABLE) -->
+  <div id="speakerNotesDrawer" class="hidden bg-[#180f09] border-t-2 border-[#7d4924] px-8 py-5 max-h-52 overflow-y-auto z-20 shadow-2xl">
+    <div class="max-w-5xl mx-auto">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-[#c2917a] flex items-center gap-2">
+          <span>🎙️</span> KỊCH BẢN NÓI THUYẾT TRÌNH (SPEAKER SCRIPT) - <span id="notesSlideTitle">Slide 1</span>
+        </span>
+        <span class="text-[11px] text-[#a88a77]">Đọc tự nhiên theo kịch bản dưới đây:</span>
+      </div>
+      <p id="speakerNotesContent" class="text-sm text-[#fff3eb] leading-relaxed font-normal"></p>
+    </div>
+  </div>
+
+  <!-- BOTTOM CONTROLS -->
+  <footer class="h-16 px-8 border-t border-[#3b271b] bg-[#241710] flex items-center justify-between z-10">
+    <div class="text-xs text-[#a88a77] hidden sm:block">
+      Dùng phím <kbd class="px-2 py-1 rounded bg-[#3b271b] text-white font-mono">←</kbd> <kbd class="px-2 py-1 rounded bg-[#3b271b] text-white font-mono">→</kbd> để chuyển slide | Phím <kbd class="px-2 py-1 rounded bg-[#3b271b] text-white font-mono">S</kbd> mở lời thoại
+    </div>
+    <div class="flex items-center gap-3 mx-auto sm:mx-0">
+      <button onclick="prevSlide()" class="px-4 py-2 rounded-xl bg-[#3b271b] hover:bg-[#523726] text-white font-bold text-xs transition-all flex items-center gap-1 cursor-pointer">
+        <span>←</span> Slide Trước
+      </button>
+      <button onclick="nextSlide()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-[#c2917a] to-[#7d4924] hover:opacity-90 text-white font-extrabold text-xs transition-all shadow-md flex items-center gap-1 cursor-pointer">
+        Slide Tiếp <span>→</span>
+      </button>
+    </div>
+  </footer>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    let currentSlide = 0;
+
+    const speakerNotes = [
+      // Slide 1
+      "Kính chào Thầy/Cô và các bạn. Hôm nay nhóm em xin trình bày đồ án: 'Hệ thống Quản lý Bán hàng Coffee Shop POS kết hợp Kiến trúc Design Patterns và Tự động hóa kiểm thử hộp đen với Microsoft Playwright'. Đồ án này tập trung vào hai trụ cột chính: Một là hiện thực 6 mẫu thiết kế cốt lõi trong nghiệp vụ F&B, và Hai là xây dựng quy trình kiểm thử E2E tự động kèm tính năng tự quay video màn hình HD để kiểm chứng chất lượng phần mềm.",
+
+      // Slide 2
+      "Bước vào phần Kiến trúc, nhóm áp dụng 6 mẫu Design Pattern giải quyết đúng bài toán nghiệp vụ quán cà phê: Factory Method tạo danh mục đồ uống; Decorator Pattern bọc linh hoạt Size L và Topping trân châu, kem cheese vào món gốc; Strategy Pattern thay đổi công thức chiết khấu 10%, VIP 15% hoặc BOGO; Adapter Pattern chuẩn hóa thanh toán tiền mặt và mã QR VietQR; State Pattern quản lý luồng pha chế tại bếp từ Chờ sang Pha chế rồi Hoàn thành; và Observer Pattern tự động bắn thông báo đồng bộ doanh thu sang màn hình Quản trị.",
+
+      // Slide 3
+      "Về phần kiểm thử, thay vì kiểm thử thủ công tốn thời gian và dễ sót lỗi, nhóm lựa chọn Microsoft Playwright. Playwright tự động điều khiển trình duyệt thật, gõ phím, click chuột đúng như người thu ngân thao tác. Đặc biệt, nhóm cấu hình ghi hình tự động chuẩn HD 720p và độ trễ slowMo 400ms để mọi thao tác hiển thị mượt mà, giúp người xem dễ dàng quan sát từng chuyển động trên giao diện.",
+
+      // Slide 4
+      "Nhiều người thắc mắc: 'Code Playwright test thực chất kiểm tra những cái gì?'. Câu trả lời gồm 3 phần: Thứ nhất là Locators để định vị chính xác ô tìm kiếm, nút bấm, modal trên DOM. Thứ hai là Actions mô phỏng hành vi: click chọn món, fill ghi chú khách dặn, chọn mã giảm giá. Và quan trọng nhất là Assertions: Dùng hàm expect để xác thực nghiệp vụ Design Pattern: Kiểm tra Decorator có cộng đúng 10.000đ khi chọn Size L không, Strategy có trừ đúng 10% tiền không, và hóa đơn có hiển thị mã VietQR chính xác không.",
+
+      // Slide 5
+      "Nhóm xây dựng bộ 5 kịch bản kiểm thử hộp đen chuẩn mực: TC01 kiểm tra tìm kiếm từ khóa Bạc xỉu và lọc danh mục. TC02 kiểm tra tùy biến món Decorator. TC03 kiểm tra chiến lược chiết khấu Strategy. TC04 kiểm tra thanh toán Adapter và in hóa đơn bán lẻ. TC05 kiểm tra luân chuyển trạng thái bếp và bảng điều khiển quản trị. Toàn bộ 5 test cases đều vượt qua thành công với tỷ lệ 100% Pass.",
+
+      // Slide 6
+      "Thành quả đạt được là hệ thống đã tự động xuất ra 6 video kiểm thử HD tại thư mục e2e-tests/videos, nổi bật là video toàn cảnh DEMO_TOAN_BO_QUY_TRINH 49 giây từ gọi món đến in hóa đơn và hoàn thành đơn ở bếp. Ngoài ra nhóm cung cấp sẵn file chạy 1-click quay-video-bandicam.bat để tự bật Bandicam quay trực tiếp màn hình desktop khi demo trực tiếp.",
+
+      // Slide 7
+      "Tóm lại, dự án không chỉ hoàn thiện một hệ thống POS hiện đại, mà còn cung cấp một quy trình kiểm thử tự động chuyên nghiệp, có bằng chứng video trực quan và báo cáo minh bạch. Sau đây, nhóm xin phép chuyển sang phần Live Demo chạy trực tiếp Playwright trên màn hình để Thầy Cô cùng quan sát. Xin cảm ơn Thầy Cô và các bạn!"
+    ];
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === currentSlide);
+      });
+      document.getElementById('currentSlideNum').innerText = currentSlide + 1;
+      document.getElementById('totalSlidesNum').innerText = slides.length;
+
+      // Update speaker notes
+      const activeSlide = slides[currentSlide];
+      const title = activeSlide.getAttribute('data-title') || `Slide ${currentSlide + 1}`;
+      document.getElementById('notesSlideTitle').innerText = title;
+      document.getElementById('speakerNotesContent').innerText = speakerNotes[currentSlide] || "Chưa có kịch bản.";
+    }
+
+    function nextSlide() {
+      if (currentSlide < slides.length - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function toggleSpeakerNotes() {
+      const drawer = document.getElementById('speakerNotesDrawer');
+      drawer.classList.toggle('hidden');
+      const isVisible = !drawer.classList.contains('hidden');
+      document.getElementById('notesBtnText').innerText = isVisible ? "Ẩn Kịch Bản Nói (Phím S)" : "Bật Kịch Bản Nói (Phím S)";
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 's' || e.key === 'S') {
+        toggleSpeakerNotes();
+      }
+    });
+
+    updateSlide();
+  </script>
+</body>
+</html>
