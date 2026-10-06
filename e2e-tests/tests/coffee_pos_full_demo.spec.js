@@ -20,11 +20,18 @@ test('DEMO_TOAN_BO_QUY_TRINH - Coffee Shop POS End to End Demo', async ({ page }
   // Cho phép kịch bản chạy đủ thời gian (90s) để quay video chậm rãi, mượt mà
   test.setTimeout(90000);
 
-  // 1. Mở trang web POS
-
+  // 1. Mở trang web POS & Thực hiện Đăng nhập vào Ca
   await page.goto('/');
   await page.waitForLoadState('domcontentloaded');
   await page.waitForTimeout(1000);
+
+  // Nếu hiển thị màn hình Đăng nhập (LoginView)
+  const loginBtn = page.locator('#btnLoginSubmit, button:has-text("Đăng Nhập Vào Ca")').first();
+  if (await loginBtn.isVisible()) {
+    await page.waitForTimeout(1000); // Video quay rõ màn hình đăng nhập
+    await loginBtn.click();
+    await page.waitForTimeout(1200);
+  }
 
   // 2. Tìm kiếm món "Bạc xỉu"
   const searchInput = page.locator('#menuSearch');

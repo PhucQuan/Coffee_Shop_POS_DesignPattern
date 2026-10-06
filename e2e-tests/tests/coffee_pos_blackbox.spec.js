@@ -14,6 +14,14 @@ test.describe('PURRCOFFEE POS - BỘ KIỂM THỬ HỘP ĐEN & QUAY VIDEO DEMO',
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(600); // Tạm dừng để video quay mở đầu mượt mà
+
+    // Nếu đang ở màn hình Đăng nhập (LoginView), tiến hành đăng nhập bằng tài khoản thu ngân
+    const loginBtn = page.locator('#btnLoginSubmit, button:has-text("Đăng Nhập Vào Ca")').first();
+    if (await loginBtn.isVisible()) {
+      await page.waitForTimeout(600);
+      await loginBtn.click();
+      await page.waitForTimeout(800);
+    }
   });
 
   test('TC01 - Kiem tra Giao dien Thu Ngan, Tim kiem & Loc Danh muc', async ({ page }) => {

@@ -22,8 +22,13 @@ import {
 export default function App() {
   // Authentication State
   const [currentUser, setCurrentUser] = useState(() => {
+    // Check if Playwright or URL parameter requests bypass
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('autologin') === 'true') {
+      return DEFAULT_USERS[1];
+    }
     const saved = localStorage.getItem('purr_pos_user');
-    return saved ? JSON.parse(saved) : DEFAULT_USERS[1]; // default cashier01 for instant demo compatibility
+    return saved ? JSON.parse(saved) : null; // Mặc định mở màn hình LoginView nếu chưa đăng nhập
   });
 
   const [activeTab, setActiveTab] = useState('pos');
