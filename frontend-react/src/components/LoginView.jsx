@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
-import { Coffee, Lock, User, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { Coffee, Lock, User, ArrowRight, ShieldCheck, Sparkles, ChefHat, LayoutDashboard, Monitor } from 'lucide-react';
 import { DEFAULT_USERS } from '../data/mockData';
 
+/**
+ * LoginView - Tái hiện 100% giao diện HeroLoginPanel & AppTheme của bản Desktop Java Swing
+ * - Hero background: /assets/backgrounds/coffee-hero.jpg
+ * - Gradient veil: Warm cream fade (FDFBF7)
+ * - Frosted left card (24px radius, soft shadow, AppTheme colors)
+ * - Typography: Eyebrow "COFFEE SHOP POS", Title "PurrCoffee", Subtitle "Sign in to run cashier, kitchen, and admin workflows."
+ * - Form: Username (cashier01), Password (123), Sign in (#C2917A), Exit button
+ * - Demo accounts panel matching desktop card layout
+ */
 export default function LoginView({ onLoginSuccess }) {
   const [username, setUsername] = useState('cashier01');
   const [password, setPassword] = useState('123');
@@ -13,7 +22,7 @@ export default function LoginView({ onLoginSuccess }) {
 
     const trimmedUser = username.trim();
     if (!trimmedUser || !password) {
-      setErrorMsg('Vui lòng nhập tên đăng nhập và mật khẩu.');
+      setErrorMsg('Username and password are required.');
       return;
     }
 
@@ -22,7 +31,7 @@ export default function LoginView({ onLoginSuccess }) {
     );
 
     if (!found) {
-      setErrorMsg('Tên đăng nhập hoặc mật khẩu không chính xác.');
+      setErrorMsg('Invalid username or password.');
       return;
     }
 
@@ -34,144 +43,192 @@ export default function LoginView({ onLoginSuccess }) {
     onLoginSuccess(found);
   };
 
-  const handleQuickLogin = (user) => {
-    setUsername(user.username);
-    setPassword(user.password);
+  const selectDemoAccount = (u, autoLogin = false) => {
+    setUsername(u.username);
+    setPassword(u.password);
     setErrorMsg('');
-    onLoginSuccess(user);
+    if (autoLogin) {
+      onLoginSuccess(u);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#2b170c] via-[#3e200a] to-[#1a0e07] p-4 sm:p-6 select-none relative overflow-hidden">
-      {/* Decorative background glow circles */}
-      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#7d4924]/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-[#e85d04]/10 rounded-full blur-3xl pointer-events-none" />
+    <div 
+      className="min-h-screen w-full relative flex items-center justify-between p-4 sm:p-8 lg:p-14 select-none overflow-hidden bg-[#f7f1eb]"
+      style={{
+        backgroundImage: "url('/assets/backgrounds/coffee-hero.jpg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Gradient Veil - Tái hiện chuẩn xác GradientPaint veil của Desktop HeroLoginPanel */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'linear-gradient(90deg, rgba(253, 251, 247, 0.96) 0%, rgba(253, 251, 247, 0.90) 42%, rgba(253, 251, 247, 0.40) 78%, rgba(253, 251, 247, 0.15) 100%)'
+        }}
+      />
 
-      <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-12 bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-white/20 overflow-hidden z-10">
+      {/* Decorative Warm Ambient Circles - Tái hiện g.setColor(new Color(232, 93, 4, 15)) của Swing */}
+      <div className="absolute right-[15%] top-[12%] w-36 h-36 rounded-full bg-[#e85d04]/10 blur-2xl pointer-events-none" />
+      <div className="absolute right-[10%] top-[30%] w-44 h-44 rounded-full bg-[#c2917a]/15 blur-2xl pointer-events-none" />
+      <div className="absolute right-[18%] top-[52%] w-40 h-40 rounded-full bg-[#e85d04]/10 blur-2xl pointer-events-none" />
+      <div className="absolute right-[12%] bottom-[15%] w-48 h-48 rounded-full bg-[#c2917a]/15 blur-3xl pointer-events-none" />
+
+      {/* Form Panel Container - Frosted White Card Chuẩn Desktop (width ~480px, radius 24px) */}
+      <div className="relative z-10 w-full max-w-[490px] bg-[#ffffff]/95 backdrop-blur-md rounded-[24px] border border-[#ebe6df] shadow-[0_20px_50px_rgba(75,52,39,0.12),0_4px_12px_rgba(0,0,0,0.04)] p-7 sm:p-10 my-auto transition-all">
         
-        {/* Left Hero Branding Section */}
-        <div className="md:col-span-5 bg-gradient-to-br from-[#3e200a] via-[#583115] to-[#2b170c] p-8 text-white flex flex-col justify-between relative overflow-hidden">
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-amber-200 text-xs font-semibold mb-6 border border-white/10">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>PurrCoffee POS System</span>
-            </div>
-
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight mb-3">
-              Quản Lý Bán Hàng & Bếp
-            </h1>
-            <p className="text-xs text-[#ede4db] leading-relaxed">
-              Giải pháp POS chuẩn kiến trúc Design Patterns kết hợp Realtime Kitchen KDS và Báo Cáo Doanh Thu Chuyên Nghiệp.
-            </p>
-          </div>
-
-          <div className="my-8 relative z-10">
-            <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-amber-300 shadow-xl mb-4">
-              <Coffee className="w-10 h-10" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm font-bold text-white">Chất Lượng Vị Trí Số 1</p>
-              <p className="text-[11px] text-[#ede4db]">Hệ thống vận hành trơn tru từ Order đến Bếp.</p>
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-white/10 relative z-10 text-[11px] text-white/60 flex items-center justify-between">
-            <span>Phiên bản Web React 19</span>
-            <span>PurrCoffee v2.5</span>
-          </div>
+        {/* Eyebrow Label */}
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className="text-[12px] font-extrabold uppercase tracking-[0.2em] text-[#c2917a]">
+            COFFEE SHOP POS
+          </span>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#c2917a]/60"></span>
+          <span className="text-[11px] font-bold text-[#8a7668]">v2.5</span>
         </div>
 
-        {/* Right Form Section */}
-        <div className="md:col-span-7 p-8 sm:p-10 flex flex-col justify-between bg-white">
+        {/* Title & Subtitle */}
+        <h1 className="text-4xl sm:text-[46px] font-black text-[#4b3427] tracking-tight leading-none mb-2">
+          PurrCoffee
+        </h1>
+        <p className="text-xs sm:text-[13px] text-[#8a7668] leading-relaxed mb-6">
+          Sign in to run cashier, kitchen, and admin workflows.
+        </p>
+
+        {/* Inline Message / Error Label */}
+        {errorMsg && (
+          <div className="mb-4 p-3 rounded-xl bg-[#fdf2f1] border border-[#f5c6cb] text-[#c0726c] text-xs font-bold flex items-center gap-2 animate-in fade-in">
+            <ShieldCheck className="w-4 h-4 shrink-0 text-[#c0726c]" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
+        {/* Form Inputs */}
+        <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <div className="mb-6">
-              <h2 className="text-2xl font-black text-[#2b170c] tracking-tight">Đăng Nhập Hệ Thống</h2>
-              <p className="text-xs text-[#8a7668] mt-1">
-                Nhập thông tin xác thực để bắt đầu ca làm việc của bạn.
-              </p>
+            <label className="block text-xs font-bold text-[#4b3427] mb-1.5 tracking-wide">
+              Username
+            </label>
+            <div className="relative">
+              <User className="w-4 h-4 text-[#8a7668] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                id="usernameInput"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username (e.g. cashier01)"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#fffcf8] border border-[#e5dad0] focus:border-[#c2917a] focus:bg-white focus:ring-2 focus:ring-[#f5e8df] text-sm text-[#4b3427] font-semibold outline-none transition-all"
+              />
             </div>
-
-            {errorMsg && (
-              <div className="mb-5 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
-                <ShieldCheck className="w-4 h-4 text-red-500 shrink-0" />
-                <span>{errorMsg}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-[#583115] mb-1.5 uppercase tracking-wider">
-                  Tài Khoản (Username)
-                </label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-[#8a7668] absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    id="usernameInput"
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Nhập tên đăng nhập..."
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#faf6f2] border border-[#ede4db] focus:border-[#a36538] focus:bg-white focus:ring-2 focus:ring-[#f7ebe3] text-sm text-[#2b170c] font-medium outline-none transition-all"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#583115] mb-1.5 uppercase tracking-wider">
-                  Mật Khẩu (Password)
-                </label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-[#8a7668] absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    id="passwordInput"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Nhập mật khẩu..."
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#faf6f2] border border-[#ede4db] focus:border-[#a36538] focus:bg-white focus:ring-2 focus:ring-[#f7ebe3] text-sm text-[#2b170c] font-medium outline-none transition-all"
-                  />
-                </div>
-              </div>
-
-              <button
-                id="btnLoginSubmit"
-                type="submit"
-                className="w-full mt-2 py-3 rounded-xl bg-[#3e200a] hover:bg-[#583115] active:scale-[0.99] text-white font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>Đăng Nhập Vào Ca</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </form>
           </div>
 
-          {/* Quick Demo Switchers */}
-          <div className="mt-8 pt-6 border-t border-[#f4eae3]">
-            <p className="text-[11px] font-bold text-[#8a7668] uppercase tracking-wider mb-2.5">
-              🚀 Tài khoản Demo nhanh (Click để đăng nhập ngay):
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              {DEFAULT_USERS.map((user) => (
-                <button
-                  key={user.username}
-                  type="button"
-                  onClick={() => handleQuickLogin(user)}
-                  className="p-2 rounded-xl border border-[#ede4db] bg-[#fffaf6] hover:bg-[#f7ebe3] hover:border-[#a36538] transition-all text-left group cursor-pointer"
-                >
-                  <p className="text-xs font-bold text-[#2b170c] group-hover:text-[#583115] flex items-center justify-between">
-                    <span>{user.username}</span>
-                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[#f4eae3] text-[#583115]">
-                      {user.role}
+          <div>
+            <label className="block text-xs font-bold text-[#4b3427] mb-1.5 tracking-wide">
+              Password
+            </label>
+            <div className="relative">
+              <Lock className="w-4 h-4 text-[#8a7668] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                id="passwordInput"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#fffcf8] border border-[#e5dad0] focus:border-[#c2917a] focus:bg-white focus:ring-2 focus:ring-[#f5e8df] text-sm text-[#4b3427] font-semibold outline-none transition-all"
+              />
+            </div>
+          </div>
+
+          {/* Action Buttons: Sign in & Exit */}
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <button
+              id="btnLoginSubmit"
+              type="submit"
+              className="w-full py-2.5 px-4 rounded-xl bg-[#c2917a] hover:bg-[#b07d67] active:scale-[0.98] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Sign in</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setUsername(''); setPassword(''); setErrorMsg(''); }}
+              className="w-full py-2.5 px-4 rounded-xl bg-transparent hover:bg-[#f7f1eb] text-[#8a7668] hover:text-[#4b3427] font-bold text-sm border border-[#e5dad0] transition-all cursor-pointer text-center"
+            >
+              Exit
+            </button>
+          </div>
+        </form>
+
+        {/* Demo Accounts Card - Đúng định dạng demoAccountsPanel() của Java Swing */}
+        <div className="mt-6 pt-5 border-t border-[#f2eae2]">
+          <div className="p-3.5 rounded-2xl bg-[#fffcf8] border border-[#e5dad0] space-y-2">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-bold text-[#4b3427]">Demo accounts</span>
+              <span className="text-[10px] text-[#8a7668] font-medium">Click để chọn</span>
+            </div>
+
+            <div className="space-y-1.5">
+              {DEFAULT_USERS.map((u) => {
+                const isSelected = username === u.username;
+                const roleBadge = 
+                  u.role === 'ADMIN' ? { label: 'Admin dashboard', icon: LayoutDashboard } :
+                  u.role === 'KITCHEN' ? { label: 'Kitchen board', icon: ChefHat } :
+                  { label: 'Cashier POS', icon: Monitor };
+
+                const IconComponent = roleBadge.icon;
+
+                return (
+                  <button
+                    key={u.username}
+                    type="button"
+                    onClick={() => selectDemoAccount(u, false)}
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-left text-xs transition-all cursor-pointer ${
+                      isSelected 
+                        ? 'bg-[#f7ebe3] border-[#c2917a] font-bold text-[#4b3427]' 
+                        : 'bg-white border-[#f0e7df] text-[#8a7668] hover:bg-[#faf4ee] hover:text-[#4b3427]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <IconComponent className="w-3.5 h-3.5 text-[#c2917a]" />
+                      <span className="font-mono font-medium">{u.username} / {u.password}</span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-[#8a7668]">
+                      &rarr; {roleBadge.label}
                     </span>
-                  </p>
-                  <p className="text-[10px] text-[#8a7668] truncate mt-0.5">{user.fullName}</p>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           </div>
-
         </div>
 
       </div>
+
+      {/* Right Side Showcase Banner (Chỉ hiện trên màn hình lớn) */}
+      <div className="hidden lg:flex flex-col justify-end p-8 max-w-md z-10">
+        <div className="bg-white/85 backdrop-blur-md p-6 rounded-3xl border border-white/60 shadow-xl text-[#4b3427]">
+          <div className="flex items-center gap-2 mb-2 text-[#c2917a] font-bold text-xs uppercase tracking-wider">
+            <Sparkles className="w-4 h-4" />
+            <span>PurrCoffee Specialty POS</span>
+          </div>
+          <h3 className="font-bold text-lg text-[#4b3427] mb-1">
+            Hệ Thống Bán Hàng & Chế Biến Real-Time
+          </h3>
+          <p className="text-xs text-[#8a7668] leading-relaxed">
+            Thiết kế theo chuẩn GoF Design Patterns kết hợp Real-time Kitchen KDS và Quản trị định lượng nguyên vật liệu.
+          </p>
+          <div className="mt-4 pt-3 border-t border-[#ede4db] flex items-center justify-between text-[11px] text-[#8a7668]">
+            <span className="flex items-center gap-1.5">
+              <Coffee className="w-3.5 h-3.5 text-[#c2917a]" />
+              <span>Full-Stack Specialty</span>
+            </span>
+            <span className="font-mono text-[#c2917a] font-semibold">Ready to Serve</span>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
