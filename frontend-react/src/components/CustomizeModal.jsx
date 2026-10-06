@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus } from 'lucide-react';
-import { TOPPINGS, formatVND } from '../data/mockData';
+import { X, Plus, Sparkles } from 'lucide-react';
+import { formatVND } from '../data/mockData';
 
-export default function CustomizeModal({ drink, onClose, onConfirm }) {
+export default function CustomizeModal({ drink, toppings, onClose, onConfirm }) {
   const [size, setSize] = useState('M');
   const [selectedToppings, setSelectedToppings] = useState([]);
+  const [sugar, setSugar] = useState('100%');
+  const [ice, setIce] = useState('100%');
   const [note, setNote] = useState('');
+
+  const activeToppings = toppings || [];
 
   useEffect(() => {
     setSize('M');
     setSelectedToppings([]);
+    setSugar('100%');
+    setIce('100%');
     setNote('');
   }, [drink]);
 
@@ -29,11 +35,15 @@ export default function CustomizeModal({ drink, onClose, onConfirm }) {
   };
 
   const handleConfirm = () => {
+    // Ghép mức đường và đá vào ghi chú chuẩn
+    const optionsNote = `Đường: ${sugar}, Đá: ${ice}${note.trim() ? `, ${note.trim()}` : ''}`;
     onConfirm({
       drink,
       size,
       toppings: selectedToppings.map(t => t.name),
-      note: note.trim(),
+      sugar,
+      ice,
+      note: optionsNote,
       unitPrice: currentTotal
     });
   };
@@ -60,7 +70,7 @@ export default function CustomizeModal({ drink, onClose, onConfirm }) {
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white hover:bg-gray-100 flex items-center justify-center text-gray-500"
+            className="w-8 h-8 rounded-full bg-white hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -101,13 +111,55 @@ export default function CustomizeModal({ drink, onClose, onConfirm }) {
             </div>
           </div>
 
+          {/* Sugar & Ice Selectors */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-[#583115] uppercase tracking-wider mb-2">
+                2. Lượng Đường:
+              </label>
+              <div className="grid grid-cols-2 gap-1.5 bg-[#f4eae3] p-1 rounded-xl">
+                {['100%', '70%', '50%', '0%'].map(lvl => (
+                  <button
+                    key={lvl}
+                    type="button"
+                    onClick={() => setSugar(lvl)}
+                    className={`py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                      sugar === lvl ? 'bg-[#3e200a] text-white shadow-xs' : 'text-[#583115] hover:bg-white/50'
+                    }`}
+                  >
+                    {lvl}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[#583115] uppercase tracking-wider mb-2">
+                3. Lượng Đá:
+              </label>
+              <div className="grid grid-cols-2 gap-1.5 bg-[#f4eae3] p-1 rounded-xl">
+                {['100%', '70%', '50%', '0% (Nóng)'].map(lvl => (
+                  <button
+                    key={lvl}
+                    type="button"
+                    onClick={() => setIce(lvl)}
+                    className={`py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer truncate px-1 ${
+                      ice === lvl ? 'bg-[#3e200a] text-white shadow-xs' : 'text-[#583115] hover:bg-white/50'
+                    }`}
+                  >
+                    {lvl}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Toppings (Decorator Pattern) */}
           <div>
             <label className="block text-xs font-bold text-[#583115] uppercase tracking-wider mb-2">
-              2. Thêm Topping (Tùy chọn):
+              4. Thêm Topping (Decorator Pattern):
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {TOPPINGS.map((top) => {
+              {activeToppings.map((top) => {
                 const isSelected = selectedToppings.some(t => t.id === top.id);
                 return (
                   <label
@@ -131,14 +183,14 @@ export default function CustomizeModal({ drink, onClose, onConfirm }) {
           {/* Notes */}
           <div>
             <label className="block text-xs font-bold text-[#583115] uppercase tracking-wider mb-2">
-              3. Ghi Chú Đặc Biệt:
+              5. Ghi Chú Riêng Khác:
             </label>
             <input
               id="modalItemNote"
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Ví dụ: Ít đá, 50% đường, nhiều sữa..."
+              placeholder="Ví dụ: Nhiều sữa, để riêng đá..."
               className="w-full p-3 rounded-xl border border-[#ede4db] text-sm text-[#2b170c] focus:outline-none focus:border-[#7d4924] bg-[#fffaf6]"
             />
           </div>
@@ -153,14 +205,14 @@ export default function CustomizeModal({ drink, onClose, onConfirm }) {
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#f4eae3] text-[#583115] hover:bg-[#ede0d7]"
+              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#f4eae3] text-[#583115] hover:bg-[#ede0d7] cursor-pointer"
             >
               Hủy
             </button>
             <button
               id="btnModalAddToCart"
               onClick={handleConfirm}
-              className="px-6 py-2.5 rounded-xl text-xs font-extrabold btn-primary"
+              className="px-6 py-2.5 rounded-xl text-xs font-extrabold btn-primary cursor-pointer"
             >
               + Thêm Vào Đơn
             </button>

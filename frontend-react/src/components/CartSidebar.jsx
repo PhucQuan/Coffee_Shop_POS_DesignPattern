@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, Trash2, CreditCard } from 'lucide-react';
+import { ShoppingBag, Trash2, CreditCard, RotateCcw } from 'lucide-react';
 import { formatVND } from '../data/mockData';
 
 export default function CartSidebar({
@@ -9,6 +9,10 @@ export default function CartSidebar({
   onClearCart,
   discountType,
   setDiscountType,
+  voucherCode,
+  setVoucherCode,
+  onApplyVoucher,
+  voucherDiscount,
   subtotal,
   discountAmount,
   total,
@@ -34,7 +38,7 @@ export default function CartSidebar({
         {cart.length > 0 && (
           <button
             onClick={onClearCart}
-            className="text-xs font-semibold text-gray-400 hover:text-red-600 transition-colors"
+            className="text-xs font-semibold text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
           >
             Xóa hết
           </button>
@@ -66,7 +70,7 @@ export default function CartSidebar({
                     <h4 className="font-bold text-sm text-[#2b170c] leading-tight truncate">{item.name}</h4>
                     <button
                       onClick={() => onRemoveItem(item.cartItemId)}
-                      className="text-gray-400 hover:text-red-500 transition-colors p-0.5"
+                      className="text-gray-400 hover:text-red-500 transition-colors p-0.5 cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -87,14 +91,14 @@ export default function CartSidebar({
                     <div className="flex items-center border border-[#d8c8bd] rounded-lg bg-white overflow-hidden shadow-2xs">
                       <button
                         onClick={() => onChangeQty(item.cartItemId, -1)}
-                        className="w-6 h-6 flex items-center justify-center text-[#583115] hover:bg-[#f7ebe3] font-bold text-xs"
+                        className="w-6 h-6 flex items-center justify-center text-[#583115] hover:bg-[#f7ebe3] font-bold text-xs cursor-pointer"
                       >
                         -
                       </button>
                       <span className="w-7 text-center font-bold text-xs text-[#2b170c]">{item.qty}</span>
                       <button
                         onClick={() => onChangeQty(item.cartItemId, 1)}
-                        className="w-6 h-6 flex items-center justify-center text-[#583115] hover:bg-[#f7ebe3] font-bold text-xs"
+                        className="w-6 h-6 flex items-center justify-center text-[#583115] hover:bg-[#f7ebe3] font-bold text-xs cursor-pointer"
                       >
                         +
                       </button>
@@ -113,7 +117,7 @@ export default function CartSidebar({
         {/* Strategy Pattern Discount Selector */}
         <div className="flex items-center justify-between text-xs">
           <span className="font-semibold text-[#583115] flex items-center gap-1">
-            <span>🏷️</span> Mã giảm giá:
+            <span>🏷️</span> Giảm giá (Strategy):
           </span>
           <select
             id="discountSelect"
@@ -124,8 +128,25 @@ export default function CartSidebar({
             <option value="NONE">Không áp dụng (0%)</option>
             <option value="PERCENT_10">Giảm giá 10% (Thành viên)</option>
             <option value="VIP">Khách VIP (Giảm 15%)</option>
-            <option value="BOGO">Mua 1 Tặng 1 (Tặng món thấp nhất)</option>
+            <option value="BOGO">Mua 1 Tặng 1 (BOGO)</option>
           </select>
+        </div>
+
+        {/* Voucher Promo Code Input */}
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={voucherCode}
+            onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+            placeholder="Mã voucher (vd: COFFEE20K, CHAOBAN)"
+            className="flex-1 px-3 py-1.5 bg-white border border-[#ede4db] rounded-xl text-xs font-semibold text-[#2b170c] uppercase outline-none focus:border-[#7d4924]"
+          />
+          <button
+            onClick={onApplyVoucher}
+            className="px-3 py-1.5 bg-[#583115] hover:bg-[#3e200a] text-white rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
+          >
+            Áp Dụng
+          </button>
         </div>
 
         <div className="space-y-1.5 pt-2 border-t border-dashed border-[#ede4db]">
@@ -134,7 +155,7 @@ export default function CartSidebar({
             <span id="cartSubtotal" className="font-bold text-[#2b170c]">{formatVND(subtotal)}</span>
           </div>
           <div className="flex justify-between text-xs text-emerald-600 font-semibold">
-            <span>Khuyến mãi (Discount):</span>
+            <span>Khuyến mãi & Voucher:</span>
             <span id="cartDiscount">{discountAmount > 0 ? `-${formatVND(discountAmount)}` : '0 ₫'}</span>
           </div>
           <div className="flex justify-between items-baseline pt-2 border-t border-[#ede4db]">

@@ -73,6 +73,9 @@ export default function App() {
     return saved ? JSON.parse(saved) : [];
   });
   const [discountType, setDiscountType] = useState('NONE');
+  const [voucherCode, setVoucherCode] = useState('');
+  const [voucherDiscount, setVoucherDiscount] = useState(0);
+
   const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem('react_pos_orders');
     return saved ? JSON.parse(saved) : INITIAL_ORDERS;
@@ -193,7 +196,23 @@ export default function App() {
     }
   };
 
-  // Strategy Pattern Discounts
+  // Strategy Pattern Discounts & Voucher Code
+  const handleApplyVoucher = () => {
+    const code = voucherCode.trim().toUpperCase();
+    if (code === 'COFFEE20K') {
+      setVoucherDiscount(20000);
+      showToast('Áp dụng mã COFFEE20K: Giảm 20.000 ₫!');
+    } else if (code === 'CHAOBAN' || code === 'WELCOME') {
+      setVoucherDiscount(15000);
+      showToast('Áp dụng mã Chào bạn: Giảm 15.000 ₫!');
+    } else if (code === '') {
+      setVoucherDiscount(0);
+      showToast('Đã xóa mã voucher.');
+    } else {
+      showToast('Mã voucher không hợp lệ hoặc đã hết hạn!');
+    }
+  };
+
   const subtotal = cart.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
   let discountAmount = 0;
   if (discountType === 'PERCENT_10') discountAmount = Math.round(subtotal * 0.1);
@@ -201,6 +220,8 @@ export default function App() {
   if (discountType === 'BOGO' && cart.length >= 2) {
     discountAmount = Math.min(...cart.map(i => i.unitPrice));
   }
+  discountAmount += voucherDiscount;
+  discountAmount = Math.min(discountAmount, subtotal);
   const total = Math.max(0, subtotal - discountAmount);
 
   // Payment Confirmation & Inventory Deduction
@@ -368,6 +389,10 @@ export default function App() {
               onClearCart={handleClearCart}
               discountType={discountType}
               setDiscountType={setDiscountType}
+              voucherCode={voucherCode}
+              setVoucherCode={setVoucherCode}
+              onApplyVoucher={handleApplyVoucher}
+              voucherDiscount={voucherDiscount}
               subtotal={subtotal}
               discountAmount={discountAmount}
               total={total}
@@ -403,6 +428,7 @@ export default function App() {
       {/* Modals */}
       <CustomizeModal
         drink={customizingDrink}
+        toppings={toppings}
         onClose={() => setCustomizingDrink(null)}
         onConfirm={handleAddToCart}
       />

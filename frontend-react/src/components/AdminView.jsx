@@ -197,7 +197,7 @@ export default function AdminView({
           <p className="text-xs text-[#8a7668]">Đồng bộ dữ liệu chuẩn SQLite Desktop App: Menu, Topping, Kho, Đơn Hàng & Tài Khoản.</p>
         </div>
 
-        {/* 6 Tab Switcher */}
+        {/* 8 Tab Switcher */}
         <div className="flex items-center gap-1 bg-[#f4eae3] p-1.5 rounded-2xl overflow-x-auto scrollbar-none">
           {[
             { id: 'overview', label: '📊 Tổng Quan' },
@@ -205,7 +205,9 @@ export default function AdminView({
             { id: 'menu', label: '☕ Thực Đơn' },
             { id: 'topping', label: '🧋 Topping' },
             { id: 'inventory', label: '📦 Kho & Nhập Hàng' },
-            { id: 'users', label: '👥 Nhân Viên' }
+            { id: 'recipes', label: '🧪 Công Thức Định Lượng' },
+            { id: 'users', label: '👥 Nhân Viên' },
+            { id: 'backup', label: '💾 Sao Lưu SQLite' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -685,7 +687,131 @@ export default function AdminView({
         </div>
       )}
 
-      {/* MODAL 1: BEVERAGE ADD/EDIT */}
+      {/* TAB 7: RECIPES */}
+      {adminTab === 'recipes' && (
+        <div className="pos-card rounded-3xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="font-extrabold text-[#2b170c] text-base">Công Thức Định Lượng Pha Chế (Recipe Items)</h3>
+              <p className="text-xs text-[#8a7668]">Quy định lượng nguyên liệu tiêu hao tự động trừ vào kho cho mỗi ly đồ uống.</p>
+            </div>
+            <span className="text-xs font-bold text-[#583115] bg-[#f7ebe3] px-3 py-1.5 rounded-xl">
+              {recipes.length} công thức định lượng
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-[#ede4db] text-[11px] font-bold text-[#8a7668] uppercase tracking-wider">
+                  <th className="py-2.5 px-4">Tên Đồ Uống</th>
+                  <th className="py-2.5 px-4">Nguyên Liệu Cần</th>
+                  <th className="py-2.5 px-4">Định Lượng / 1 Ly</th>
+                  <th className="py-2.5 px-4">Đơn vị</th>
+                  <th className="py-2.5 px-4">Trạng thái cấu hình</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recipes.map((r, idx) => (
+                  <tr key={idx} className="border-b border-[#f4eae3] hover:bg-[#fffaf6] transition-colors">
+                    <td className="py-3 px-4 font-bold text-sm text-[#2b170c]">{r.beverageName}</td>
+                    <td className="py-3 px-4 text-sm font-semibold text-[#583115]">{r.inventoryName}</td>
+                    <td className="py-3 px-4 font-black text-sm text-[#7d4924]">{r.quantityRequired}</td>
+                    <td className="py-3 px-4 text-xs font-semibold text-gray-500">{r.unit}</td>
+                    <td className="py-3 px-4">
+                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                        Chuẩn công thức
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 8: SQLITE BACKUP & RESTORE */}
+      {adminTab === 'backup' && (
+        <div className="pos-card rounded-3xl p-6 space-y-6">
+          <div>
+            <h3 className="font-extrabold text-[#2b170c] text-lg">Hệ Thống Sao Lưu & Phục Hồi Dữ Liệu SQLite</h3>
+            <p className="text-xs text-[#8a7668] mt-1">
+              Xuất tệp sao lưu dữ liệu toàn diện (JSON / SQLite schema) hoặc tải xuống báo cáo doanh thu Excel / CSV.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="p-5 rounded-2xl border border-[#ede4db] bg-[#fffaf6] flex flex-col justify-between">
+              <div>
+                <span className="text-2xl mb-2 block">💾</span>
+                <h4 className="font-bold text-sm text-[#2b170c]">Sao Lưu Toàn Bộ Dữ Liệu</h4>
+                <p className="text-xs text-[#8a7668] mt-1">Tải về bản sao lưu đầy đủ Menu, Topping, Kho, và Đơn Hàng dạng JSON.</p>
+              </div>
+              <button
+                onClick={() => {
+                  const backupObj = { menu, toppings, inventory, inventoryLogs, users, recipes, orders, exportTime: new Date().toISOString() };
+                  const blob = new Blob([JSON.stringify(backupObj, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `purrcoffee_backup_${Date.now()}.json`;
+                  a.click();
+                  URL.revokeObjectURL(a);
+                }}
+                className="mt-4 w-full py-2.5 rounded-xl bg-[#3e200a] hover:bg-[#583115] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+              >
+                Tải Xuống Bản Backup
+              </button>
+            </div>
+
+            <div className="p-5 rounded-2xl border border-[#ede4db] bg-[#fffaf6] flex flex-col justify-between">
+              <div>
+                <span className="text-2xl mb-2 block">📊</span>
+                <h4 className="font-bold text-sm text-[#2b170c]">Xuất Báo Cáo Doanh Thu CSV</h4>
+                <p className="text-xs text-[#8a7668] mt-1">Xuất danh sách đơn hàng và doanh thu thành tệp CSV để mở bằng Excel.</p>
+              </div>
+              <button
+                onClick={() => {
+                  let csv = "MaDon,ThoiGian,HinhThuc,CongTT,TongTien,TrangThai\n";
+                  orders.forEach(o => {
+                    csv += `${o.id},"${o.createdAt}","${o.orderType}","${o.paymentMethod || 'CASH'}",${o.total},"${o.status}"\n`;
+                  });
+                  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `bao_cao_doanh_thu_${Date.now()}.csv`;
+                  a.click();
+                  URL.revokeObjectURL(a);
+                }}
+                className="mt-4 w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+              >
+                Xuất Báo Cáo Excel/CSV
+              </button>
+            </div>
+
+            <div className="p-5 rounded-2xl border border-[#ede4db] bg-[#fffaf6] flex flex-col justify-between">
+              <div>
+                <span className="text-2xl mb-2 block">🔄</span>
+                <h4 className="font-bold text-sm text-[#2b170c]">Khôi Phục Về Dữ Liệu Gốc</h4>
+                <p className="text-xs text-[#8a7668] mt-1">Xóa bộ nhớ đệm và nạp lại toàn bộ dữ liệu SQLite pos_data.db ban đầu.</p>
+              </div>
+              <button
+                onClick={() => {
+                  if (window.confirm("Bạn có chắc chắn muốn đặt lại tất cả dữ liệu về mặc định ban đầu?")) {
+                    localStorage.clear();
+                    window.location.reload();
+                  }
+                }}
+                className="mt-4 w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+              >
+                Đặt Lại Gốc (Reset Data)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {beverageModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl p-6 animate-in fade-in zoom-in-95">
