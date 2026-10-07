@@ -35,11 +35,6 @@ export default function LoginView({ onLoginSuccess }) {
       return;
     }
 
-    if (!found.active) {
-      setErrorMsg('Tài khoản này đã bị khóa. Vui lòng liên hệ quản trị viên.');
-      return;
-    }
-
     onLoginSuccess(found);
   };
 

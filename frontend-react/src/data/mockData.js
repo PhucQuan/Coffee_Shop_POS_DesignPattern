@@ -681,6 +681,7 @@ export const INITIAL_ORDERS = [
   {
     id: 1001,
     createdAt: "10:15",
+    orderDate: "2026-10-07",
     items: [
       { name: "Ca phe sua", size: "L", toppings: ["Trân châu trắng"], note: "Nhiều đá, ít ngọt", qty: 2, price: 50000 },
       { name: "Tra dao", size: "M", toppings: [], note: "", qty: 1, price: 35000 }
@@ -696,6 +697,7 @@ export const INITIAL_ORDERS = [
   {
     id: 1002,
     createdAt: "10:25",
+    orderDate: "2026-10-07",
     items: [
       { name: "Matcha latte", size: "M", toppings: ["Kem cheese"], note: "Ít ngọt", qty: 1, price: 54000 }
     ],

@@ -226,9 +226,11 @@ export default function App() {
 
   // Payment Confirmation & Inventory Deduction
   const handleConfirmPayment = (gateway) => {
+    const now = new Date();
     const newOrder = {
       id: orderCounter,
-      createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      createdAt: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      orderDate: now.toISOString().split('T')[0],
       items: [...cart],
       subtotal,
       discountAmount,
@@ -408,6 +410,7 @@ export default function App() {
         {activeTab === 'admin' && (
           <AdminView
             orders={orders}
+            setOrders={setOrders}
             menu={menu}
             setMenu={setMenu}
             toppings={toppings}
@@ -421,6 +424,7 @@ export default function App() {
             recipes={recipes}
             setRecipes={setRecipes}
             onCancelOrder={handleCancelOrder}
+            onTransitionState={handleTransitionState}
           />
         )}
       </main>
