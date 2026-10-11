@@ -8,31 +8,114 @@ import CheckoutModal from './components/CheckoutModal';
 import ReceiptModal from './components/ReceiptModal';
 import KitchenView from './components/KitchenView';
 import AdminView from './components/AdminView';
-import { DEFAULT_MENU, INITIAL_ORDERS } from './data/mockData';
+import LoginView from './components/LoginView';
+import {
+  DEFAULT_USERS,
+  DEFAULT_MENU,
+  DEFAULT_TOPPINGS,
+  DEFAULT_INVENTORY,
+  INITIAL_INVENTORY_LOGS,
+  DEFAULT_RECIPES,
+  INITIAL_ORDERS
+} from './data/mockData';
 
 export default function App() {
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState(() => {
+    // Check if Playwright or URL parameter requests bypass
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('autologin') === 'true') {
+      return DEFAULT_USERS[1];
+    }
+    const saved = localStorage.getItem('purr_pos_user');
+    return saved ? JSON.parse(saved) : null; // Mặc định mở màn hình LoginView nếu chưa đăng nhập
+  });
+
   const [activeTab, setActiveTab] = useState('pos');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [orderType, setOrderType] = useState('DINE_IN');
 
-  // Cart & Order State
+  // Master Data State (Synced across POS, Admin, Kitchen)
+  const [menu, setMenu] = useState(() => {
+    const saved = localStorage.getItem('purr_pos_menu');
+    return saved ? JSON.parse(saved) : DEFAULT_MENU;
+  });
+
+  const [toppings, setToppings] = useState(() => {
+    const saved = localStorage.getItem('purr_pos_toppings');
+    return saved ? JSON.parse(saved) : DEFAULT_TOPPINGS;
+  });
+
+  const [inventory, setInventory] = useState(() => {
+    const saved = localStorage.getItem('purr_pos_inventory');
+    return saved ? JSON.parse(saved) : DEFAULT_INVENTORY;
+  });
+
+  const [inventoryLogs, setInventoryLogs] = useState(() => {
+    const saved = localStorage.getItem('purr_pos_inv_logs');
+    return saved ? JSON.parse(saved) : INITIAL_INVENTORY_LOGS;
+  });
+
+  const [users, setUsers] = useState(() => {
+    const saved = localStorage.getItem('purr_pos_users_list');
+    return saved ? JSON.parse(saved) : DEFAULT_USERS;
+  });
+
+  const [recipes, setRecipes] = useState(() => {
+    const saved = localStorage.getItem('purr_pos_recipes');
+    return saved ? JSON.parse(saved) : DEFAULT_RECIPES;
+  });
+
+  // Cart & Orders State
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem('react_pos_cart');
     return saved ? JSON.parse(saved) : [];
   });
   const [discountType, setDiscountType] = useState('NONE');
+  const [voucherCode, setVoucherCode] = useState('');
+  const [voucherDiscount, setVoucherDiscount] = useState(0);
+
   const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem('react_pos_orders');
     return saved ? JSON.parse(saved) : INITIAL_ORDERS;
   });
   const [orderCounter, setOrderCounter] = useState(1003);
 
-  // Modals
+  // Modals & Notifications
   const [customizingDrink, setCustomizingDrink] = useState(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [receiptOrder, setReceiptOrder] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
+
+  // Save to localStorage
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('purr_pos_user', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('purr_pos_user');
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem('purr_pos_menu', JSON.stringify(menu));
+  }, [menu]);
+
+  useEffect(() => {
+    localStorage.setItem('purr_pos_toppings', JSON.stringify(toppings));
+  }, [toppings]);
+
+  useEffect(() => {
+    localStorage.setItem('purr_pos_inventory', JSON.stringify(inventory));
+  }, [inventory]);
+
+  useEffect(() => {
+    localStorage.setItem('purr_pos_inv_logs', JSON.stringify(inventoryLogs));
+  }, [inventoryLogs]);
+
+  useEffect(() => {
+    localStorage.setItem('purr_pos_users_list', JSON.stringify(users));
+  }, [users]);
 
   useEffect(() => {
     localStorage.setItem('react_pos_cart', JSON.stringify(cart));
@@ -45,6 +128,20 @@ export default function App() {
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 2500);
+  };
+
+  // Auth Handlers
+  const handleLoginSuccess = (user) => {
+    setCurrentUser(user);
+    if (user.role === 'ADMIN') setActiveTab('admin');
+    else if (user.role === 'KITCHEN') setActiveTab('kitchen');
+    else setActiveTab('pos');
+    showToast(`Xin chào ${user.fullName || user.username}!`);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    showToast("Đã đăng xuất ca làm việc.");
   };
 
   // Cart operations
@@ -99,7 +196,23 @@ export default function App() {
     }
   };
 
-  // Calculations (Strategy Pattern)
+  // Strategy Pattern Discounts & Voucher Code
+  const handleApplyVoucher = () => {
+    const code = voucherCode.trim().toUpperCase();
+    if (code === 'COFFEE20K') {
+      setVoucherDiscount(20000);
+      showToast('Áp dụng mã COFFEE20K: Giảm 20.000 ₫!');
+    } else if (code === 'CHAOBAN' || code === 'WELCOME') {
+      setVoucherDiscount(15000);
+      showToast('Áp dụng mã Chào bạn: Giảm 15.000 ₫!');
+    } else if (code === '') {
+      setVoucherDiscount(0);
+      showToast('Đã xóa mã voucher.');
+    } else {
+      showToast('Mã voucher không hợp lệ hoặc đã hết hạn!');
+    }
+  };
+
   const subtotal = cart.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
   let discountAmount = 0;
   if (discountType === 'PERCENT_10') discountAmount = Math.round(subtotal * 0.1);
@@ -107,22 +220,52 @@ export default function App() {
   if (discountType === 'BOGO' && cart.length >= 2) {
     discountAmount = Math.min(...cart.map(i => i.unitPrice));
   }
+  discountAmount += voucherDiscount;
+  discountAmount = Math.min(discountAmount, subtotal);
   const total = Math.max(0, subtotal - discountAmount);
 
-  // Payment confirmation (Adapter Pattern)
+  // Payment Confirmation & Inventory Deduction
   const handleConfirmPayment = (gateway) => {
+    const now = new Date();
     const newOrder = {
       id: orderCounter,
-      createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      createdAt: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      orderDate: now.toISOString().split('T')[0],
       items: [...cart],
       subtotal,
       discountAmount,
       discountType,
       total,
-      status: 'PREPARING', // Transition state
+      status: 'PREPARING',
       paymentMethod: gateway,
       orderType
     };
+
+    // Auto deduct inventory based on recipe items
+    cart.forEach(item => {
+      const itemRecipes = recipes.filter(r => r.beverageId === item.drinkId);
+      itemRecipes.forEach(rec => {
+        const deductQty = rec.quantityRequired * item.qty;
+        setInventory(prev => prev.map(inv => {
+          if (inv.id === rec.inventoryId) {
+            return { ...inv, quantity: Math.max(0, inv.quantity - deductQty) };
+          }
+          return inv;
+        }));
+
+        setInventoryLogs(prev => [
+          {
+            id: Date.now() + Math.random(),
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('vi-VN'),
+            item: rec.inventoryName,
+            delta: `-${deductQty} ${rec.unit}`,
+            balance: `Đã trừ`,
+            reason: `Pha chế Đơn #${newOrder.id}`
+          },
+          ...prev
+        ]);
+      });
+    });
 
     setOrders(prev => [newOrder, ...prev]);
     setOrderCounter(c => c + 1);
@@ -136,19 +279,39 @@ export default function App() {
     setOrders(prev =>
       prev.map(o => (o.id === orderId ? { ...o, status: nextState } : o))
     );
-    showToast(`Đơn #${orderId} chuyển trạng thái: ${nextState}`);
+    showToast(`Đơn #${orderId} chuyển sang: ${nextState}`);
   };
 
-  // Filter menu
-  const filteredMenu = DEFAULT_MENU.filter(item => {
+  const handleCancelOrder = (orderId) => {
+    if (window.confirm(`Bạn có chắc chắn muốn hủy đơn hàng #${orderId}?`)) {
+      setOrders(prev =>
+        prev.map(o => (o.id === orderId ? { ...o, status: 'CANCELLED' } : o))
+      );
+      showToast(`Đã hủy đơn #${orderId}!`);
+    }
+  };
+
+  // Filter Menu (Only active drinks for POS)
+  const filteredMenu = menu.filter(item => {
+    const isActive = item.active !== false;
     const matchCat = selectedCategory === 'ALL' || item.category === selectedCategory;
     const matchSearch = !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchCat && matchSearch;
+    return isActive && matchCat && matchSearch;
   });
+
+  // If not logged in, render Login View
+  if (!currentUser) {
+    return <LoginView onLoginSuccess={handleLoginSuccess} />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fffaf6]">
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navbar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        currentUser={currentUser}
+        onLogout={handleLogout}
+      />
 
       <main className="flex-1 flex overflow-hidden">
         {activeTab === 'pos' && (
@@ -171,7 +334,7 @@ export default function App() {
                 <div className="flex items-center gap-1 bg-[#f4eae3] p-1 rounded-2xl self-start">
                   <button
                     onClick={() => setOrderType('DINE_IN')}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       orderType === 'DINE_IN' ? 'bg-white text-[#2b170c] shadow-xs' : 'text-[#583115]'
                     }`}
                   >
@@ -179,7 +342,7 @@ export default function App() {
                   </button>
                   <button
                     onClick={() => setOrderType('TAKE_AWAY')}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       orderType === 'TAKE_AWAY' ? 'bg-white text-[#2b170c] shadow-xs' : 'text-[#583115]'
                     }`}
                   >
@@ -201,7 +364,7 @@ export default function App() {
                     key={cat.id}
                     data-category={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap shadow-xs border ${
+                    className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap shadow-xs border cursor-pointer ${
                       selectedCategory === cat.id
                         ? 'bg-[#3e200a] text-white border-[#3e200a]'
                         : 'bg-white text-[#583115] border-[#ede4db] hover:border-[#c2917a]'
@@ -228,6 +391,10 @@ export default function App() {
               onClearCart={handleClearCart}
               discountType={discountType}
               setDiscountType={setDiscountType}
+              voucherCode={voucherCode}
+              setVoucherCode={setVoucherCode}
+              onApplyVoucher={handleApplyVoucher}
+              voucherDiscount={voucherDiscount}
               subtotal={subtotal}
               discountAmount={discountAmount}
               total={total}
@@ -241,13 +408,31 @@ export default function App() {
         )}
 
         {activeTab === 'admin' && (
-          <AdminView orders={orders} />
+          <AdminView
+            orders={orders}
+            setOrders={setOrders}
+            menu={menu}
+            setMenu={setMenu}
+            toppings={toppings}
+            setToppings={setToppings}
+            inventory={inventory}
+            setInventory={setInventory}
+            inventoryLogs={inventoryLogs}
+            setInventoryLogs={setInventoryLogs}
+            users={users}
+            setUsers={setUsers}
+            recipes={recipes}
+            setRecipes={setRecipes}
+            onCancelOrder={handleCancelOrder}
+            onTransitionState={handleTransitionState}
+          />
         )}
       </main>
 
       {/* Modals */}
       <CustomizeModal
         drink={customizingDrink}
+        toppings={toppings}
         onClose={() => setCustomizingDrink(null)}
         onConfirm={handleAddToCart}
       />

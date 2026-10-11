@@ -1,0 +1,617 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "123",
+      "role": "ADMIN",
+      "active": true
+    },
+    {
+      "id": 2,
+      "username": "cashier01",
+      "password": "123",
+      "role": "CASHIER",
+      "active": true
+    },
+    {
+      "id": 3,
+      "username": "kitchen01",
+      "password": "123",
+      "role": "KITCHEN",
+      "active": true
+    }
+  ],
+  "beverages": [
+    {
+      "id": 1,
+      "name": "Ca phe sua",
+      "price": 30000.0,
+      "category": "COFFEE",
+      "active": true
+    },
+    {
+      "id": 2,
+      "name": "Bac xiu",
+      "price": 32000.0,
+      "category": "COFFEE",
+      "active": true
+    },
+    {
+      "id": 3,
+      "name": "Tra dao",
+      "price": 35000.0,
+      "category": "TEA",
+      "active": true
+    },
+    {
+      "id": 4,
+      "name": "Tra sua",
+      "price": 38000.0,
+      "category": "TEA",
+      "active": true
+    },
+    {
+      "id": 5,
+      "name": "Matcha latte",
+      "price": 42000.0,
+      "category": "MATCHA",
+      "active": true
+    },
+    {
+      "id": 6,
+      "name": "Sinh to xoai",
+      "price": 45000.0,
+      "category": "SMOOTHIE",
+      "active": true
+    },
+    {
+      "id": 7,
+      "name": "Espresso",
+      "price": 28000.0,
+      "category": "COFFEE",
+      "active": true
+    },
+    {
+      "id": 8,
+      "name": "Americano",
+      "price": 30000.0,
+      "category": "COFFEE",
+      "active": true
+    },
+    {
+      "id": 9,
+      "name": "Latte",
+      "price": 42000.0,
+      "category": "COFFEE",
+      "active": true
+    },
+    {
+      "id": 10,
+      "name": "Cappuccino",
+      "price": 42000.0,
+      "category": "COFFEE",
+      "active": true
+    },
+    {
+      "id": 11,
+      "name": "Cold brew",
+      "price": 45000.0,
+      "category": "COFFEE",
+      "active": true
+    },
+    {
+      "id": 12,
+      "name": "Tra vai",
+      "price": 39000.0,
+      "category": "TEA",
+      "active": true
+    },
+    {
+      "id": 13,
+      "name": "Tra tac mat ong",
+      "price": 34000.0,
+      "category": "TEA",
+      "active": true
+    },
+    {
+      "id": 14,
+      "name": "Matcha da xay",
+      "price": 52000.0,
+      "category": "MATCHA",
+      "active": true
+    },
+    {
+      "id": 15,
+      "name": "Sinh to dau",
+      "price": 48000.0,
+      "category": "SMOOTHIE",
+      "active": true
+    },
+    {
+      "id": 16,
+      "name": "Cacao nong",
+      "price": 36000.0,
+      "category": "COFFEE",
+      "active": true
+    },
+    {
+      "id": 17,
+      "name": "Vanilla latte",
+      "price": 46000.0,
+      "category": "COFFEE",
+      "active": true
+    },
+    {
+      "id": 18,
+      "name": "Caramel macchiato",
+      "price": 49000.0,
+      "category": "COFFEE",
+      "active": true
+    },
+    {
+      "id": 19,
+      "name": "Mocha",
+      "price": 47000.0,
+      "category": "COFFEE",
+      "active": true
+    },
+    {
+      "id": 20,
+      "name": "Hong tra sua",
+      "price": 39000.0,
+      "category": "TEA",
+      "active": true
+    },
+    {
+      "id": 21,
+      "name": "Oolong sua",
+      "price": 41000.0,
+      "category": "TEA",
+      "active": true
+    },
+    {
+      "id": 22,
+      "name": "Tra sen vang",
+      "price": 42000.0,
+      "category": "TEA",
+      "active": true
+    },
+    {
+      "id": 23,
+      "name": "Matcha cream cheese",
+      "price": 55000.0,
+      "category": "MATCHA",
+      "active": true
+    },
+    {
+      "id": 24,
+      "name": "Sinh to bo",
+      "price": 52000.0,
+      "category": "SMOOTHIE",
+      "active": true
+    }
+  ],
+  "toppings": [
+    {
+      "id": 1,
+      "name": "Trân châu trắng",
+      "price": 10000.0,
+      "active": true
+    },
+    {
+      "id": 2,
+      "name": "Pudding",
+      "price": 9000.0,
+      "active": true
+    },
+    {
+      "id": 3,
+      "name": "Kem cheese",
+      "price": 12000.0,
+      "active": true
+    },
+    {
+      "id": 4,
+      "name": "Extra shot",
+      "price": 8000.0,
+      "active": true
+    },
+    {
+      "id": 5,
+      "name": "Kem muối",
+      "price": 7000.0,
+      "active": true
+    },
+    {
+      "id": 6,
+      "name": "Thach cafe",
+      "price": 9000.0,
+      "active": true
+    },
+    {
+      "id": 7,
+      "name": "Kem vani",
+      "price": 11000.0,
+      "active": true
+    },
+    {
+      "id": 8,
+      "name": "Trân châu đường đen",
+      "price": 6000.0,
+      "active": true
+    }
+  ],
+  "inventory": [
+    {
+      "id": 1,
+      "name": "Coffee beans",
+      "unit": "g",
+      "quantity": 5000.0,
+      "min": 500.0
+    },
+    {
+      "id": 2,
+      "name": "Fresh milk",
+      "unit": "ml",
+      "quantity": 10000.0,
+      "min": 1000.0
+    },
+    {
+      "id": 3,
+      "name": "Tea leaves",
+      "unit": "g",
+      "quantity": 3000.0,
+      "min": 300.0
+    },
+    {
+      "id": 4,
+      "name": "Peach syrup",
+      "unit": "ml",
+      "quantity": 2500.0,
+      "min": 300.0
+    },
+    {
+      "id": 5,
+      "name": "Matcha powder",
+      "unit": "g",
+      "quantity": 2000.0,
+      "min": 200.0
+    },
+    {
+      "id": 6,
+      "name": "Mango",
+      "unit": "g",
+      "quantity": 5000.0,
+      "min": 500.0
+    },
+    {
+      "id": 7,
+      "name": "Pearl",
+      "unit": "g",
+      "quantity": 4000.0,
+      "min": 400.0
+    },
+    {
+      "id": 8,
+      "name": "Cup L",
+      "unit": "pcs",
+      "quantity": 300.0,
+      "min": 30.0
+    },
+    {
+      "id": 9,
+      "name": "Cream cheese",
+      "unit": "g",
+      "quantity": 2500.0,
+      "min": 250.0
+    },
+    {
+      "id": 10,
+      "name": "Avocado",
+      "unit": "g",
+      "quantity": 4500.0,
+      "min": 450.0
+    },
+    {
+      "id": 11,
+      "name": "Brown sugar syrup",
+      "unit": "ml",
+      "quantity": 3000.0,
+      "min": 300.0
+    },
+    {
+      "id": 12,
+      "name": "Vanilla syrup",
+      "unit": "ml",
+      "quantity": 2500.0,
+      "min": 250.0
+    },
+    {
+      "id": 13,
+      "name": "Pudding",
+      "unit": "g",
+      "quantity": 3000.0,
+      "min": 300.0
+    },
+    {
+      "id": 14,
+      "name": "Coffee jelly",
+      "unit": "g",
+      "quantity": 3000.0,
+      "min": 300.0
+    },
+    {
+      "id": 15,
+      "name": "Vanilla cream",
+      "unit": "g",
+      "quantity": 2500.0,
+      "min": 250.0
+    },
+    {
+      "id": 16,
+      "name": "Salted cream",
+      "unit": "g",
+      "quantity": 2500.0,
+      "min": 250.0
+    }
+  ],
+  "recipes": [
+    {
+      "beverageId": 1,
+      "beverageName": "Ca phe sua",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 18.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 2,
+      "beverageName": "Bac xiu",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 15.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 2,
+      "beverageName": "Bac xiu",
+      "inventoryId": 2,
+      "inventoryName": "Fresh milk",
+      "quantityRequired": 80.0,
+      "unit": "ml"
+    },
+    {
+      "beverageId": 3,
+      "beverageName": "Tra dao",
+      "inventoryId": 3,
+      "inventoryName": "Tea leaves",
+      "quantityRequired": 8.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 3,
+      "beverageName": "Tra dao",
+      "inventoryId": 4,
+      "inventoryName": "Peach syrup",
+      "quantityRequired": 40.0,
+      "unit": "ml"
+    },
+    {
+      "beverageId": 4,
+      "beverageName": "Tra sua",
+      "inventoryId": 3,
+      "inventoryName": "Tea leaves",
+      "quantityRequired": 10.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 4,
+      "beverageName": "Tra sua",
+      "inventoryId": 2,
+      "inventoryName": "Fresh milk",
+      "quantityRequired": 100.0,
+      "unit": "ml"
+    },
+    {
+      "beverageId": 5,
+      "beverageName": "Matcha latte",
+      "inventoryId": 5,
+      "inventoryName": "Matcha powder",
+      "quantityRequired": 12.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 5,
+      "beverageName": "Matcha latte",
+      "inventoryId": 2,
+      "inventoryName": "Fresh milk",
+      "quantityRequired": 120.0,
+      "unit": "ml"
+    },
+    {
+      "beverageId": 6,
+      "beverageName": "Sinh to xoai",
+      "inventoryId": 6,
+      "inventoryName": "Mango",
+      "quantityRequired": 150.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 7,
+      "beverageName": "Espresso",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 18.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 8,
+      "beverageName": "Americano",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 16.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 9,
+      "beverageName": "Latte",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 18.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 9,
+      "beverageName": "Latte",
+      "inventoryId": 2,
+      "inventoryName": "Fresh milk",
+      "quantityRequired": 120.0,
+      "unit": "ml"
+    },
+    {
+      "beverageId": 10,
+      "beverageName": "Cappuccino",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 18.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 10,
+      "beverageName": "Cappuccino",
+      "inventoryId": 2,
+      "inventoryName": "Fresh milk",
+      "quantityRequired": 120.0,
+      "unit": "ml"
+    },
+    {
+      "beverageId": 11,
+      "beverageName": "Cold brew",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 22.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 12,
+      "beverageName": "Tra vai",
+      "inventoryId": 3,
+      "inventoryName": "Tea leaves",
+      "quantityRequired": 8.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 12,
+      "beverageName": "Tra vai",
+      "inventoryId": 4,
+      "inventoryName": "Peach syrup",
+      "quantityRequired": 20.0,
+      "unit": "ml"
+    },
+    {
+      "beverageId": 13,
+      "beverageName": "Tra tac mat ong",
+      "inventoryId": 3,
+      "inventoryName": "Tea leaves",
+      "quantityRequired": 8.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 14,
+      "beverageName": "Matcha da xay",
+      "inventoryId": 5,
+      "inventoryName": "Matcha powder",
+      "quantityRequired": 15.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 14,
+      "beverageName": "Matcha da xay",
+      "inventoryId": 2,
+      "inventoryName": "Fresh milk",
+      "quantityRequired": 100.0,
+      "unit": "ml"
+    },
+    {
+      "beverageId": 15,
+      "beverageName": "Sinh to dau",
+      "inventoryId": 6,
+      "inventoryName": "Mango",
+      "quantityRequired": 120.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 16,
+      "beverageName": "Cacao nong",
+      "inventoryId": 2,
+      "inventoryName": "Fresh milk",
+      "quantityRequired": 150.0,
+      "unit": "ml"
+    },
+    {
+      "beverageId": 17,
+      "beverageName": "Vanilla latte",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 10.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 18,
+      "beverageName": "Caramel macchiato",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 10.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 19,
+      "beverageName": "Mocha",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 10.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 20,
+      "beverageName": "Hong tra sua",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 10.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 21,
+      "beverageName": "Oolong sua",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 10.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 22,
+      "beverageName": "Tra sen vang",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 10.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 23,
+      "beverageName": "Matcha cream cheese",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 10.0,
+      "unit": "g"
+    },
+    {
+      "beverageId": 24,
+      "beverageName": "Sinh to bo",
+      "inventoryId": 1,
+      "inventoryName": "Coffee beans",
+      "quantityRequired": 10.0,
+      "unit": "g"
+    }
+  ]
+}
