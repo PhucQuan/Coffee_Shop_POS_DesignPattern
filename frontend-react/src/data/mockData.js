@@ -714,3 +714,40 @@ export const INITIAL_ORDERS = [
 export function formatVND(amount) {
   return new Intl.NumberFormat('vi-VN').format(Math.max(0, amount)) + ' ₫';
 }
+
+// =========================================================================
+// 10 ADVANCED FEATURES DATA: CUSTOMERS, VOUCHERS, NOTIFICATIONS & RANKING
+// =========================================================================
+
+export const DEFAULT_CUSTOMERS = [
+  { id: 1, name: "Nguyễn Văn An", phone: "0901234567", points: 150, totalSpent: 1500000, joinDate: "2026-09-01" },
+  { id: 2, name: "Trần Thị Mai", phone: "0912345678", points: 420, totalSpent: 4200000, joinDate: "2026-09-10" },
+  { id: 3, name: "Lê Hoàng Phúc", phone: "0987654321", points: 750, totalSpent: 7500000, joinDate: "2026-08-15" },
+  { id: 4, name: "Phạm Minh Đức", phone: "0934567890", points: 45, totalSpent: 450000, joinDate: "2026-10-01" }
+];
+
+export function calcRank(totalSpent) {
+  if (totalSpent >= 5000000) {
+    return { rank: 'DIAMOND', label: 'Kim Cương', discount: 15, badgeColor: 'bg-indigo-100 text-indigo-800 border-indigo-200' };
+  }
+  if (totalSpent >= 2000000) {
+    return { rank: 'GOLD', label: 'Vàng', discount: 10, badgeColor: 'bg-amber-100 text-amber-800 border-amber-200' };
+  }
+  if (totalSpent >= 500000) {
+    return { rank: 'SILVER', label: 'Bạc', discount: 5, badgeColor: 'bg-slate-100 text-slate-700 border-slate-200' };
+  }
+  return { rank: 'BRONZE', label: 'Đồng', discount: 0, badgeColor: 'bg-orange-100 text-orange-800 border-orange-200' };
+}
+
+export const DEFAULT_VOUCHERS = [
+  { id: 1, code: 'COFFEE20K', type: 'FIXED', value: 20000, minOrder: 50000, active: true, desc: 'Giảm 20.000 ₫ cho đơn từ 50.000 ₫' },
+  { id: 2, code: 'CHAOBAN', type: 'FIXED', value: 15000, minOrder: 30000, active: true, desc: 'Ưu đãi khách hàng mới giảm 15.000 ₫' },
+  { id: 3, code: 'VIP20', type: 'PERCENT', value: 20, minOrder: 100000, active: true, desc: 'Giảm 20% cho hóa đơn từ 100.000 ₫' },
+  { id: 4, code: 'PURR50', type: 'FIXED', value: 50000, minOrder: 150000, active: false, desc: 'Giảm 50.000 ₫ cho hóa đơn từ 150.000 ₫' }
+];
+
+export const DEFAULT_NOTIFICATIONS = [
+  { id: 1, title: 'Đơn mới #1002', message: 'Đơn 1x Matcha latte mang đi đang chờ pha chế', time: '10:25', read: false, type: 'ORDER' },
+  { id: 2, title: 'Cảnh báo tồn kho', message: 'Hạt Arabica Cầu Đất còn 4.5kg (Dưới ngưỡng 5.0kg)', time: '09:40', read: false, type: 'INVENTORY' },
+  { id: 3, title: 'Bếp hoàn thành đơn #1001', message: 'Đơn #1001 đã hoàn tất pha chế, sẵn sàng giao khách', time: '09:35', read: true, type: 'KITCHEN' }
+];

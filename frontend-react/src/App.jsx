@@ -16,7 +16,11 @@ import {
   DEFAULT_INVENTORY,
   INITIAL_INVENTORY_LOGS,
   DEFAULT_RECIPES,
-  INITIAL_ORDERS
+  INITIAL_ORDERS,
+  DEFAULT_CUSTOMERS,
+  DEFAULT_VOUCHERS,
+  DEFAULT_NOTIFICATIONS,
+  formatVND
 } from './data/mockData';
 
 export default function App() {
@@ -65,6 +69,22 @@ export default function App() {
   const [recipes, setRecipes] = useState(() => {
     const saved = localStorage.getItem('purr_pos_recipes');
     return saved ? JSON.parse(saved) : DEFAULT_RECIPES;
+  });
+
+  // Advanced features state: Customers, Vouchers, Notifications
+  const [customers, setCustomers] = useState(() => {
+    const saved = localStorage.getItem('purr_pos_customers');
+    return saved ? JSON.parse(saved) : DEFAULT_CUSTOMERS;
+  });
+
+  const [vouchers, setVouchers] = useState(() => {
+    const saved = localStorage.getItem('purr_pos_vouchers');
+    return saved ? JSON.parse(saved) : DEFAULT_VOUCHERS;
+  });
+
+  const [notifications, setNotifications] = useState(() => {
+    const saved = localStorage.getItem('purr_pos_notifications');
+    return saved ? JSON.parse(saved) : DEFAULT_NOTIFICATIONS;
   });
 
   // Cart & Orders State
@@ -118,6 +138,18 @@ export default function App() {
   }, [users]);
 
   useEffect(() => {
+    localStorage.setItem('purr_pos_customers', JSON.stringify(customers));
+  }, [customers]);
+
+  useEffect(() => {
+    localStorage.setItem('purr_pos_vouchers', JSON.stringify(vouchers));
+  }, [vouchers]);
+
+  useEffect(() => {
+    localStorage.setItem('purr_pos_notifications', JSON.stringify(notifications));
+  }, [notifications]);
+
+  useEffect(() => {
     localStorage.setItem('react_pos_cart', JSON.stringify(cart));
   }, [cart]);
 
@@ -128,6 +160,42 @@ export default function App() {
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 2500);
+  };
+
+  // Notification Operations
+  const handleSendNotification = (title, message, type = 'SYSTEM') => {
+    const newNotif = {
+      id: Date.now(),
+      title,
+      message,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      read: false,
+      type
+    };
+    setNotifications(prev => [newNotif, ...prev]);
+    showToast(`Đã gửi thông báo: ${title}`);
+  };
+
+  const handleDeleteNotification = (notifId) => {
+    setNotifications(prev => prev.filter(n => n.id !== notifId));
+  };
+
+  const handleMarkNotificationsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
+
+  // User Profile & Password Change
+  const handleChangePassword = (oldPass, newPass) => {
+    if (!currentUser) return false;
+    if (currentUser.password !== oldPass) {
+      showToast("Mật khẩu hiện tại không đúng!");
+      return false;
+    }
+    const updatedUser = { ...currentUser, password: newPass };
+    setCurrentUser(updatedUser);
+    setUsers(prev => prev.map(u => (u.username === updatedUser.username ? updatedUser : u)));
+    showToast("Đổi mật khẩu thành công!");
+    return true;
   };
 
   // Auth Handlers
@@ -196,18 +264,43 @@ export default function App() {
     }
   };
 
-  // Strategy Pattern Discounts & Voucher Code
+  // Strategy Pattern Discounts & Dynamic Voucher Code
   const handleApplyVoucher = () => {
     const code = voucherCode.trim().toUpperCase();
+    if (!code) {
+      setVoucherDiscount(0);
+      showToast('Đã xóa mã voucher.');
+      return;
+    }
+
+    const foundVoucher = vouchers.find(v => v.code.toUpperCase() === code);
+    if (foundVoucher) {
+      if (!foundVoucher.active) {
+        showToast('Mã voucher này hiện đã hết hạn hoặc tạm dừng.');
+        return;
+      }
+      if (subtotal < (foundVoucher.minOrder || 0)) {
+        showToast(`Đơn hàng cần tối thiểu ${formatVND(foundVoucher.minOrder)} để áp dụng mã này.`);
+        return;
+      }
+      let calculated = 0;
+      if (foundVoucher.type === 'PERCENT') {
+        calculated = Math.round(subtotal * (foundVoucher.value / 100));
+      } else {
+        calculated = foundVoucher.value;
+      }
+      setVoucherDiscount(calculated);
+      showToast(`Áp dụng mã ${foundVoucher.code}: Giảm ${formatVND(calculated)}!`);
+      return;
+    }
+
+    // Fallbacks for demo shortcuts
     if (code === 'COFFEE20K') {
       setVoucherDiscount(20000);
       showToast('Áp dụng mã COFFEE20K: Giảm 20.000 ₫!');
     } else if (code === 'CHAOBAN' || code === 'WELCOME') {
       setVoucherDiscount(15000);
       showToast('Áp dụng mã Chào bạn: Giảm 15.000 ₫!');
-    } else if (code === '') {
-      setVoucherDiscount(0);
-      showToast('Đã xóa mã voucher.');
     } else {
       showToast('Mã voucher không hợp lệ hoặc đã hết hạn!');
     }
@@ -311,6 +404,11 @@ export default function App() {
         setActiveTab={setActiveTab}
         currentUser={currentUser}
         onLogout={handleLogout}
+        notifications={notifications}
+        onDeleteNotification={handleDeleteNotification}
+        onSendNotification={handleSendNotification}
+        onMarkNotificationsRead={handleMarkNotificationsRead}
+        onChangePassword={handleChangePassword}
       />
 
       <main className="flex-1 flex overflow-hidden">
@@ -423,6 +521,11 @@ export default function App() {
             setUsers={setUsers}
             recipes={recipes}
             setRecipes={setRecipes}
+            customers={customers}
+            setCustomers={setCustomers}
+            vouchers={vouchers}
+            setVouchers={setVouchers}
+            onSendNotification={handleSendNotification}
             onCancelOrder={handleCancelOrder}
             onTransitionState={handleTransitionState}
           />

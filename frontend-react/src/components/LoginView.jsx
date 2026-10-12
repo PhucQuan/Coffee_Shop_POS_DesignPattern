@@ -12,13 +12,33 @@ import { DEFAULT_USERS } from '../data/mockData';
  * - Demo accounts panel matching desktop card layout
  */
 export default function LoginView({ onLoginSuccess }) {
+  const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
   const [username, setUsername] = useState('cashier01');
   const [password, setPassword] = useState('123');
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+
+  // Register state
+  const [regFullName, setRegFullName] = useState('');
+  const [regUsername, setRegUsername] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regConfirmPassword, setRegConfirmPassword] = useState('');
+  const [regRole, setRegRole] = useState('CASHIER');
+
+  const getAllUsers = () => {
+    try {
+      const saved = localStorage.getItem('purr_pos_users_list');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // fallback
+    }
+    return DEFAULT_USERS;
+  };
 
   const handleLogin = (e) => {
     if (e) e.preventDefault();
     setErrorMsg('');
+    setSuccessMsg('');
 
     const trimmedUser = username.trim();
     if (!trimmedUser || !password) {
@@ -26,7 +46,10 @@ export default function LoginView({ onLoginSuccess }) {
       return;
     }
 
-    const found = DEFAULT_USERS.find(
+    const allUsers = getAllUsers();
+    const found = allUsers.find(
+      u => u.username.toLowerCase() === trimmedUser.toLowerCase() && u.password === password
+    ) || DEFAULT_USERS.find(
       u => u.username.toLowerCase() === trimmedUser.toLowerCase() && u.password === password
     );
 
@@ -35,13 +58,67 @@ export default function LoginView({ onLoginSuccess }) {
       return;
     }
 
+    if (found.active === false) {
+      setErrorMsg('Tài khoản đã bị tạm khóa. Vui lòng liên hệ Admin.');
+      return;
+    }
+
     onLoginSuccess(found);
+  };
+
+  const handleRegister = (e) => {
+    if (e) e.preventDefault();
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    const trimmedUser = regUsername.trim();
+    if (!trimmedUser || !regPassword) {
+      setErrorMsg('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.');
+      return;
+    }
+    if (regPassword.length < 3) {
+      setErrorMsg('Mật khẩu tối thiểu 3 ký tự.');
+      return;
+    }
+    if (regPassword !== regConfirmPassword) {
+      setErrorMsg('Mật khẩu xác nhận không khớp.');
+      return;
+    }
+
+    const allUsers = getAllUsers();
+    if (allUsers.some(u => u.username.toLowerCase() === trimmedUser.toLowerCase())) {
+      setErrorMsg(`Tên tài khoản "${trimmedUser}" đã tồn tại. Vui lòng chọn tên khác.`);
+      return;
+    }
+
+    const newUser = {
+      id: Date.now(),
+      username: trimmedUser,
+      password: regPassword,
+      fullName: regFullName.trim() || trimmedUser,
+      role: regRole,
+      active: true
+    };
+
+    const updated = [...allUsers, newUser];
+    localStorage.setItem('purr_pos_users_list', JSON.stringify(updated));
+
+    setSuccessMsg(`Đăng ký thành công tài khoản "${trimmedUser}" (${regRole})!`);
+    setUsername(trimmedUser);
+    setPassword(regPassword);
+    setAuthMode('login');
+    // Clear register form
+    setRegFullName('');
+    setRegUsername('');
+    setRegPassword('');
+    setRegConfirmPassword('');
   };
 
   const selectDemoAccount = (u, autoLogin = false) => {
     setUsername(u.username);
     setPassword(u.password);
     setErrorMsg('');
+    setSuccessMsg('');
     if (autoLogin) {
       onLoginSuccess(u);
     }
@@ -91,6 +168,33 @@ export default function LoginView({ onLoginSuccess }) {
           Sign in to run cashier, kitchen, and admin workflows.
         </p>
 
+        {/* Auth Mode Switcher */}
+        <div className="flex items-center gap-1.5 p-1 bg-[#f4eae3] rounded-xl mb-5">
+          <button
+            type="button"
+            onClick={() => { setAuthMode('login'); setErrorMsg(''); }}
+            className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              authMode === 'login'
+                ? 'bg-[#3e200a] text-white shadow-xs'
+                : 'text-[#583115] hover:bg-[#ede0d7]'
+            }`}
+          >
+            Đăng Nhập (Sign in)
+          </button>
+          <button
+            type="button"
+            id="btnSwitchRegister"
+            onClick={() => { setAuthMode('register'); setErrorMsg(''); }}
+            className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              authMode === 'register'
+                ? 'bg-[#3e200a] text-white shadow-xs'
+                : 'text-[#583115] hover:bg-[#ede0d7]'
+            }`}
+          >
+            Đăng Ký Mới (Register)
+          </button>
+        </div>
+
         {/* Inline Message / Error Label */}
         {errorMsg && (
           <div className="mb-4 p-3 rounded-xl bg-[#fdf2f1] border border-[#f5c6cb] text-[#c0726c] text-xs font-bold flex items-center gap-2 animate-in fade-in">
@@ -99,62 +203,162 @@ export default function LoginView({ onLoginSuccess }) {
           </div>
         )}
 
-        {/* Form Inputs */}
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-[#4b3427] mb-1.5 tracking-wide">
-              Username
-            </label>
-            <div className="relative">
-              <User className="w-4 h-4 text-[#8a7668] absolute left-3.5 top-1/2 -translate-y-1/2" />
+        {successMsg && (
+          <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+            <Sparkles className="w-4 h-4 shrink-0 text-emerald-600" />
+            <span>{successMsg}</span>
+          </div>
+        )}
+
+        {/* Form Inputs: LOGIN MODE */}
+        {authMode === 'login' && (
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-[#4b3427] mb-1.5 tracking-wide">
+                Username
+              </label>
+              <div className="relative">
+                <User className="w-4 h-4 text-[#8a7668] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  id="usernameInput"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Username (e.g. cashier01)"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#fffcf8] border border-[#e5dad0] focus:border-[#c2917a] focus:bg-white focus:ring-2 focus:ring-[#f5e8df] text-sm text-[#4b3427] font-semibold outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#4b3427] mb-1.5 tracking-wide">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-[#8a7668] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  id="passwordInput"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#fffcf8] border border-[#e5dad0] focus:border-[#c2917a] focus:bg-white focus:ring-2 focus:ring-[#f5e8df] text-sm text-[#4b3427] font-semibold outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Action Buttons: Sign in & Exit */}
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                id="btnLoginSubmit"
+                type="submit"
+                className="w-full py-2.5 px-4 rounded-xl bg-[#c2917a] hover:bg-[#b07d67] active:scale-[0.98] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Sign in</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setUsername(''); setPassword(''); setErrorMsg(''); }}
+                className="w-full py-2.5 px-4 rounded-xl bg-transparent hover:bg-[#f7f1eb] text-[#8a7668] hover:text-[#4b3427] font-bold text-sm border border-[#e5dad0] transition-all cursor-pointer text-center"
+              >
+                Exit
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* Form Inputs: REGISTER MODE */}
+        {authMode === 'register' && (
+          <form onSubmit={handleRegister} className="space-y-3">
+            <div>
+              <label className="block text-xs font-bold text-[#4b3427] mb-1 tracking-wide">
+                Họ và Tên
+              </label>
               <input
-                id="usernameInput"
+                id="regFullNameInput"
                 type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Username (e.g. cashier01)"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#fffcf8] border border-[#e5dad0] focus:border-[#c2917a] focus:bg-white focus:ring-2 focus:ring-[#f5e8df] text-sm text-[#4b3427] font-semibold outline-none transition-all"
+                value={regFullName}
+                onChange={(e) => setRegFullName(e.target.value)}
+                placeholder="Ví dụ: Lê Thị Kim Oanh"
+                className="w-full px-3.5 py-2 rounded-xl bg-[#fffcf8] border border-[#e5dad0] focus:border-[#c2917a] focus:bg-white text-xs text-[#4b3427] font-semibold outline-none"
               />
             </div>
-          </div>
 
-          <div>
-            <label className="block text-xs font-bold text-[#4b3427] mb-1.5 tracking-wide">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-[#8a7668] absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                id="passwordInput"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#fffcf8] border border-[#e5dad0] focus:border-[#c2917a] focus:bg-white focus:ring-2 focus:ring-[#f5e8df] text-sm text-[#4b3427] font-semibold outline-none transition-all"
-              />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-bold text-[#4b3427] mb-1 tracking-wide">
+                  Tên Đăng Nhập
+                </label>
+                <input
+                  id="regUsernameInput"
+                  type="text"
+                  value={regUsername}
+                  onChange={(e) => setRegUsername(e.target.value)}
+                  placeholder="e.g. cashier02"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#fffcf8] border border-[#e5dad0] focus:border-[#c2917a] focus:bg-white text-xs text-[#4b3427] font-semibold outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#4b3427] mb-1 tracking-wide">
+                  Vai Trò (Role)
+                </label>
+                <select
+                  value={regRole}
+                  onChange={(e) => setRegRole(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-[#fffcf8] border border-[#e5dad0] focus:border-[#c2917a] focus:bg-white text-xs text-[#4b3427] font-bold outline-none cursor-pointer"
+                >
+                  <option value="CASHIER">Thu Ngân (Cashier)</option>
+                  <option value="KITCHEN">Pha Chế (Kitchen)</option>
+                  <option value="ADMIN">Quản Trị (Admin)</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          {/* Action Buttons: Sign in & Exit */}
-          <div className="grid grid-cols-2 gap-3 pt-2">
-            <button
-              id="btnLoginSubmit"
-              type="submit"
-              className="w-full py-2.5 px-4 rounded-xl bg-[#c2917a] hover:bg-[#b07d67] active:scale-[0.98] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span>Sign in</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-bold text-[#4b3427] mb-1 tracking-wide">
+                  Mật Khẩu
+                </label>
+                <input
+                  id="regPasswordInput"
+                  type="password"
+                  value={regPassword}
+                  onChange={(e) => setRegPassword(e.target.value)}
+                  placeholder="Mật khẩu"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#fffcf8] border border-[#e5dad0] focus:border-[#c2917a] focus:bg-white text-xs text-[#4b3427] font-semibold outline-none"
+                />
+              </div>
 
-            <button
-              type="button"
-              onClick={() => { setUsername(''); setPassword(''); setErrorMsg(''); }}
-              className="w-full py-2.5 px-4 rounded-xl bg-transparent hover:bg-[#f7f1eb] text-[#8a7668] hover:text-[#4b3427] font-bold text-sm border border-[#e5dad0] transition-all cursor-pointer text-center"
-            >
-              Exit
-            </button>
-          </div>
-        </form>
+              <div>
+                <label className="block text-xs font-bold text-[#4b3427] mb-1 tracking-wide">
+                  Xác Nhận Mật Khẩu
+                </label>
+                <input
+                  id="regConfirmPasswordInput"
+                  type="password"
+                  value={regConfirmPassword}
+                  onChange={(e) => setRegConfirmPassword(e.target.value)}
+                  placeholder="Nhập lại"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#fffcf8] border border-[#e5dad0] focus:border-[#c2917a] focus:bg-white text-xs text-[#4b3427] font-semibold outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button
+                id="btnRegisterSubmit"
+                type="submit"
+                className="w-full py-2.5 px-4 rounded-xl bg-[#3e200a] hover:bg-[#583115] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Xác Nhận Đăng Ký Tài Khoản</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </form>
+        )}
 
         {/* Demo Accounts Card - Đúng định dạng demoAccountsPanel() của Java Swing */}
         <div className="mt-6 pt-5 border-t border-[#f2eae2]">
