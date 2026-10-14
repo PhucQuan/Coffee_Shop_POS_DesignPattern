@@ -19,6 +19,14 @@ import {
   INITIAL_ORDERS
 } from './data/mockData';
 
+const demoDefects = new Set(
+  new URLSearchParams(window.location.search)
+    .get('demoDefects')
+    ?.split(',')
+    .map(value => value.trim().toUpperCase())
+    .filter(Boolean) || []
+);
+
 export default function App() {
   // Authentication State
   const [currentUser, setCurrentUser] = useState(() => {
@@ -215,14 +223,17 @@ export default function App() {
 
   const subtotal = cart.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
   let discountAmount = 0;
-  if (discountType === 'PERCENT_10') discountAmount = Math.round(subtotal * 0.1);
+  if (discountType === 'PERCENT_10') {
+    discountAmount = Math.round(subtotal * (demoDefects.has('TC03') ? 0.05 : 0.1));
+  }
   if (discountType === 'VIP') discountAmount = Math.round(subtotal * 0.15);
   if (discountType === 'BOGO' && cart.length >= 2) {
     discountAmount = Math.min(...cart.map(i => i.unitPrice));
   }
   discountAmount += voucherDiscount;
   discountAmount = Math.min(discountAmount, subtotal);
-  const total = Math.max(0, subtotal - discountAmount);
+  let total = Math.max(0, subtotal - discountAmount);
+  if (demoDefects.has('TC01') && cart.length === 1) total += 1000;
 
   // Payment Confirmation & Inventory Deduction
   const handleConfirmPayment = (gateway) => {
@@ -305,7 +316,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fffaf6]">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden flex flex-col bg-[#fffaf6]">
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -313,11 +324,11 @@ export default function App() {
         onLogout={handleLogout}
       />
 
-      <main className="flex-1 flex overflow-hidden">
+      <main className="flex-1 flex lg:min-h-0 overflow-x-hidden lg:overflow-hidden">
         {activeTab === 'pos' && (
-          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+          <div className="flex-1 flex flex-col lg:flex-row lg:min-h-0 overflow-visible lg:overflow-hidden">
             {/* Menu */}
-            <section className="flex-1 flex flex-col p-6 overflow-y-auto">
+            <section className="flex-1 flex flex-col p-6 lg:min-h-0 overflow-y-auto">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
                 <div className="relative flex-1 max-w-md">
                   <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a36538]" />
@@ -440,6 +451,7 @@ export default function App() {
       {isCheckoutOpen && (
         <CheckoutModal
           total={total}
+          demoDefects={demoDefects}
           onClose={() => setIsCheckoutOpen(false)}
           onConfirmPayment={handleConfirmPayment}
         />
@@ -447,6 +459,7 @@ export default function App() {
 
       <ReceiptModal
         order={receiptOrder}
+        demoDefects={demoDefects}
         onClose={() => setReceiptOrder(null)}
       />
 
