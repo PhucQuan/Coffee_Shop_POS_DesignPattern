@@ -1,105 +1,116 @@
-# MỤC 1.2: TRIỂN KHAI KIỂM THỬ TỰ ĐỘNG CHO PHÂN HỆ BACKEND
-*(Tài liệu phục vụ tổng hợp nội dung Báo cáo Đồ án - Phần thực hiện của Quân)*
+# 1.2. TRIỂN KHAI KIỂM THỬ TỰ ĐỘNG CHO PHÂN HỆ BACKEND
+*(UNIT TESTING & INTEGRATION TESTING)*
 
 ---
 
-### 1.2. TRIỂN KHAI KIỂM THỬ TỰ ĐỘNG CHO PHÂN HỆ BACKEND (UNIT & INTEGRATION TESTING VỚI JACOCO)
+### 1.2.1. Mục tiêu và Giải pháp kiểm thử tự động Backend
+Phân hệ Backend đóng vai trò cốt lõi trong việc xử lý logic nghiệp vụ, quản lý trạng thái đơn hàng, tính toán tài chính và lưu trữ dữ liệu của hệ thống Coffee Shop POS. Nhằm đảm bảo tính chính xác của các thuật toán nghiệp vụ và phục vụ kiểm thử hồi quy liên tục, nhóm nghiên cứu đã xây dựng bộ kiểm thử tự động nội bộ bằng ngôn ngữ Java 17.
 
-#### 1.2.1. Đặt vấn đề và Giải pháp thiết kế Bộ điều phối kiểm thử (Test Harness)
-Trong quá trình phát triển hệ thống Coffee Shop POS, toàn bộ mã nguồn nghiệp vụ, xử lý luồng đơn hàng, tính toán tài chính và các mẫu thiết kế phần mềm (Design Patterns) đều tập trung ở tầng Backend (viết bằng Java 17). Nếu chỉ kiểm thử thủ công trên giao diện thì rất dễ bỏ sót các nhánh rẽ điều kiện (branch), không bao quát được hết các trường hợp dữ liệu biên, và mỗi lần sửa code sẽ tốn rất nhiều thời gian để test lại từ đầu.
+Bộ kiểm thử được phân tách rành mạch thành hai cấp độ chuyên biệt:
+* **Kiểm thử đơn vị (Unit Testing)**: Gồm 18 ca kiểm thử độc lập, sử dụng cơ chế lưu trữ giả lập trên bộ nhớ RAM (`InMemoryRepository`) để cô lập logic nghiệp vụ của các lớp Service, không phụ thuộc vào hạ tầng cơ sở dữ liệu vật lý.
+* **Kiểm thử tích hợp (Integration Testing)**: Gồm 6 ca kiểm thử, kết nối trực tiếp với hệ quản trị cơ sở dữ liệu SQLite vật lý thông qua các tệp tin tạm thời (tự động khởi tạo và giải phóng sau khi kiểm thử) nhằm đánh giá tính toàn vẹn dữ liệu và nhật ký giao dịch.
 
-Để phục vụ kiểm thử hồi quy liên tục mà vẫn giữ cho dự án nhẹ, có thể biên dịch và chạy trực tiếp trên bất kỳ máy tính nào bằng JDK 17 (không bắt buộc cài đặt các công cụ build nặng như Maven hay Gradle), thành viên phụ trách Backend (Quân) đã xây dựng bộ điều phối kiểm thử tự động nội bộ gồm các thành phần sau:
-
-1. **Bộ Test Runner độc lập (`TestRunner.java`)**: 
-   * Tự hiện thực các hàm kiểm chứng logic (`assertEquals`, `assertTrue`, `assertThrows`) tương tự JUnit nhưng không phát sinh thư viện phụ thuộc bên ngoài.
-   * Toàn bộ 24 ca kiểm thử được chạy tuần tự, có cơ chế đếm số lượng test pass/fail và tổng hợp báo cáo trực quan ra màn hình console chỉ trong **chưa đầy 0.5 giây**.
-2. **Tách biệt rạch ròi 2 mức độ kiểm thử**:
-   * `UnitTestRunner.java`: Chuyên chạy 18 ca kiểm thử đơn vị độc lập trên bộ nhớ RAM.
-   * `IntegrationTestRunner.java`: Chuyên chạy 6 ca kiểm thử tích hợp ghi/đọc CSDL SQLite thật.
-   * Đi kèm là các script batch 1-click (`test-unit.bat`, `test-integration.bat`, `test.bat`) để các thành viên khác trong nhóm có thể kích hoạt nhanh bất cứ lúc nào.
-3. **Kỹ thuật cô lập kiểm thử (Test Doubles & Isolated Database)**:
-   * **In-Memory Repository**: Sử dụng lớp `InMemoryRepository` lưu trữ dữ liệu tạm thời trên RAM để phục vụ tầng Unit Test. Nhờ đó, logic nghiệp vụ của các Service được kiểm tra độc lập 100%, không phụ thuộc vào trạng thái file CSDL trên ổ cứng.
-   * **Stub Cổng thanh toán (`FakeFailingGateway`)**: Tạo một lớp giả lập cổng thanh toán để chủ động trả về kết quả thất bại, giúp kiểm chứng khả năng bắt ngoại lệ của hệ thống mà không cần ngắt mạng internet thật.
-   * **Cơ chế CSDL tạm cho Integration Test**: Mỗi bài test tích hợp sẽ tự tạo một file SQLite riêng biệt bằng hàm `File.createTempFile("coffee-shop-pos-test-", ".db")` và tự giải phóng khi kết thúc (`deleteOnExit()`). Cơ chế này đảm bảo các bài test không bị xung đột dữ liệu lẫn nhau và không làm ảnh hưởng đến file `pos_data.db` chính của ứng dụng.
+Toàn bộ 24 ca kiểm thử được điều phối tập trung thông qua `TestRunner.java` và có thể kích hoạt linh hoạt qua các tập lệnh thực thi tự động (`test-unit.bat`, `test-integration.bat`, `test.bat`).
 
 ---
 
-#### 1.2.2. Chi tiết các thành phần nghiệp vụ và Design Patterns đưa vào kiểm thử
-Quân đã thiết kế tổng cộng **24 ca kiểm thử tự động**, chia thành hai tầng cụ thể:
+### 1.2.2. Nội dung các chức năng nghiệp vụ đưa vào kiểm thử
+Nhóm đã thiết lập 24 ca kiểm thử tập trung vào các chức năng nghiệp vụ trọng yếu của hệ thống:
 
-##### A. Bộ kiểm thử đơn vị (Unit Testing - 18 Test Cases từ TC01 đến TC18)
-Tầng này tập trung kiểm tra tính đúng đắn của từng Class, từng thuật toán và sự phối hợp giữa các đối tượng trong môi trường cô lập:
-* **Kiểm chứng 6 Mẫu thiết kế phần mềm (Design Patterns)**:
-  * **Decorator Pattern (TC02)**: Kiểm tra công thức tính lũy tiến giá đồ uống khi bọc liên tiếp các lớp topping và kích cỡ. Cụ thể: Ly `BaseCoffee` (30.000đ) bọc thêm `PearlDecorator` (+7.000đ) và `LargeSizeDecorator` (+10.000đ) phải ra đúng chính xác 47.000đ.
-  * **Strategy Pattern (TC03)**: Kiểm tra việc gán động chiến lược giảm giá `PercentDiscountStrategy(10)` vào đơn hàng tại runtime; tổng tiền đơn 100.000đ sau khi tính toán lại phải giảm còn đúng 90.000đ.
-  * **State Pattern (TC04, TC05)**: TC04 kiểm tra luân chuyển trạng thái hợp lệ (*Pending $\rightarrow$ Preparing $\rightarrow$ Ready*). TC05 kiểm tra nhánh chặn: khi đơn hàng đã chuyển sang trạng thái đã thanh toán (`PaidState`), nếu có hành vi cố tình gọi `startPreparing()` thì hệ thống phải ném ra ngoại lệ `InvalidStateTransitionException` để bảo vệ đơn.
-  * **Adapter Pattern (TC06, TC18)**: TC06 kiểm tra việc thanh toán qua `MomoAdapter` thành công, đơn chuyển trạng thái sang `PAID` và sinh mã giao dịch định dạng `MOMO-xxxx`. TC18 kiểm tra nhánh lỗi: khi cổng thanh toán đối tác trả về thất bại (thông qua `FakeFailingGateway`), đơn hàng bắt buộc phải giữ nguyên trạng thái `READY` và không được phép sinh bản ghi thanh toán.
-  * **Observer Pattern (TC07)**: Kiểm tra cơ chế bắn thông báo thời gian thực; khi Barista đánh dấu đơn hàng đã xong (`markReady`), màn hình thu ngân (`CashierScreen`) đăng ký lắng nghe trước đó phải nhận được đúng chuỗi thông báo *"ready for pickup"*.
-  * **Factory Method (TC16)**: Kiểm tra các lớp `CoffeeFactory`, `TeaFactory`, `MatchaFactory` khởi tạo đúng các đối tượng đồ uống tương ứng, bảo toàn đúng tên gọi và đơn giá gốc.
-  * **Singleton Pattern (TC17)**: Kiểm tra việc gọi lặp lại `AppConfig.getInstance()` và `DatabaseConnection.getInstance()` phải trả về cùng một tham chiếu đối tượng trong bộ nhớ (toán tử so sánh bằng `==` trả về true).
+#### A. Kiểm thử đơn vị (Unit Testing - 18 ca kiểm thử)
+1. **TC01 (Xác thực người dùng)**: Kiểm tra tính đúng đắn của quá trình xác thực tài khoản và phân quyền vai trò Thu ngân (Cashier).
+2. **TC02 (Tính giá đồ uống tùy biến)**: Kiểm tra công thức tính lũy tiến đơn giá khi thêm các loại topping và thay đổi kích cỡ đồ uống.
+3. **TC03 (Tính chiết khấu đơn hàng)**: Kiểm tra việc áp dụng tỷ lệ giảm giá theo chính sách khuyến mãi trên tổng tiền đơn hàng.
+4. **TC04 (Vòng đời đơn hàng hợp lệ)**: Kiểm tra trình tự luân chuyển trạng thái chuẩn của đơn hàng từ Chờ xử lý sang Đang pha chế và Sẵn sàng phục vụ.
+5. **TC05 (Ràng buộc khóa trạng thái)**: Kiểm tra cơ chế ngăn chặn can thiệp, không cho phép tiếp tục pha chế khi đơn hàng đã hoàn tất thanh toán.
+6. **TC06 (Thanh toán qua ví điện tử)**: Kiểm tra quy trình xử lý giao dịch thành công qua cổng thanh toán điện tử và sinh mã giao dịch.
+7. **TC07 (Phát thông báo hoàn thành món)**: Kiểm tra cơ chế gửi thông báo thời gian thực từ quầy pha chế sang màn hình thu ngân khi đơn hàng đã sẵn sàng.
+8. **TC08 (Quản lý danh mục món nước)**: Kiểm tra các thao tác thêm mới, cập nhật đơn giá và ngừng phục vụ món trong thực đơn.
+9. **TC09 (Xác thực dữ liệu thực đơn)**: Kiểm tra bộ lọc dữ liệu đầu vào, từ chối các trường hợp tên món để trống, đơn giá âm hoặc sai nhóm danh mục.
+10. **TC10 (Tính toán trừ và hoàn kho nguyên liệu)**: Kiểm tra việc tự động trừ nguyên liệu theo định mức khi vào bếp và hoàn trả lại kho khi hủy đơn.
+11. **TC11 (Kiểm soát định mức tồn kho)**: Kiểm tra điều kiện chặn nhận đơn pha chế khi số lượng tồn kho nguyên liệu không đáp ứng đủ định mức.
+12. **TC12 (Định dạng nội dung hóa đơn)**: Kiểm tra việc tổng hợp đầy đủ các thông tin bắt buộc trên hóa đơn thanh toán (tên quán, món, thành tiền, mã giao dịch).
+13. **TC13 (Kết xuất hóa đơn dạng tệp ảnh)**: Kiểm tra chức năng tạo tệp hình ảnh hóa đơn hoàn chỉnh phục vụ in ấn.
+14. **TC14 (Quản lý tài khoản nhân viên)**: Kiểm tra nghiệp vụ tạo mới tài khoản, khóa quyền truy cập và ngăn chặn tạo trùng tên đăng nhập.
+15. **TC15 (Xử lý giỏ hàng bán hàng)**: Kiểm tra việc tự động gộp số lượng khi chọn món trùng lặp và chặn sửa giỏ hàng khi đơn đã gửi chế biến.
+16. **TC16 (Khởi tạo danh mục theo nhóm sản phẩm)**: Kiểm tra tính chính xác khi phân loại và khởi tạo các mặt hàng thuộc nhóm Cà phê, Trà và Matcha.
+17. **TC17 (Quản lý phiên bản cấu hình và kết nối)**: Kiểm tra tính duy nhất của cấu hình ứng dụng và đối tượng kết nối cơ sở dữ liệu.
+18. **TC18 (Xử lý sự cố giao dịch thanh toán)**: Kiểm tra khả năng xử lý ngoại lệ và bảo toàn trạng thái đơn hàng khi cổng thanh toán đối tác trả về lỗi.
 
-* **Kiểm chứng Logic nghiệp vụ và Xử lý dữ liệu biên**:
-  * **Xác thực tài khoản (TC01)**: Đăng nhập tài khoản `cashier01` với mật khẩu `123` qua `AuthService`, kiểm tra trả về đúng vai trò `CASHIER`.
-  * **Quản trị Menu & Chặn dữ liệu bẩn (TC08, TC09)**: TC08 kiểm tra thêm món mới, cập nhật giá và tắt kích hoạt món nước. TC09 kiểm thử các trường hợp dữ liệu không hợp lệ: tên món để rỗng, đơn giá âm (`-1`), sai nhóm danh mục, hoặc thêm topping bị trùng tên; hệ thống phải ném `IllegalArgumentException` để chặn đứng dữ liệu sai ngay từ đầu.
-  * **Quản lý kho nguyên liệu (TC10, TC11)**: TC10 kiểm tra nghiệp vụ trừ kho tự động khi đơn vào bếp (1 ly cà phê sữa tiêu hao 18g hạt) và cơ chế hoàn kho (rollback) đủ 18g khi hủy đơn chưa thanh toán. TC11 kiểm tra điều kiện chặn: nếu kho chỉ còn 5g cà phê (không đủ 18g định mức), hệ thống phải ném `InventoryException` và giữ nguyên trạng thái đơn ở mức `PENDING`.
-  * **Cấu trúc hóa đơn & Xuất ảnh (TC12, TC13)**: TC12 kiểm tra nội dung text của hóa đơn có đầy đủ tên quán, tên món, tổng tiền và mã thanh toán. TC13 kiểm tra `ReceiptImageService` xuất thành công tệp ảnh đồ họa `test-receipt.png` với dung lượng lớn hơn 0 byte phục vụ in ấn.
-  * **Quản trị người dùng (TC14)**: Kiểm tra nghiệp vụ tạo tài khoản nhân viên mới, khóa tài khoản (`active = false`), và kiểm tra tính năng chống tạo trùng tên đăng nhập.
-  * **Quy trình giỏ hàng POS (TC15)**: Khi thu ngân click chọn cùng một món 2 lần, giỏ hàng phải tự động gộp số lượng thành 1 dòng duy nhất thay vì tạo 2 dòng riêng biệt; cho phép chỉnh sửa số lượng khi đơn còn `PENDING` và khóa cứng không cho sửa số lượng khi đơn đã chuyển vào bếp pha chế.
-
-##### B. Bộ kiểm thử tích hợp (Integration Testing - 6 Test Cases từ TC19 đến TC24)
-Tầng này kiểm tra sự phối hợp đồng bộ giữa tầng Dịch vụ (Service), tầng Truy xuất dữ liệu (`SqliteRepository`) và Hệ quản trị cơ sở dữ liệu SQLite vật lý:
-* **TC19 (Lưu trữ và phục hồi vòng đời đơn hàng)**: Tạo đơn hàng hoàn chỉnh gồm các tùy biến Decorator (Size L, Trân châu), thanh toán qua Momo, lưu xuống file SQLite. Sau đó mở một kết nối mới độc lập để truy vấn lại, kiểm tra trạng thái `PAID`, số lượng món và các topping đi kèm được khôi phục chính xác 100%.
-* **TC20 (Tích hợp Admin CRUD với CSDL)**: Gọi các hàm thêm mới món nước, vô hiệu hóa topping, khóa tài khoản nhân viên thông qua `MenuService` và `UserService`. Đóng kết nối, mở lại từ file SQLite và xác nhận các thay đổi dữ liệu đã được lưu trữ bền vững.
-* **TC21 (Kiểm tra Nhật ký kiểm toán - Audit Trail)**: Sau khi đơn hàng trải qua quy trình đặt món và trừ kho, kiểm tra trực tiếp trong CSDL bằng câu lệnh SQL: bảng `order_status_history` phải ghi nhận đủ $\ge 4$ trạng thái luân chuyển và bảng `inventory_transactions` phải ghi nhận việc trừ số lượng nguyên liệu tương ứng.
-* **TC22 (Truy vấn dữ liệu vận hành)**: Kiểm tra `OperationsService` có truy vấn và bóc tách chính xác lịch sử trạng thái đơn hàng và nhật ký biến động kho từ các bảng dữ liệu thật hay không.
-* **TC23 (Quy trình Sao lưu và Phục hồi CSDL)**: Gọi hàm `backupDatabase()` để kết xuất một file CSDL snapshot dạng `.db`. Kiểm tra file backup được tạo thành công trên đĩa cứng, sau đó mở file này bằng một Repository mới để xác thực toàn bộ dữ liệu đơn hàng bên trong vẫn nguyên vẹn.
-* **TC24 (Cấu hình định mức công thức pha chế)**: Tích hợp việc lưu định mức nguyên liệu tiêu hao của món nước (`RecipeItem`) vào SQLite (ví dụ: gán 180g quả bơ cho món sinh tố) và kiểm tra thao tác xóa công thức hoạt động chuẩn xác trong CSDL.
+#### B. Kiểm thử tích hợp (Integration Testing - 6 ca kiểm thử)
+1. **TC19 (Lưu trữ và phục hồi dữ liệu đơn hàng)**: Kiểm tra việc ghi nhận đơn hàng có nhiều tùy biến vào cơ sở dữ liệu SQLite và nạp lại chính xác từ kết nối độc lập.
+2. **TC20 (Đồng bộ thao tác quản trị vào CSDL)**: Kiểm tra tính bền vững của các thao tác thêm món, cập nhật topping và khóa nhân viên trong CSDL SQLite.
+3. **TC21 (Ghi nhận nhật ký kiểm toán - Audit Trail)**: Kiểm tra việc tự động ghi nhận lịch sử thay đổi trạng thái đơn và nhật ký xuất nhập kho vào các bảng kiểm toán trong CSDL.
+4. **TC22 (Truy vấn báo cáo vận hành)**: Kiểm tra tính chính xác của các câu lệnh truy vấn báo cáo lịch sử đơn hàng và biến động kho từ cơ sở dữ liệu.
+5. **TC23 (Sao lưu và phục hồi cơ sở dữ liệu)**: Kiểm tra quy trình trích xuất bản sao lưu snapshot tệp CSDL (.db) và khôi phục để kiểm tra tính nhất quán.
+6. **TC24 (Quản lý định mức công thức pha chế)**: Kiểm tra việc lưu trữ và xóa bỏ cấu hình định mức nguyên liệu tiêu hao của đồ uống trong CSDL SQLite.
 
 ---
 
-#### 1.2.3. Đo lường Độ bao phủ mã nguồn (Code Coverage) bằng công cụ JaCoCo
-Để đánh giá chất lượng của bộ kiểm thử một cách khách quan theo tiêu chuẩn công nghiệp chứ không chỉ dừng lại ở việc đếm số bài test passed, Quân đã tích hợp công cụ **JaCoCo (Java Code Coverage)** phiên bản 0.8.14 vào quy trình kiểm thử tự động.
+#### Bảng 1.1: Danh mục tổng hợp 24 ca kiểm thử tự động hóa phân hệ Backend
 
-Quá trình đo lường được thực hiện bằng cách gắn `JaCoCo JavaAgent` trực tiếp vào máy ảo JVM khi chạy `TestRunner`, thu thập dữ liệu thực thi vào file nhị phân `jacoco.exec`, sau đó dùng `jacococli.jar` để phân tích và xuất báo cáo trực quan dưới dạng HTML.
+| STT | Mã TC | Mức kiểm thử | Chức năng kiểm thử | Mục đích kiểm thử | Kết quả |
+| :---: | :---: | :---: | :--- | :--- | :---: |
+| 1 | **TC01** | Unit Test | Xác thực tài khoản | Kiểm tra đăng nhập đúng tài khoản và phân quyền vai trò Thu ngân | **Pass** |
+| 2 | **TC02** | Unit Test | Tính giá đồ uống | Kiểm tra tính lũy tiến đơn giá khi thêm topping và đổi kích cỡ size | **Pass** |
+| 3 | **TC03** | Unit Test | Chiết khấu khuyến mãi | Kiểm tra tính toán giảm giá theo tỷ lệ phần trăm trên đơn hàng | **Pass** |
+| 4 | **TC04** | Unit Test | Vòng đời đơn hàng | Kiểm tra luân chuyển trạng thái: Chờ xử lý -> Đang pha chế -> Sẵn sàng | **Pass** |
+| 5 | **TC05** | Unit Test | Khóa trạng thái đơn | Chặn can thiệp, không cho phép pha chế lại đơn hàng đã thanh toán | **Pass** |
+| 6 | **TC06** | Unit Test | Thanh toán ví điện tử | Xử lý giao dịch thanh toán thành công và tạo mã giao dịch | **Pass** |
+| 7 | **TC07** | Unit Test | Thông báo pha chế | Phát tín hiệu thời gian thực từ bếp sang thu ngân khi hoàn tất món | **Pass** |
+| 8 | **TC08** | Unit Test | Quản lý thực đơn | Thực hiện thao tác thêm món, cập nhật giá và tắt món trong thực đơn | **Pass** |
+| 9 | **TC09** | Unit Test | Xác thực dữ liệu món | Chặn dữ liệu không hợp lệ: tên rỗng, đơn giá âm, sai danh mục | **Pass** |
+| 10 | **TC10** | Unit Test | Xuất nhập tồn kho | Tự động trừ kho khi vào chế biến và hoàn trả lại kho khi hủy đơn | **Pass** |
+| 11 | **TC11** | Unit Test | Kiểm soát kho tối thiểu | Chặn nhận đơn pha chế khi nguyên liệu tồn kho không đủ định mức | **Pass** |
+| 12 | **TC12** | Unit Test | Định dạng hóa đơn | Kiểm tra đầy đủ các trường thông tin quy định trên hóa đơn thanh toán | **Pass** |
+| 13 | **TC13** | Unit Test | Kết xuất ảnh hóa đơn | Tạo tệp hình ảnh hóa đơn hoàn chỉnh phục vụ in ấn | **Pass** |
+| 14 | **TC14** | Unit Test | Quản lý nhân viên | Thêm nhân viên mới, khóa tài khoản và chặn trùng tên đăng nhập | **Pass** |
+| 15 | **TC15** | Unit Test | Xử lý giỏ hàng | Tự gộp món trùng lặp và chặn sửa giỏ khi đơn đã gửi vào pha chế | **Pass** |
+| 16 | **TC16** | Unit Test | Khởi tạo danh mục món | Khởi tạo chính xác đồ uống theo từng nhóm Cà phê, Trà, Matcha | **Pass** |
+| 17 | **TC17** | Unit Test | Quản lý phiên bản kết nối | Bảo đảm tính duy nhất của cấu hình ứng dụng và kết nối CSDL | **Pass** |
+| 18 | **TC18** | Unit Test | Xử lý sự cố thanh toán | Bảo toàn trạng thái đơn hàng khi cổng thanh toán đối tác trả về lỗi | **Pass** |
+| 19 | **TC19** | Integ Test | Lưu trữ đơn hàng SQLite | Lưu trữ và phục hồi toàn vẹn đơn hàng có tùy biến trong CSDL SQLite | **Pass** |
+| 20 | **TC20** | Integ Test | Đồng bộ CRUD với CSDL | Đồng bộ thao tác thêm món, đổi topping và khóa nhân viên vào CSDL | **Pass** |
+| 21 | **TC21** | Integ Test | Nhật ký kiểm toán CSDL | Ghi nhận lịch sử trạng thái đơn và nhật ký trừ kho vào bảng kiểm toán | **Pass** |
+| 22 | **TC22** | Integ Test | Truy vấn báo cáo vận hành | Truy vấn chính xác lịch sử đơn hàng và dữ liệu vận hành từ CSDL | **Pass** |
+| 23 | **TC23** | Integ Test | Sao lưu và phục hồi CSDL | Xuất tệp sao lưu snapshot CSDL và phục hồi kiểm tra tính nhất quán | **Pass** |
+| 24 | **TC24** | Integ Test | Định mức công thức pha chế | Lưu trữ và xóa bỏ cấu hình định mức nguyên liệu tiêu hao trong CSDL | **Pass** |
 
-##### 1. Kết quả độ bao phủ tổng thể
-Dưới đây là số liệu đo lường thực tế trên mã nguồn dự án:
+---
 
-| Phân vùng kiểm thử | Line Coverage (Bao phủ dòng lệnh) | Branch Coverage (Bao phủ nhánh điều kiện) | Instruction Coverage (Bao phủ mã máy) | Ghi chú đánh giá |
+### 1.2.3. Đo lường Độ bao phủ mã nguồn (Code Coverage) bằng công cụ JaCoCo
+Để đánh giá định lượng độ bao phủ của bộ kiểm thử tự động, công cụ JaCoCo (Java Code Coverage) phiên bản 0.8.14 được tích hợp vào quy trình thực thi. Dữ liệu thực thi được máy ảo JVM ghi nhận vào tệp nhị phân `jacoco.exec` và xuất báo cáo kết quả chi tiết.
+
+#### Bảng 1.2: Bảng tổng hợp mức độ bao phủ mã nguồn Backend đo bằng JaCoCo
+
+| Phân vùng mã nguồn kiểm thử | Bao phủ dòng lệnh (Line) | Bao phủ rẽ nhánh (Branch) | Bao phủ mã máy (Instruction) | Kết luận |
+| :--- | :---: | :---: | :---: | :---: |
+| **Toàn bộ Core Backend** *(Domain + Service + Repository)* | **74.3%** <br>*(1.627 / 2.189)* | **51.0%** <br>*(275 / 539)* | **74.1%** <br>*(7.796 / 10.527)* | **Đạt yêu cầu** |
+| **8 Đơn vị mã nguồn trọng yếu** *(Chương 4)* | **100%** | **100%** | **100%** | **Đạt yêu cầu** |
+| **Toàn bộ Dự án** *(Gồm cả mã giao diện đồ họa)* | **32.7%** <br>*(1.627 / 4.978)* | **22.9%** <br>*(275 / 1.200)* | **30.4%** <br>*(7.796 / 25.674)* | **Được kiểm thử tại tầng giao diện (Playwright E2E)** |
+
+Chi tiết mức độ bao phủ tại các gói chức năng Backend then chốt được thể hiện trong Bảng 1.3:
+
+#### Bảng 1.3: Chi tiết tỷ lệ bao phủ mã nguồn theo từng gói chức năng Backend
+
+| Gói chức năng (Package) | Line Coverage | Branch Coverage | Instruction Cov. | Nội dung kiểm thử chính |
 | :--- | :---: | :---: | :---: | :--- |
-| **Toàn bộ Core Backend** *(Domain + Patterns + Service + Database)* | **74.3%** <br>*(1,627 / 2,189 dòng)* | **51.0%** <br>*(275 / 539 nhánh)* | **74.1%** <br>*(7,796 / 10,527 mã máy)* | **Đạt chuẩn công nghiệp** *(Mức khuyến nghị cho backend nghiệp vụ là $\ge 70\%$)* |
-| **8 Đơn vị mã nguồn Hộp trắng trọng yếu** *(Chương 4)* | **100%** | **100%** | **100%** | **Đạt tối đa** *(Bao phủ 28/28 đường cơ sở McCabe và 100% cặp định nghĩa - sử dụng DU-chains)* |
-| **Toàn bộ Dự án** *(Tính gộp cả mã giao diện đồ họa Swing Desktop)* | **32.7%** <br>*(1,627 / 4,978 dòng)* | **22.9%** <br>*(275 / 1,200 nhánh)* | **30.4%** | *Tầng UI (~2,800 dòng) không test bằng Java headless mà được kiểm thử bằng Playwright E2E* |
-
-##### 2. Chi tiết độ bao phủ theo từng Package Backend
-Báo cáo JaCoCo phân tích chi tiết mức độ bao phủ của từng gói chức năng như sau:
-* `com.coffeeshop.domain.patterns.singleton`: **90.9%** Line, **75.0%** Branch (Bao phủ gần như tuyệt đối logic quản lý instance).
-* `com.coffeeshop` *(Ngữ cảnh và cấu hình hệ thống)*: **84.8%** Line, **57.1%** Branch.
-* `com.coffeeshop.infrastructure` *(Kho lưu trữ SQLite & In-Memory)*: **82.4%** Line, **60.0%** Branch (Các hàm mapping dữ liệu SQL, transaction và rollback được kiểm tra rất kỹ).
-* `com.coffeeshop.domain.patterns.factory`: **77.8%** Line (Bao phủ toàn bộ các phương thức tạo đồ uống).
-* `com.coffeeshop.domain.model`: **77.2%** Line, **33.3%** Branch (Kiểm tra đầy đủ các thực thể Đơn hàng, Món, Nguyên liệu, Người dùng).
-* `com.coffeeshop.service` *(Các lớp nghiệp vụ then chốt)*: **75.7%** Line, **57.8%** Branch (Bao phủ các dịch vụ Order, Payment, Menu, Inventory, Operations, User).
-* `com.coffeeshop.domain.patterns.decorator`: **66.7%** Line.
-* `com.coffeeshop.domain.patterns.state`: **63.3%** Line.
-* `com.coffeeshop.domain.patterns.observer`: **53.3%** Line, **66.7%** Branch.
-* `com.coffeeshop.domain.patterns.adapter`: **53.8%** Line, **25.0%** Branch.
-* `com.coffeeshop.domain.patterns.strategy`: **41.7%** Line, **35.7%** Branch.
-
-*(Lưu ý: Riêng gói `com.coffeeshop.presentation` có tỷ lệ 0% trong báo cáo JaCoCo vì đây là tầng giao diện đồ họa Java Swing desktop, không chạy qua Unit Test headless mà được nhóm kiểm thử tự động toàn diện từ góc nhìn người dùng bằng công cụ Microsoft Playwright).*
-
-##### 3. Giao diện báo cáo JaCoCo HTML trực quan
-Toàn bộ dữ liệu chi tiết của từng class và từng dòng lệnh đã được xuất ra thư mục:
-`build/jacoco-report/index.html`
-
-Khi mở file này trên trình duyệt web, người chấm bài hoặc thành viên nhóm có thể click xem mã nguồn chi tiết:
-* **Các dòng code được tô màu xanh lá cây**: Dòng lệnh đã được thực thi và kiểm chứng bởi test case.
-* **Các dòng code được tô màu vàng**: Dòng lệnh chứa biểu thức điều kiện (if/else) nhưng mới chỉ kiểm tra được một nhánh (ví dụ: mới test nhánh true, chưa test nhánh false).
-* **Các dòng code được tô màu đỏ**: Dòng lệnh chưa có test case nào chạm tới (chủ yếu rơi vào các hàm getter/setter phụ hoặc các đoạn code hiển thị UI).
+| **Quản lý cấu hình & kết nối** | **90.9%** | **75.0%** | **93.0%** | Quản lý đối tượng cấu hình ứng dụng và kết nối dữ liệu |
+| **Ngữ cảnh hệ thống (Context)** | **84.8%** | **57.1%** | **85.0%** | Khởi tạo ngữ cảnh làm việc và nạp các kho dữ liệu |
+| **Kho lưu trữ dữ liệu (Infrastructure)** | **82.4%** | **60.0%** | **83.0%** | Thao tác truy xuất CSDL SQLite, Repository và nhật ký kiểm toán |
+| **Khởi tạo danh mục sản phẩm** | **77.8%** | n/a | **76.0%** | Khởi tạo đối tượng đồ uống theo từng nhóm danh mục |
+| **Mô hình dữ liệu (Domain Model)** | **77.2%** | **33.3%** | **64.0%** | Các thực thể nghiệp vụ Đơn hàng, Món, Nguyên liệu, Người dùng |
+| **Dịch vụ nghiệp vụ (Service)** | **75.7%** | **57.8%** | **72.0%** | Xử lý nghiệp vụ Đơn hàng, Thanh toán, Thực đơn, Kho nguyên liệu |
+| **Tùy biến đồ uống (Topping & Size)** | **66.7%** | n/a | **57.0%** | Tính toán lũy tiến đơn giá theo tùy biến sản phẩm |
+| **Quản lý trạng thái đơn hàng** | **63.3%** | n/a | **57.0%** | Luân chuyển và kiểm soát ràng buộc trạng thái đơn hàng |
+| **Hệ thống thông báo sự kiện** | **53.3%** | **66.7%** | **55.0%** | Cơ chế phát thông báo sự kiện giữa các phân hệ |
+| **Tích hợp cổng thanh toán** | **53.8%** | **25.0%** | **48.0%** | Xử lý giao dịch thanh toán điện tử và bắt lỗi ngoại lệ |
+| **Chính sách chiết khấu khuyến mãi** | **41.7%** | **35.7%** | **46.0%** | Tính toán tỷ lệ giảm giá và chiết khấu đơn hàng |
 
 ---
 
-#### 1.2.4. Kết luận về hiệu quả kiểm thử Backend
-Việc xây dựng bộ kiểm thử tự động nội bộ kết hợp đo lường độ bao phủ JaCoCo đã mang lại các kết quả thực tế rõ ràng:
-1. **Phát hiện và ngăn chặn lỗi sớm**: Nhờ các test case biên như TC05 (chặn sửa đơn đã thanh toán), TC09 (chặn giá âm/tên rỗng) và TC11 (chặn vào bếp khi thiếu nguyên liệu), nhóm đã xử lý dứt điểm các lỗi logic tiềm ẩn ngay từ tầng Service trước khi kết nối lên giao diện.
-2. **Đảm bảo tính toàn vẹn kiến trúc Design Pattern**: Bộ 18 Unit Test đóng vai trò như một bộ rào chắn kỹ thuật (Safety Net), đảm bảo rằng mỗi khi có thành viên trong nhóm sửa code hay tối ưu hóa thuật toán thì các nguyên lý của 6 mẫu thiết kế phần mềm vẫn luôn chạy đúng theo thiết kế ban đầu.
-3. **Minh chứng số liệu thuyết phục cho báo cáo**: Thay vì chỉ mô tả định tính, nhóm đã có số liệu định lượng cụ thể với **100% test case vượt qua (24/24 Pass)** và **độ bao phủ dòng lệnh tầng Core Backend đạt 74.3%**, đáp ứng tốt các tiêu chí đánh giá khắt khe của học phần Kiểm thử & Đảm bảo chất lượng phần mềm.
+### 1.2.4. Đánh giá kết quả thực thi kiểm thử Backend
+Kết quả thực thi kiểm thử tự động phân hệ Backend mang lại các giá trị cụ thể sau:
+1. **Tỷ lệ đạt tuyệt đối**: Toàn bộ 24/24 ca kiểm thử đều vượt qua (tỷ lệ thành công 100%), xác nhận tính đúng đắn của các quy tắc nghiệp vụ.
+2. **Độ bao phủ đáp ứng yêu cầu**: Tầng xử lý logic nghiệp vụ cốt lõi đạt 74.3% độ bao phủ dòng lệnh và 51.0% độ bao phủ nhánh rẽ, đảm bảo hầu hết các luồng xử lý chính và ngoại lệ đã được kiểm chứng.
+3. **Phát hiện và ngăn chặn sớm sai sót**: Các lỗi nhập liệu sai, thiếu hụt tồn kho nguyên liệu và xung đột trạng thái đơn hàng được kiểm soát và xử lý chặt chẽ tại tầng Backend trước khi tích hợp với giao diện người dùng.

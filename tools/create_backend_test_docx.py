@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Tạo file Word (.docx) chuyên nghiệp cho mục:
-1.2. TRIỂN KHAI KIỂM THỬ TỰ ĐỘNG CHO PHÂN HỆ BACKEND (Phần Quân thực hiện)
-Định dạng: Times New Roman, Căn lề chuẩn 2cm, Tiêu đề bảng biểu sắc nét.
+Tạo file Word (.docx) chuẩn học thuật cho mục:
+1.2. TRIỂN KHAI KIỂM THỬ TỰ ĐỘNG CHO PHÂN HỆ BACKEND
+Định dạng: Times New Roman, Căn lề chuẩn 2cm, Bảng biểu khoa học, Văn phong học thuật chuẩn mực.
 """
 
 import sys
@@ -12,8 +12,8 @@ import docx
 from docx.shared import Pt, RGBColor, Inches, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.oxml import parse_xml, OxmlElement
-from docx.oxml.ns import nsdecls, qn
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT_DOCX = ROOT / "docs" / "MUC_1_2_TRIEN_KHAI_KIEM_THU_TU_DONG_BACKEND.docx"
@@ -23,7 +23,7 @@ def set_cell_background(cell, hex_color):
     shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{hex_color}"/>')
     tcPr.append(shd)
 
-def set_cell_margins(cell, top=80, bottom=80, left=100, right=100):
+def set_cell_margins(cell, top=70, bottom=70, left=90, right=90):
     tcPr = cell._tc.get_or_add_tcPr()
     tcMar = parse_xml(f'<w:tcMar {nsdecls("w")}><w:top w:w="{top}" w:type="dxa"/><w:bottom w:w="{bottom}" w:type="dxa"/><w:left w:w="{left}" w:type="dxa"/><w:right w:w="{right}" w:type="dxa"/></w:tcMar>')
     tcPr.append(tcMar)
@@ -47,7 +47,7 @@ def format_custom_table(table, col_widths, headers, data_rows, hdr_bg='1F4E79', 
         cell = table.rows[0].cells[col_idx]
         cell.text = h_text
         set_cell_background(cell, hdr_bg)
-        set_cell_margins(cell, top=100, bottom=100, left=100, right=100)
+        set_cell_margins(cell, top=90, bottom=90, left=90, right=90)
         p = cell.paragraphs[0]
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         for r in p.runs:
@@ -65,9 +65,9 @@ def format_custom_table(table, col_widths, headers, data_rows, hdr_bg='1F4E79', 
             cell = table.rows[row_idx + 1].cells[col_idx]
             cell.text = str(val)
             set_cell_background(cell, row_bg)
-            set_cell_margins(cell, top=70, bottom=70, left=90, right=90)
+            set_cell_margins(cell, top=60, bottom=60, left=80, right=80)
             p = cell.paragraphs[0]
-            if col_idx in [0, 1, 4] or (len(str(val)) <= 10 and '\n' not in str(val)):
+            if col_idx in [0, 1, 5] or (len(str(val)) <= 10 and '\n' not in str(val)):
                 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             else:
                 p.alignment = WD_ALIGN_PARAGRAPH.LEFT
@@ -104,20 +104,20 @@ def add_p(doc, text="", bold_prefix="", indent=False, italic=False, space_after=
 
 def add_h1(doc, text):
     p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(14)
-    p.paragraph_format.space_after = Pt(6)
+    p.paragraph_format.space_before = Pt(12)
+    p.paragraph_format.space_after = Pt(5)
     p.paragraph_format.keep_with_next = True
     run = p.add_run(text)
     run.font.name = 'Times New Roman'
-    run.font.size = Pt(14)
+    run.font.size = Pt(13.5)
     run.font.bold = True
     run.font.color.rgb = RGBColor(0x0F, 0x47, 0x61)
     return p
 
 def add_h2(doc, text):
     p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(10)
-    p.paragraph_format.space_after = Pt(4)
+    p.paragraph_format.space_before = Pt(9)
+    p.paragraph_format.space_after = Pt(3)
     p.paragraph_format.keep_with_next = True
     run = p.add_run(text)
     run.font.name = 'Times New Roman'
@@ -136,119 +136,107 @@ def build_docx():
         s.left_margin = Cm(2)
         s.right_margin = Cm(2)
         
-    # Tiêu đề tài liệu
+    # Tiêu đề mục báo cáo
     p_title = doc.add_paragraph()
     p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_title.paragraph_format.space_before = Pt(0)
-    p_title.paragraph_format.space_after = Pt(4)
-    r_title = p_title.add_run("BÁO CÁO THỰC THI KIỂM THỬ PHẦN MỀM COFFEE SHOP POS")
+    p_title.paragraph_format.space_after = Pt(14)
+    r_title = p_title.add_run("1.2. TRIỂN KHAI KIỂM THỬ TỰ ĐỘNG CHO PHÂN HỆ BACKEND\n(UNIT TESTING & INTEGRATION TESTING)")
     r_title.font.name = 'Times New Roman'
-    r_title.font.size = Pt(15)
+    r_title.font.size = Pt(14.5)
     r_title.font.bold = True
     r_title.font.color.rgb = RGBColor(0x0F, 0x47, 0x61)
     
-    p_sub = doc.add_paragraph()
-    p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_sub.paragraph_format.space_after = Pt(16)
-    r_sub = p_sub.add_run("MỤC 1.2: TRIỂN KHAI KIỂM THỬ TỰ ĐỘNG CHO PHÂN HỆ BACKEND\n(Tài liệu kỹ thuật chi tiết phục vụ tổng hợp đồ án - Phần Quân thực hiện)")
-    r_sub.font.name = 'Times New Roman'
-    r_sub.font.size = Pt(12)
-    r_sub.font.italic = True
-    r_sub.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
-    
     # -------------------------------------------------------------------------
-    # 1.2.1. Đặt vấn đề và Thiết kế Test Harness
+    # 1.2.1. Mục tiêu và Giải pháp kiểm thử
     # -------------------------------------------------------------------------
-    add_h1(doc, "1.2.1. Đặt vấn đề và Giải pháp thiết kế Bộ điều phối kiểm thử (Test Harness)")
-    add_p(doc, text="Trong kiến trúc hệ thống Coffee Shop POS, toàn bộ mã nguồn xử lý logic nghiệp vụ, quản lý đơn hàng, tính toán tài chính và hiện thực các mẫu thiết kế phần mềm (Design Patterns) đều tập trung tại tầng Backend (xây dựng bằng ngôn ngữ Java 17). Nếu chỉ thực hiện kiểm thử thủ công thông qua giao diện người dùng thì rất dễ bỏ sót các nhánh rẽ điều kiện (Branch Coverage), không thể kiểm thử triệt để các tình huống ngoại lệ tại biên, đồng thời chi phí thời gian cho việc kiểm thử hồi quy lặp lại sau mỗi lần sửa mã nguồn là rất lớn.")
-    add_p(doc, text="Để phục vụ quá trình kiểm thử hồi quy tự động, liên tục mà vẫn đảm bảo tính độc lập gọn nhẹ (có thể tải về và biên dịch thực thi trực tiếp trên bất kỳ máy tính nào cài sẵn Java JDK 17 mà không bắt buộc phải cài đặt thêm các công cụ quản lý dự án nặng như Maven hay Gradle), thành viên phụ trách Backend (Quân) đã thiết kế và xây dựng bộ điều phối kiểm thử tự động nội bộ gồm các thành phần trọng yếu sau:")
-    
-    add_p(doc, text="Bộ Test Runner độc lập (TestRunner.java): Tự phát triển một bộ chạy kiểm thử tinh gọn, hiện thực các phương thức kiểm chứng logic cốt lõi (assertEquals, assertTrue, assertThrows) tương đương chức năng của JUnit nhưng không kéo theo thư viện phụ thuộc. Toàn bộ 24 ca kiểm thử được thực thi tuần tự, tự động thống kê số bài Pass/Fail và báo cáo kết quả ra màn hình console chỉ trong chưa đầy 0.5 giây.", bold_prefix="• ", indent=True)
-    add_p(doc, text="Phân tách rạch ròi hai mức độ kiểm thử: Xây dựng hai entrypoint riêng biệt là UnitTestRunner.java (chuyên trách bộ 18 Unit Tests cô lập) và IntegrationTestRunner.java (chuyên trách bộ 6 Integration Tests kết nối CSDL), cho phép kích hoạt linh hoạt thông qua các tệp lệnh batch một chạm (test-unit.bat, test-integration.bat, test.bat).", bold_prefix="• ", indent=True)
-    add_p(doc, text="Kỹ thuật cô lập kiểm thử bằng In-Memory Repository: Lớp InMemoryRepository được xây dựng để lưu trữ và quản lý dữ liệu hoàn toàn trên bộ nhớ RAM, phục vụ riêng cho tầng Unit Test. Cơ chế này giúp cô lập 100% logic của tầng Service, loại bỏ hoàn toàn sự phụ thuộc vào trạng thái tệp tin CSDL trên đĩa cứng.", bold_prefix="• ", indent=True)
-    add_p(doc, text="Kỹ thuật giả lập đối tác bên ngoài bằng Stub (FakeFailingGateway): Hiện thực giao diện PaymentGateway để chủ động giả lập kịch bản cổng thanh toán đối tác bị sập/mất kết nối mạng, từ đó kiểm chứng khả năng bắt ngoại lệ của PaymentService mà không cần ngắt mạng internet thật.", bold_prefix="• ", indent=True)
-    add_p(doc, text="Cơ chế CSDL tạm cô lập cho Integration Test: Mỗi bài test tích hợp sẽ tự động sinh một tệp CSDL SQLite riêng biệt bằng hàm File.createTempFile('coffee-shop-pos-test-', '.db') và tự động giải phóng khi hoàn tất (deleteOnExit). Giải pháp này ngăn chặn triệt để hiện tượng xung đột dữ liệu chéo giữa các bài test và không làm ảnh hưởng đến tệp cơ sở dữ liệu pos_data.db chính của ứng dụng.", bold_prefix="• ", indent=True)
+    add_h1(doc, "1.2.1. Mục tiêu và Giải pháp kiểm thử tự động Backend")
+    add_p(doc, text="Phân hệ Backend đóng vai trò cốt lõi trong việc xử lý logic nghiệp vụ, quản lý trạng thái đơn hàng, tính toán tài chính và lưu trữ dữ liệu của hệ thống Coffee Shop POS. Nhằm đảm bảo tính chính xác của các thuật toán nghiệp vụ và phục vụ kiểm thử hồi quy liên tục, nhóm nghiên cứu đã xây dựng bộ kiểm thử tự động nội bộ bằng ngôn ngữ Java 17.")
+    add_p(doc, text="Bộ kiểm thử được phân tách rành mạch thành hai cấp độ chuyên biệt:")
+    add_p(doc, text="Kiểm thử đơn vị (Unit Testing): Gồm 18 ca kiểm thử độc lập, sử dụng cơ chế lưu trữ giả lập trên bộ nhớ RAM (InMemoryRepository) để cô lập logic nghiệp vụ của các lớp Service, không phụ thuộc vào hạ tầng cơ sở dữ liệu vật lý.", bold_prefix="• ", indent=True)
+    add_p(doc, text="Kiểm thử tích hợp (Integration Testing): Gồm 6 ca kiểm thử, kết nối trực tiếp với hệ quản trị cơ sở dữ liệu SQLite vật lý thông qua các tệp tin tạm thời (tự động khởi tạo và giải phóng sau khi kiểm thử) nhằm đánh giá tính toàn vẹn dữ liệu và nhật ký giao dịch.", bold_prefix="• ", indent=True)
+    add_p(doc, text="Toàn bộ 24 ca kiểm thử được điều phối tập trung thông qua TestRunner.java và có thể kích hoạt linh hoạt qua các tập lệnh thực thi tự động (test-unit.bat, test-integration.bat, test.bat).")
 
     # -------------------------------------------------------------------------
-    # 1.2.2. Chi tiết các thành phần nghiệp vụ và Design Patterns
+    # 1.2.2. Nội dung các ca kiểm thử
     # -------------------------------------------------------------------------
-    add_h1(doc, "1.2.2. Chi tiết các thành phần nghiệp vụ và Design Patterns đưa vào kiểm thử")
-    add_p(doc, text="Quân đã thiết kế và triển khai trọn bộ 24 ca kiểm thử tự động hóa, phân bổ chặt chẽ theo hai tầng cấu trúc:")
+    add_h1(doc, "1.2.2. Nội dung các chức năng nghiệp vụ đưa vào kiểm thử")
+    add_p(doc, text="Nhóm đã thiết lập 24 ca kiểm thử tập trung vào các chức năng nghiệp vụ trọng yếu của hệ thống:")
     
-    add_h2(doc, "A. Bộ kiểm thử đơn vị (Unit Testing - 18 Test Cases từ TC01 đến TC18)")
-    add_p(doc, text="Tầng này tập trung kiểm tra tính đúng đắn của từng Class, thuật toán tính toán và logic nội tại của các Design Patterns trong môi trường hoàn toàn cô lập:")
-    
-    add_p(doc, text="Decorator Pattern (TC02): Kiểm tra công thức tính giá lũy tiến khi bọc liên tiếp các lớp topping và kích cỡ. Đồ uống gốc BaseCoffee (30.000đ) bọc thêm PearlDecorator (+7.000đ) và LargeSizeDecorator (+10.000đ) phải cho ra kết quả chính xác tuyệt đối là 47.000đ.", bold_prefix="1. ", indent=True)
-    add_p(doc, text="Strategy Pattern (TC03): Kiểm tra việc gán động chiến lược chiết khấu PercentDiscountStrategy(10) tại runtime; tổng giá trị đơn hàng 100.000đ sau khi tính toán lại phải giảm còn đúng 90.000đ.", bold_prefix="2. ", indent=True)
-    add_p(doc, text="State Pattern (TC04, TC05): TC04 kiểm tra luân chuyển trạng thái hợp lệ (Pending -> Preparing -> Ready). TC05 kiểm tra nhánh khóa trạng thái: khi đơn hàng đã thanh toán (PaidState), nếu gọi startPreparing() thì hệ thống bắt buộc phải ném InvalidStateTransitionException để ngăn ngừa hành vi can thiệp trái phép vào đơn đã khóa.", bold_prefix="3. ", indent=True)
-    add_p(doc, text="Adapter Pattern (TC06, TC18): TC06 kiểm tra việc thanh toán thành công qua MomoAdapter, đơn hàng chuyển sang PAID và sinh mã giao dịch dạng MOMO-xxxx. TC18 kiểm tra nhánh lỗi: khi thanh toán qua FakeFailingGateway (giả lập lỗi), đơn hàng bắt buộc phải giữ nguyên trạng thái READY và không được tạo bản ghi thanh toán.", bold_prefix="4. ", indent=True)
-    add_p(doc, text="Observer Pattern (TC07): Kiểm tra cơ chế phát sự kiện thời gian thực; khi nhân viên pha chế bấm hoàn thành món (markReady), màn hình thu ngân (CashierScreen) đăng ký lắng nghe trước đó phải nhận được chính xác thông báo 'ready for pickup'.", bold_prefix="5. ", indent=True)
-    add_p(doc, text="Factory Method (TC16): Kiểm tra các lớp CoffeeFactory, TeaFactory, MatchaFactory khởi tạo đúng các đối tượng đồ uống tương ứng, bảo toàn đúng tên gọi và đơn giá cơ sở.", bold_prefix="6. ", indent=True)
-    add_p(doc, text="Singleton Pattern (TC17): Kiểm tra việc gọi lặp lại AppConfig.getInstance() và DatabaseConnection.getInstance() phải trả về cùng một tham chiếu đối tượng duy nhất trên bộ nhớ RAM (toán tử '==' trả về true).", bold_prefix="7. ", indent=True)
-    add_p(doc, text="Xác thực & Phân quyền (TC01): Kiểm tra quy trình đăng nhập tài khoản cashier01 với mật khẩu 123 qua AuthService, đảm bảo trả về đúng quyền hạn CASHIER.", bold_prefix="8. ", indent=True)
-    add_p(doc, text="Quản trị Menu & Chặn dữ liệu bẩn (TC08, TC09): TC08 kiểm tra thêm món mới, cập nhật giá và tắt kích hoạt món nước. TC09 kiểm thử các ca ngoại lệ: tên món để rỗng, đơn giá âm (-1), sai nhóm danh mục, hoặc thêm topping trùng tên; MenuService phải ném IllegalArgumentException để từ chối dữ liệu bẩn.", bold_prefix="9. ", indent=True)
-    add_p(doc, text="Quản lý tồn kho nguyên liệu (TC10, TC11): TC10 kiểm tra nghiệp vụ trừ kho tự động khi đơn vào bếp (1 ly cà phê sữa tiêu hao 18g hạt) và hoàn kho đủ 18g khi hủy đơn chưa thanh toán. TC11 kiểm tra điều kiện chặn: nếu kho chỉ còn 5g cà phê (thiếu so với định mức 18g), hệ thống ném InventoryException và giữ nguyên đơn ở mức PENDING.", bold_prefix="10. ", indent=True)
-    add_p(doc, text="Hóa đơn & Xuất ảnh (TC12, TC13): TC12 kiểm tra nội dung text của hóa đơn có đầy đủ tên quán, chi tiết món, tổng tiền và mã thanh toán. TC13 kiểm tra ReceiptImageService kết xuất thành công tệp ảnh test-receipt.png với kích thước > 0 byte phục vụ in ấn.", bold_prefix="11. ", indent=True)
-    add_p(doc, text="Quản trị tài khoản nhân viên (TC14): Kiểm tra UserService thêm nhân viên mới, thao tác khóa tài khoản (active = false), và chặn đứng việc tạo trùng username.", bold_prefix="12. ", indent=True)
-    add_p(doc, text="Quy trình giỏ hàng POS (TC15): Khi thêm cùng một món 2 lần, giỏ hàng tự động gộp số lượng thành 1 dòng; cho phép chỉnh sửa số lượng khi đơn còn PENDING và khóa cứng không cho sửa sau khi đơn đã gửi vào bếp pha chế.", bold_prefix="13. ", indent=True)
+    add_h2(doc, "A. Kiểm thử đơn vị (Unit Testing - 18 ca kiểm thử)")
+    add_p(doc, text="TC01 (Xác thực người dùng): Kiểm tra tính đúng đắn của quá trình xác thực tài khoản và phân quyền vai trò Thu ngân (Cashier).", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC02 (Tính giá đồ uống tùy biến): Kiểm tra công thức tính lũy tiến đơn giá khi thêm các loại topping và thay đổi kích cỡ đồ uống.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC03 (Tính chiết khấu đơn hàng): Kiểm tra việc áp dụng tỷ lệ giảm giá theo chính sách khuyến mãi trên tổng tiền đơn hàng.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC04 (Vòng đời đơn hàng hợp lệ): Kiểm tra trình tự luân chuyển trạng thái chuẩn của đơn hàng từ Chờ xử lý sang Đang pha chế và Sẵn sàng phục vụ.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC05 (Ràng buộc khóa trạng thái): Kiểm tra cơ chế ngăn chặn can thiệp, không cho phép tiếp tục pha chế khi đơn hàng đã hoàn tất thanh toán.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC06 (Thanh toán qua ví điện tử): Kiểm tra quy trình xử lý giao dịch thành công qua cổng thanh toán điện tử và sinh mã giao dịch.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC07 (Phát thông báo hoàn thành món): Kiểm tra cơ chế gửi thông báo thời gian thực từ quầy pha chế sang màn hình thu ngân khi đơn hàng đã sẵn sàng.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC08 (Quản lý danh mục món nước): Kiểm tra các thao tác thêm mới, cập nhật đơn giá và ngừng phục vụ món trong thực đơn.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC09 (Xác thực dữ liệu thực đơn): Kiểm tra bộ lọc dữ liệu đầu vào, từ chối các trường hợp tên món để trống, đơn giá âm hoặc sai nhóm danh mục.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC10 (Tính toán trừ và hoàn kho nguyên liệu): Kiểm tra việc tự động trừ nguyên liệu theo định mức khi vào bếp và hoàn trả lại kho khi hủy đơn.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC11 (Kiểm soát định mức tồn kho): Kiểm tra điều kiện chặn nhận đơn pha chế khi số lượng tồn kho nguyên liệu không đáp ứng đủ định mức.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC12 (Định dạng nội dung hóa đơn): Kiểm tra việc tổng hợp đầy đủ các thông tin bắt buộc trên hóa đơn thanh toán (tên quán, món, thành tiền, mã giao dịch).", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC13 (Kết xuất hóa đơn dạng tệp ảnh): Kiểm tra chức năng tạo tệp hình ảnh hóa đơn hoàn chỉnh phục vụ in ấn.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC14 (Quản lý tài khoản nhân viên): Kiểm tra nghiệp vụ tạo mới tài khoản, khóa quyền truy cập và ngăn chặn tạo trùng tên đăng nhập.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC15 (Xử lý giỏ hàng bán hàng): Kiểm tra việc tự động gộp số lượng khi chọn món trùng lặp và chặn sửa giỏ hàng khi đơn đã gửi chế biến.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC16 (Khởi tạo danh mục theo nhóm sản phẩm): Kiểm tra tính chính xác khi phân loại và khởi tạo các mặt hàng thuộc nhóm Cà phê, Trà và Matcha.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC17 (Quản lý phiên bản cấu hình và kết nối): Kiểm tra tính duy nhất của cấu hình ứng dụng và đối tượng kết nối cơ sở dữ liệu.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC18 (Xử lý sự cố giao dịch thanh toán): Kiểm tra khả năng xử lý ngoại lệ và bảo toàn trạng thái đơn hàng khi cổng thanh toán đối tác trả về lỗi.", bold_prefix="• ", indent=True)
 
-    add_h2(doc, "B. Bộ kiểm thử tích hợp (Integration Testing - 6 Test Cases từ TC19 đến TC24)")
-    add_p(doc, text="Tầng này kiểm tra sự phối hợp đồng bộ giữa tầng Dịch vụ (Service), tầng Truy xuất dữ liệu (SqliteRepository) và Hệ quản trị cơ sở dữ liệu SQLite vật lý:")
-    
-    add_p(doc, text="TC19 (Lưu trữ và phục hồi vòng đời đơn hàng): Tạo đơn hàng hoàn chỉnh gồm các tùy biến Decorator (Size L, Trân châu), thanh toán qua Momo, lưu xuống SQLite. Mở một kết nối mới độc lập để đọc lại, kiểm tra trạng thái PAID, số lượng món và topping đi kèm được khôi phục chính xác 100%.", bold_prefix="• ", indent=True)
-    add_p(doc, text="TC20 (Tích hợp Admin CRUD với CSDL): Gọi các hàm thêm mới món nước, tắt topping, khóa nhân viên qua MenuService và UserService. Đóng kết nối, mở lại từ CSDL và xác nhận các thay đổi dữ liệu đã được lưu trữ bền vững.", bold_prefix="• ", indent=True)
-    add_p(doc, text="TC21 (Tích hợp Nhật ký kiểm toán - Audit Trail): Sau khi đơn hàng trải qua quy trình đặt món và trừ kho, kiểm tra trực tiếp trong CSDL bằng câu lệnh SQL: bảng order_status_history phải ghi nhận đủ >= 4 trạng thái luân chuyển và bảng inventory_transactions phải ghi nhận việc trừ kho nguyên liệu.", bold_prefix="• ", indent=True)
-    add_p(doc, text="TC22 (Truy vấn dữ liệu vận hành): Kiểm tra OperationsService truy vấn và bóc tách chính xác lịch sử trạng thái đơn hàng và nhật ký biến động kho từ các bảng dữ liệu thật.", bold_prefix="• ", indent=True)
-    add_p(doc, text="TC23 (Quy trình Sao lưu và Phục hồi CSDL): Gọi hàm backupDatabase() để kết xuất một file snapshot dạng .db. Kiểm tra tệp sao lưu tồn tại trên ổ cứng, sau đó mở file này bằng một Repository mới để xác thực toàn bộ dữ liệu đơn hàng bên trong vẫn nguyên vẹn.", bold_prefix="• ", indent=True)
-    add_p(doc, text="TC24 (Cấu hình định mức công thức pha chế): Tích hợp việc lưu định mức nguyên liệu tiêu hao của món nước (RecipeItem) vào SQLite (gán 180g bơ cho món sinh tố) và kiểm tra thao tác xóa công thức hoạt động chuẩn xác trong CSDL.", bold_prefix="• ", indent=True)
+    add_h2(doc, "B. Kiểm thử tích hợp (Integration Testing - 6 ca kiểm thử)")
+    add_p(doc, text="TC19 (Lưu trữ và phục hồi dữ liệu đơn hàng): Kiểm tra việc ghi nhận đơn hàng có nhiều tùy biến vào cơ sở dữ liệu SQLite và nạp lại chính xác từ kết nối độc lập.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC20 (Đồng bộ thao tác quản trị vào CSDL): Kiểm tra tính bền vững của các thao tác thêm món, cập nhật topping và khóa nhân viên trong CSDL SQLite.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC21 (Ghi nhận nhật ký kiểm toán - Audit Trail): Kiểm tra việc tự động ghi nhận lịch sử thay đổi trạng thái đơn và nhật ký xuất nhập kho vào các bảng kiểm toán trong CSDL.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC22 (Truy vấn báo cáo vận hành): Kiểm tra tính chính xác của các câu lệnh truy vấn báo cáo lịch sử đơn hàng và biến động kho từ cơ sở dữ liệu.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC23 (Sao lưu và phục hồi cơ sở dữ liệu): Kiểm tra quy trình trích xuất bản sao lưu snapshot tệp CSDL (.db) và khôi phục để kiểm tra tính nhất quán.", bold_prefix="• ", indent=True)
+    add_p(doc, text="TC24 (Quản lý định mức công thức pha chế): Kiểm tra việc lưu trữ và xóa bỏ cấu hình định mức nguyên liệu tiêu hao của đồ uống trong CSDL SQLite.", bold_prefix="• ", indent=True)
 
     # Bảng 1.1: Danh mục 24 Test Cases
     p_cap1 = doc.add_paragraph()
     p_cap1.paragraph_format.space_before = Pt(8)
     p_cap1.paragraph_format.space_after = Pt(4)
-    r_cap1 = p_cap1.add_run("Bảng 1.1: Danh mục tổng hợp 24 Test Cases tự động hóa phân hệ Backend")
+    r_cap1 = p_cap1.add_run("Bảng 1.1: Danh mục tổng hợp 24 ca kiểm thử tự động hóa phân hệ Backend")
     r_cap1.font.name = 'Times New Roman'
     r_cap1.font.size = Pt(11)
     r_cap1.font.bold = True
     r_cap1.font.italic = True
     
-    tc_headers = ["STT", "Mã TC", "Loại kiểm thử", "Đối tượng / Mẫu thiết kế", "Nội dung & Mục đích kiểm thử", "Kết quả"]
+    tc_headers = ["STT", "Mã TC", "Mức kiểm thử", "Chức năng kiểm thử", "Mục đích kiểm thử", "Kết quả"]
     tc_data = [
-        ["1", "TC01", "Unit Test", "AuthService", "Xác thực phân quyền tài khoản thu ngân (cashier01 / 123)", "Pass"],
-        ["2", "TC02", "Unit Test", "Decorator Pattern", "Tính lũy tiến giá đồ uống qua PearlDecorator & LargeSizeDecorator (47.000 ₫)", "Pass"],
-        ["3", "TC03", "Unit Test", "Strategy Pattern", "Áp dụng chiến lược chiết khấu 10% (PercentDiscountStrategy) trên đơn 100k -> 90k", "Pass"],
-        ["4", "TC04", "Unit Test", "State Pattern", "Luân chuyển vòng đời hợp lệ của đơn hàng (Pending -> Preparing -> Ready)", "Pass"],
-        ["5", "TC05", "Unit Test", "State Pattern", "Khóa chuyển đổi trạng thái phi lý khi đơn hàng đã thanh toán (PaidState)", "Pass"],
-        ["6", "TC06", "Unit Test", "Adapter Pattern", "Tích hợp thanh toán ví điện tử Momo thành công sinh mã MOMO-xxxx", "Pass"],
-        ["7", "TC07", "Unit Test", "Observer Pattern", "Bắn thông báo thời gian thực từ Bếp sang Thu ngân khi đơn hoàn thành", "Pass"],
-        ["8", "TC08", "Unit Test", "MenuService", "Thao tác thêm, cập nhật, tắt kích hoạt món nước trong thực đơn", "Pass"],
-        ["9", "TC09", "Unit Test", "MenuService", "Xác thực dữ liệu đầu vào thực đơn (chặn tên rỗng, giá âm, sai danh mục)", "Pass"],
-        ["10", "TC10", "Unit Test", "Inventory Logic", "Tự động trừ kho nguyên liệu khi vào bếp và hoàn trả lại kho khi hủy đơn", "Pass"],
-        ["11", "TC11", "Unit Test", "Inventory Guard", "Chặn đẩy đơn hàng vào bếp pha chế khi tồn kho nguyên liệu không đủ định mức", "Pass"],
-        ["12", "TC12", "Unit Test", "ReceiptService", "Cấu trúc hóa đơn thanh toán (tên quán, tên món, tổng tiền, mã giao dịch)", "Pass"],
-        ["13", "TC13", "Unit Test", "ReceiptImageService", "Kết xuất hóa đơn đồ họa dạng tệp ảnh PNG phục vụ in ấn", "Pass"],
-        ["14", "TC14", "Unit Test", "UserService", "Quản lý nhân viên, kiểm tra trùng lặp tài khoản và khóa/mở khóa", "Pass"],
-        ["15", "TC15", "Unit Test", "Cart Logic", "Quy trình giỏ hàng: tự gộp món trùng và khóa sửa số lượng khi đơn đã vào bếp", "Pass"],
-        ["16", "TC16", "Unit Test", "Factory Method", "Khởi tạo đúng các họ đồ uống cụ thể qua Coffee/Tea/MatchaFactory", "Pass"],
-        ["17", "TC17", "Unit Test", "Singleton Pattern", "Đảm bảo tính duy nhất tham chiếu đối tượng của AppConfig & DatabaseConnection", "Pass"],
-        ["18", "TC18", "Unit Test", "Adapter Pattern", "Xử lý sự cố ngoại lệ khi cổng thanh toán đối tác trả về lỗi (FakeFailingGateway)", "Pass"],
-        ["19", "TC19", "Integ Test", "Order + SQLite", "Tích hợp lưu trữ và nạp lại toàn bộ vòng đời đơn hàng phức tạp với SQLite thật", "Pass"],
-        ["20", "TC20", "Integ Test", "Admin + SQLite", "Tích hợp các thao tác CRUD menu, topping và tài khoản với CSDL SQLite", "Pass"],
-        ["21", "TC21", "Integ Test", "Audit Trail + SQLite", "Tích hợp ghi nhật ký lịch sử trạng thái đơn và nhật ký trừ kho vào CSDL", "Pass"],
-        ["22", "TC22", "Integ Test", "Operations + SQLite", "Tích hợp truy vấn phân hệ vận hành và báo cáo kiểm toán từ CSDL thật", "Pass"],
-        ["23", "TC23", "Integ Test", "Backup / Restore", "Tích hợp quy trình sao lưu snapshot tệp tin CSDL vật lý và phục hồi kiểm tra", "Pass"],
-        ["24", "TC24", "Integ Test", "RecipeItem + SQLite", "Tích hợp cấu hình định mức công thức tiêu hao nguyên liệu với CSDL", "Pass"]
+        ["1", "TC01", "Unit Test", "Xác thực tài khoản", "Kiểm tra đăng nhập đúng tài khoản và phân quyền vai trò Thu ngân", "Pass"],
+        ["2", "TC02", "Unit Test", "Tính giá đồ uống", "Kiểm tra tính lũy tiến đơn giá khi thêm topping và đổi kích cỡ size", "Pass"],
+        ["3", "TC03", "Unit Test", "Chiết khấu khuyến mãi", "Kiểm tra tính toán giảm giá theo tỷ lệ phần trăm trên đơn hàng", "Pass"],
+        ["4", "TC04", "Unit Test", "Vòng đời đơn hàng", "Kiểm tra luân chuyển trạng thái: Chờ xử lý -> Đang pha chế -> Sẵn sàng", "Pass"],
+        ["5", "TC05", "Unit Test", "Khóa trạng thái đơn", "Chặn can thiệp, không cho phép pha chế lại đơn hàng đã thanh toán", "Pass"],
+        ["6", "TC06", "Unit Test", "Thanh toán ví điện tử", "Xử lý giao dịch thanh toán thành công và tạo mã giao dịch", "Pass"],
+        ["7", "TC07", "Unit Test", "Thông báo pha chế", "Phát tín hiệu thời gian thực từ bếp sang thu ngân khi hoàn tất món", "Pass"],
+        ["8", "TC08", "Unit Test", "Quản lý thực đơn", "Thực hiện thao tác thêm món, cập nhật giá và tắt món trong thực đơn", "Pass"],
+        ["9", "TC09", "Unit Test", "Xác thực dữ liệu món", "Chặn dữ liệu không hợp lệ: tên rỗng, đơn giá âm, sai danh mục", "Pass"],
+        ["10", "TC10", "Unit Test", "Xuất nhập tồn kho", "Tự động trừ kho khi vào chế biến và hoàn trả lại kho khi hủy đơn", "Pass"],
+        ["11", "TC11", "Unit Test", "Kiểm soát kho tối thiểu", "Chặn nhận đơn pha chế khi nguyên liệu tồn kho không đủ định mức", "Pass"],
+        ["12", "TC12", "Unit Test", "Định dạng hóa đơn", "Kiểm tra đầy đủ các trường thông tin quy định trên hóa đơn thanh toán", "Pass"],
+        ["13", "TC13", "Unit Test", "Kết xuất ảnh hóa đơn", "Tạo tệp hình ảnh hóa đơn hoàn chỉnh phục vụ in ấn", "Pass"],
+        ["14", "TC14", "Unit Test", "Quản lý nhân viên", "Thêm nhân viên mới, khóa tài khoản và chặn trùng tên đăng nhập", "Pass"],
+        ["15", "TC15", "Unit Test", "Xử lý giỏ hàng", "Tự gộp món trùng lặp và chặn sửa giỏ khi đơn đã gửi vào pha chế", "Pass"],
+        ["16", "TC16", "Unit Test", "Khởi tạo danh mục món", "Khởi tạo chính xác đồ uống theo từng nhóm Cà phê, Trà, Matcha", "Pass"],
+        ["17", "TC17", "Unit Test", "Quản lý phiên bản kết nối", "Bảo đảm tính duy nhất của cấu hình ứng dụng và kết nối CSDL", "Pass"],
+        ["18", "TC18", "Unit Test", "Xử lý sự cố thanh toán", "Bảo toàn trạng thái đơn hàng khi cổng thanh toán đối tác trả về lỗi", "Pass"],
+        ["19", "TC19", "Integ Test", "Lưu trữ đơn hàng SQLite", "Lưu trữ và phục hồi toàn vẹn đơn hàng có tùy biến trong CSDL SQLite", "Pass"],
+        ["20", "TC20", "Integ Test", "Đồng bộ CRUD với CSDL", "Đồng bộ thao tác thêm món, đổi topping và khóa nhân viên vào CSDL", "Pass"],
+        ["21", "TC21", "Integ Test", "Nhật ký kiểm toán CSDL", "Ghi nhận lịch sử trạng thái đơn và nhật ký trừ kho vào bảng kiểm toán", "Pass"],
+        ["22", "TC22", "Integ Test", "Truy vấn báo cáo vận hành", "Truy vấn chính xác lịch sử đơn hàng và dữ liệu vận hành từ CSDL", "Pass"],
+        ["23", "TC23", "Integ Test", "Sao lưu và phục hồi CSDL", "Xuất tệp sao lưu snapshot CSDL và phục hồi kiểm tra tính nhất quán", "Pass"],
+        ["24", "TC24", "Integ Test", "Định mức công thức pha chế", "Lưu trữ và xóa bỏ cấu hình định mức nguyên liệu tiêu hao trong CSDL", "Pass"]
     ]
     t1 = doc.add_table(rows=len(tc_data) + 1, cols=len(tc_headers))
     t1.style = 'Table Grid'
-    format_custom_table(t1, [0.5, 0.7, 1.0, 1.7, 2.8, 0.7], tc_headers, tc_data, hdr_bg='1F4E79', hdr_text_white=True, font_size_pt=8.5)
+    format_custom_table(t1, [0.45, 0.65, 0.95, 1.6, 2.75, 0.6], tc_headers, tc_data, hdr_bg='1F4E79', hdr_text_white=True, font_size_pt=8.5)
 
     # -------------------------------------------------------------------------
     # 1.2.3. Đo lường Code Coverage bằng JaCoCo
     # -------------------------------------------------------------------------
     add_h1(doc, "1.2.3. Đo lường Độ bao phủ mã nguồn (Code Coverage) bằng công cụ JaCoCo")
-    add_p(doc, text="Để đánh giá chất lượng của bộ kiểm thử một cách khách quan theo tiêu chuẩn kỹ nghệ phần mềm chứ không chỉ dừng lại ở việc đếm số bài test passed, Quân đã tích hợp công cụ JaCoCo (Java Code Coverage) phiên bản 0.8.14 vào quy trình kiểm thử tự động.")
-    add_p(doc, text="Quá trình đo lường được thực hiện bằng cách gắn JaCoCo JavaAgent trực tiếp vào máy ảo JVM khi kích hoạt TestRunner, ghi nhận toàn bộ dữ liệu thực thi vào tệp nhị phân jacoco.exec, sau đó sử dụng thư viện jacococli.jar để bóc tách số liệu và xuất báo cáo trực quan dạng trang web HTML.")
+    add_p(doc, text="Để đánh giá định lượng độ bao phủ của bộ kiểm thử tự động, công cụ JaCoCo (Java Code Coverage) phiên bản 0.8.14 được tích hợp vào quy trình thực thi. Dữ liệu thực thi được máy ảo JVM ghi nhận vào tệp nhị phân jacoco.exec và xuất báo cáo kết quả chi tiết.")
     
     # Bảng 1.2: Bảng số liệu tổng thể
     p_cap2 = doc.add_paragraph()
@@ -260,60 +248,57 @@ def build_docx():
     r_cap2.font.bold = True
     r_cap2.font.italic = True
     
-    cov_sum_headers = ["Phân vùng mã nguồn kiểm thử", "Line Coverage (Dòng lệnh)", "Branch Coverage (Rẽ nhánh)", "Instruction Coverage (Mã máy)", "Đánh giá chất lượng"]
+    cov_sum_headers = ["Phân vùng mã nguồn kiểm thử", "Bao phủ dòng lệnh (Line)", "Bao phủ rẽ nhánh (Branch)", "Bao phủ mã máy (Instruction)", "Kết luận"]
     cov_sum_data = [
-        ["Toàn bộ Core Backend (Domain + Patterns + Service + SQLite)", "74.3% (1.627 / 2.189)", "51.0% (275 / 539)", "74.1% (7.796 / 10.527)", "Đạt chuẩn công nghiệp (khuyến nghị >= 70%)"],
-        ["8 Đơn vị mã nguồn Hộp trắng trọng yếu (Chương 4)", "100%", "100%", "100%", "Đạt tối đa (28/28 đường cơ sở McCabe, 100% DU-chains)"],
-        ["Toàn bộ Dự án (Tính gộp cả mã giao diện đồ họa Swing UI)", "32.7% (1.627 / 4.978)", "22.9% (275 / 1.200)", "30.4% (7.796 / 25.674)", "Tầng UI (~2.800 dòng) được kiểm thử riêng bằng Playwright E2E"]
+        ["Toàn bộ Core Backend (Domain + Service + Repository)", "74.3% (1.627 / 2.189)", "51.0% (275 / 539)", "74.1% (7.796 / 10.527)", "Đạt yêu cầu"],
+        ["8 Đơn vị mã nguồn trọng yếu (Chương 4)", "100%", "100%", "100%", "Đạt yêu cầu"],
+        ["Toàn bộ Dự án (Gồm cả mã giao diện đồ họa)", "32.7% (1.627 / 4.978)", "22.9% (275 / 1.200)", "30.4% (7.796 / 25.674)", "Được kiểm thử tại tầng giao diện (Playwright E2E)"]
     ]
     t2 = doc.add_table(rows=len(cov_sum_data) + 1, cols=len(cov_sum_headers))
     t2.style = 'Table Grid'
-    format_custom_table(t2, [2.3, 1.3, 1.3, 1.3, 1.8], cov_sum_headers, cov_sum_data, hdr_bg='2E75B6', hdr_text_white=True, font_size_pt=8.5)
+    format_custom_table(t2, [2.2, 1.3, 1.3, 1.3, 1.3], cov_sum_headers, cov_sum_data, hdr_bg='2E75B6', hdr_text_white=True, font_size_pt=8.5)
     
-    add_p(doc, text="Báo cáo chi tiết của JaCoCo cho thấy tỷ lệ bao phủ rất cao và đồng đều tại các gói chức năng Backend then chốt:")
+    add_p(doc, text="Chi tiết mức độ bao phủ tại các gói chức năng Backend then chốt được thể hiện trong Bảng 1.3:")
     
     # Bảng 1.3: Chi tiết từng package
     p_cap3 = doc.add_paragraph()
     p_cap3.paragraph_format.space_before = Pt(8)
     p_cap3.paragraph_format.space_after = Pt(4)
-    r_cap3 = p_cap3.add_run("Bảng 1.3: Chi tiết tỷ lệ bao phủ mã nguồn theo từng Package Backend")
+    r_cap3 = p_cap3.add_run("Bảng 1.3: Chi tiết tỷ lệ bao phủ mã nguồn theo từng gói chức năng Backend")
     r_cap3.font.name = 'Times New Roman'
     r_cap3.font.size = Pt(11)
     r_cap3.font.bold = True
     r_cap3.font.italic = True
     
-    pkg_headers = ["Gói chức năng (Package)", "Line Coverage", "Branch Coverage", "Instruction Cov.", "Nội dung & Mục tiêu kiểm thử"]
+    pkg_headers = ["Gói chức năng (Package)", "Line Coverage", "Branch Coverage", "Instruction Cov.", "Nội dung kiểm thử chính"]
     pkg_data = [
-        ["com.coffeeshop.domain.patterns.singleton", "90.9%", "75.0%", "93.0%", "Quản lý duy nhất AppConfig và DatabaseConnection"],
-        ["com.coffeeshop (Context & App)", "84.8%", "57.1%", "85.0%", "Khởi tạo ngữ cảnh, cấu hình hệ thống và nạp repository"],
-        ["com.coffeeshop.infrastructure", "82.4%", "60.0%", "83.0%", "SqliteRepository, InMemoryRepository, Audit Trail SQL"],
-        ["com.coffeeshop.domain.patterns.factory", "77.8%", "n/a", "76.0%", "Khởi tạo đồ uống Coffee, Tea, Matcha qua Factory"],
-        ["com.coffeeshop.domain.model", "77.2%", "33.3%", "64.0%", "Thực thể Order, OrderItem, User, InventoryItem, Topping"],
-        ["com.coffeeshop.service", "75.7%", "57.8%", "72.0%", "Các dịch vụ Order, Payment, Menu, Inventory, Operations"],
-        ["com.coffeeshop.domain.patterns.decorator", "66.7%", "n/a", "57.0%", "Tính lũy tiến giá đồ uống qua Pearl và LargeSize"],
-        ["com.coffeeshop.domain.patterns.state", "63.3%", "n/a", "57.0%", "Vòng đời đơn hàng Pending, Preparing, Ready, Paid"],
-        ["com.coffeeshop.domain.patterns.observer", "53.3%", "66.7%", "55.0%", "Phát sự kiện thời gian thực từ Bếp sang Thu ngân"],
-        ["com.coffeeshop.domain.patterns.adapter", "53.8%", "25.0%", "48.0%", "Tích hợp cổng Momo và xử lý ngoại lệ FakePay"],
-        ["com.coffeeshop.domain.patterns.strategy", "41.7%", "35.7%", "46.0%", "Các thuật toán chiết khấu phần trăm linh hoạt"],
-        ["com.coffeeshop.presentation (Giao diện UI)", "0.0%", "0.0%", "0.0%", "Kiểm thử tự động bằng Playwright E2E (không qua Unit Test)"]
+        ["Quản lý cấu hình & kết nối", "90.9%", "75.0%", "93.0%", "Quản lý đối tượng cấu hình ứng dụng và kết nối dữ liệu"],
+        ["Ngữ cảnh hệ thống (Context)", "84.8%", "57.1%", "85.0%", "Khởi tạo ngữ cảnh làm việc và nạp các kho dữ liệu"],
+        ["Kho lưu trữ dữ liệu (Infrastructure)", "82.4%", "60.0%", "83.0%", "Thao tác truy xuất CSDL SQLite, Repository và nhật ký kiểm toán"],
+        ["Khởi tạo danh mục sản phẩm", "77.8%", "n/a", "76.0%", "Khởi tạo đối tượng đồ uống theo từng nhóm danh mục"],
+        ["Mô hình dữ liệu (Domain Model)", "77.2%", "33.3%", "64.0%", "Các thực thể nghiệp vụ Đơn hàng, Món, Nguyên liệu, Người dùng"],
+        ["Dịch vụ nghiệp vụ (Service)", "75.7%", "57.8%", "72.0%", "Xử lý nghiệp vụ Đơn hàng, Thanh toán, Thực đơn, Kho nguyên liệu"],
+        ["Tùy biến đồ uống (Topping & Size)", "66.7%", "n/a", "57.0%", "Tính toán lũy tiến đơn giá theo tùy biến sản phẩm"],
+        ["Quản lý trạng thái đơn hàng", "63.3%", "n/a", "57.0%", "Luân chuyển và kiểm soát ràng buộc trạng thái đơn hàng"],
+        ["Hệ thống thông báo sự kiện", "53.3%", "66.7%", "55.0%", "Cơ chế phát thông báo sự kiện giữa các phân hệ"],
+        ["Tích hợp cổng thanh toán", "53.8%", "25.0%", "48.0%", "Xử lý giao dịch thanh toán điện tử và bắt lỗi ngoại lệ"],
+        ["Chính sách chiết khấu khuyến mãi", "41.7%", "35.7%", "46.0%", "Tính toán tỷ lệ giảm giá và chiết khấu đơn hàng"]
     ]
     t3 = doc.add_table(rows=len(pkg_data) + 1, cols=len(pkg_headers))
     t3.style = 'Table Grid'
-    format_custom_table(t3, [2.2, 0.9, 1.0, 1.0, 2.3], pkg_headers, pkg_data, hdr_bg='1F4E79', hdr_text_white=True, font_size_pt=8.5)
-    
-    add_p(doc, text="Giao diện báo cáo JaCoCo HTML trực quan: Toàn bộ dữ liệu chi tiết của từng class và từng dòng code được lưu trữ tại build/jacoco-report/index.html. Khi mở trên trình duyệt, các dòng lệnh đã được test bao phủ được tô màu xanh lá cây, các nhánh điều kiện mới kiểm tra 1 phía được tô màu vàng, và các đoạn mã chưa chạm tới được tô màu đỏ (chủ yếu là các phương thức getter/setter phụ hoặc mã giao diện).", italic=True)
+    format_custom_table(t3, [2.3, 0.9, 1.0, 1.0, 2.2], pkg_headers, pkg_data, hdr_bg='1F4E79', hdr_text_white=True, font_size_pt=8.5)
 
     # -------------------------------------------------------------------------
     # 1.2.4. Kết luận
     # -------------------------------------------------------------------------
-    add_h1(doc, "1.2.4. Kết luận về hiệu quả kiểm thử phân hệ Backend")
-    add_p(doc, text="Việc triển khai thành công hệ thống kiểm thử tự động nội bộ kết hợp đo lường JaCoCo đã mang lại các giá trị thực tế rõ rệt:")
-    add_p(doc, text="Phát hiện và loại trừ sớm các lỗi nghiệp vụ nghiêm trọng: Nhờ các test case biên như TC05 (chặn can thiệp đơn đã thanh toán), TC09 (chặn dữ liệu bẩn giá âm/tên rỗng) và TC11 (chặn vào bếp khi tồn kho không đủ), nhóm đã phát hiện và xử lý dứt điểm các lỗi logic ngay tại tầng Service trước khi kết nối lên tầng giao diện.", bold_prefix="1. ", indent=True)
-    add_p(doc, text="Đảm bảo tính toàn vẹn của kiến trúc Design Patterns: Bộ 18 Unit Tests đóng vai trò như một bộ rào chắn kỹ thuật (Safety Net), đảm bảo rằng mỗi khi có thành viên trong nhóm tối ưu hóa hay tái cấu trúc mã nguồn (Refactoring) thì hành vi của 6 mẫu thiết kế phần mềm vẫn luôn chạy chính xác theo thiết kế ban đầu.", bold_prefix="2. ", indent=True)
-    add_p(doc, text="Minh chứng định lượng thuyết phục cho báo cáo: Thay vì chỉ mô tả chung chung mang tính cảm tính, nhóm đã có số liệu định lượng chuẩn xác với 100% test case vượt qua (24/24 Pass) và độ bao phủ dòng lệnh tầng Core Backend đạt 74.3%, đáp ứng xuất sắc các tiêu chuẩn đánh giá của học phần Kiểm thử & Đảm bảo chất lượng phần mềm.", bold_prefix="3. ", indent=True)
+    add_h1(doc, "1.2.4. Đánh giá kết quả thực thi kiểm thử Backend")
+    add_p(doc, text="Kết quả thực thi kiểm thử tự động phân hệ Backend mang lại các giá trị cụ thể sau:")
+    add_p(doc, text="Tỷ lệ đạt tuyệt đối: Toàn bộ 24/24 ca kiểm thử đều vượt qua (tỷ lệ thành công 100%), xác nhận tính đúng đắn của các quy tắc nghiệp vụ.", bold_prefix="1. ", indent=True)
+    add_p(doc, text="Độ bao phủ đáp ứng yêu cầu: Tầng xử lý logic nghiệp vụ cốt lõi đạt 74.3% độ bao phủ dòng lệnh và 51.0% độ bao phủ nhánh rẽ, đảm bảo hầu hết các luồng xử lý chính và ngoại lệ đã được kiểm chứng.", bold_prefix="2. ", indent=True)
+    add_p(doc, text="Phát hiện và ngăn chặn sớm sai sót: Các lỗi nhập liệu sai, thiếu hụt tồn kho nguyên liệu và xung đột trạng thái đơn hàng được kiểm soát và xử lý chặt chẽ tại tầng Backend trước khi tích hợp với giao diện người dùng.", bold_prefix="3. ", indent=True)
 
     doc.save(OUT_DOCX)
-    print(f"Successfully generated Word document at: {OUT_DOCX}")
+    print(f"Successfully generated updated academic Word document at: {OUT_DOCX}")
 
 if __name__ == '__main__':
     build_docx()
