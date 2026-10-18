@@ -1,0 +1,420 @@
+### TAB_NAME: TC_DN_01 | TEST_CASE: TC_DN_001 ###
+Test Case ID		TC_DN_001	Test Case Description		Đăng nhập thành công với vai trò Thu ngân (Cashier)					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Ứng dụng Coffee Shop POS chạy trên Chromium / Java Swing				1	Tài khoản: cashier01, Mật khẩu: 123, Vai trò: CASHIER				
+2	Tài khoản cashier01 / 123 đã kích hoạt				2					
+3	Mỗi testcase dùng phiên làm việc riêng				3					
+4					4					
+											
+Test Scenario	Đăng nhập thành công với vai trò Thu ngân (Cashier)									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Mở ứng dụng; nhập cashier01 và mật khẩu 123.		Thông tin hiển thị chính xác trên các ô nhập liệu.		như mong đợi			Pass		
+2	Nhấn nút 'Đăng nhập'.		Đăng nhập thành công; điều hướng đến màn hình Thu Ngân (POS); hiển thị ca trực.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_DN_02 | TEST_CASE: TC_DN_002 ###
+Test Case ID		TC_DN_002	Test Case Description		Đăng nhập thành công với vai trò Pha chế (Barista)					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Ứng dụng Coffee Shop POS chạy trên Chromium / Java Swing				1	Tài khoản: barista01, Mật khẩu: 123, Vai trò: BARISTA				
+2	Tài khoản barista01 / 123 đã kích hoạt				2					
+3	Mỗi testcase dùng phiên làm việc riêng				3					
+4					4					
+											
+Test Scenario	Đăng nhập thành công với vai trò Barista									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Mở ứng dụng; nhập barista01 và mật khẩu 123.		Thông tin hiển thị chính xác trong form đăng nhập.		như mong đợi			Pass		
+2	Nhấn nút 'Đăng nhập'.		Đăng nhập thành công; điều hướng vào Màn hình bếp pha chế (Kitchen KDS).		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_DN_03 | TEST_CASE: TC_DN_003 ###
+Test Case ID		TC_DN_003	Test Case Description		Đăng nhập thành công với vai trò Quản trị viên (Admin)					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Ứng dụng Coffee Shop POS chạy trên Chromium / Java Swing				1	Tài khoản: admin, Mật khẩu: admin123, Vai trò: ADMIN				
+2	Tài khoản admin / admin123 hoạt động				2					
+3	Mỗi testcase dùng phiên làm việc riêng				3					
+4					4					
+											
+Test Scenario	Đăng nhập thành công với vai trò Admin									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Mở ứng dụng; nhập admin và mật khẩu admin123.		Dữ liệu nhập hợp lệ, mật khẩu được che ẩn ký tự.		như mong đợi			Pass		
+2	Nhấn nút 'Đăng nhập'.		Đăng nhập thành công; mở màn hình Quản trị (Admin Dashboard); mở khóa toàn quyền.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_DN_04 | TEST_CASE: TC_DN_004 ###
+Test Case ID		TC_DN_004	Test Case Description		Đăng nhập thất bại khi để trống Tên đăng nhập					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Ứng dụng đang ở màn hình Đăng nhập (LoginView)				1	Tài khoản: [Để trống], Mật khẩu: 123				
+2	Chưa nhập thông tin tài khoản				2					
+3	Hệ thống kết nối CSDL sẵn sàng				3					
+4					4					
+											
+Test Scenario	Bỏ trống Username khi đăng nhập									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Để trống ô Tên đăng nhập; nhập Mật khẩu 123.		Ô Username rỗng, ô Password hiển thị ký tự che.		như mong đợi			Pass		
+2	Nhấn nút 'Đăng nhập'.		Hệ thống chặn xác thực; thông báo 'Tên đăng nhập không được để trống!'.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_DN_05 | TEST_CASE: TC_DN_005 ###
+Test Case ID		TC_DN_005	Test Case Description		Đăng nhập thất bại khi để trống Mật khẩu					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Ứng dụng đang ở màn hình Đăng nhập (LoginView)				1	Tài khoản: cashier01, Mật khẩu: [Để trống]				
+2	Tài khoản cashier01 có trong hệ thống				2					
+3	Hệ thống kết nối CSDL sẵn sàng				3					
+4					4					
+											
+Test Scenario	Bỏ trống Password khi đăng nhập									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Nhập Tên đăng nhập cashier01; để trống ô Mật khẩu.		Ô Username hiển thị cashier01, ô Password rỗng.		như mong đợi			Pass		
+2	Nhấn nút 'Đăng nhập'.		Hệ thống chặn xác thực; thông báo 'Mật khẩu không được để trống!'.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_DN_06 | TEST_CASE: TC_DN_006 ###
+Test Case ID		TC_DN_006	Test Case Description		Kiểm tra hủy mật khẩu cũ sau khi đổi mật khẩu mới (BUG Mật Khẩu)					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Fail	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Tài khoản cashier01 đã đổi mật khẩu từ 123 sang matkhau999 thành công				1	Tài khoản: cashier01, Mật khẩu cũ: 123				
+2	Hệ thống thông báo đổi mật khẩu thành công				2					
+3	Đã đăng xuất về màn hình Đăng nhập				3					
+4					4					
+											
+Test Scenario	Thử đăng nhập lại bằng mật khẩu cũ sau khi đổi mật khẩu mới									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Tại màn hình Đăng nhập; nhập tài khoản cashier01 và mật khẩu cũ 123.		Thông tin hiển thị trong các ô nhập.		như mong đợi			Pass		
+2	Nhấn nút 'Đăng nhập'.		Hệ thống phải báo lỗi 'Mật khẩu không chính xác!' vì mật khẩu đã đổi.		BUG: Hệ thống vẫn cho phép đăng nhập thành công bằng mật khẩu cũ 123!			Fail		
+
+
+### TAB_NAME: TC_DN_07 | TEST_CASE: TC_DN_007 ###
+Test Case ID		TC_DN_007	Test Case Description		Đăng nhập thất bại với tài khoản không tồn tại					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Ứng dụng đang ở màn hình Đăng nhập				1	Tài khoản: user_khong_ton_tai, Mật khẩu: 123456				
+2	Hệ thống kết nối CSDL bình thường				2					
+3	Mỗi testcase dùng phiên làm việc riêng				3					
+4					4					
+											
+Test Scenario	Nhập tài khoản không tồn tại trong hệ thống									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Nhập Tên đăng nhập user_khong_ton_tai và Mật khẩu 123456.		Dữ liệu nhập vào đúng định dạng văn bản.		như mong đợi			Pass		
+2	Nhấn nút 'Đăng nhập'.		Tra cứu không thấy tài khoản; thông báo 'Tài khoản không tồn tại trong hệ thống!'.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_DN_08 | TEST_CASE: TC_DN_008 ###
+Test Case ID		TC_DN_008	Test Case Description		Đăng xuất khỏi ca làm việc an toàn và xóa phiên làm việc					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Nhân viên đã đăng nhập và đang thao tác trong hệ thống				1	Nút bấm 'Đăng xuất' trên Header				
+2	Session đang lưu trữ phiên đăng nhập				2					
+3	Hệ thống hoạt động bình thường				3					
+4					4					
+											
+Test Scenario	Đăng xuất an toàn và xóa session									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Nhấn vào nút 'Đăng xuất' trên thanh tiêu đề ứng dụng.		Hộp thoại hiển thị 'Bạn có chắc chắn muốn đăng xuất không?'.		như mong đợi			Pass		
+2	Nhấn 'Đồng ý'.		Phiên làm việc bị hủy hoàn toàn; quay về LoginView; dọn sạch thông tin ca trực.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_PC_09 | TEST_CASE: TC_PC_009 ###
+Test Case ID		TC_PC_009	Test Case Description		Kiểm thử phân quyền: Thu ngân truy cập Báo Cáo & Quản Trị (BUG Phân Quyền)					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Fail	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Đăng nhập bằng tài khoản Thu ngân cashier01 / 123				1	Tài khoản: cashier01 (Vai trò CASHIER); Tab: 'Báo Cáo & Quản Trị'				
+2	Giao diện chính hiển thị thanh điều hướng Navbar				2					
+3	Mỗi testcase dùng phiên làm việc riêng				3					
+4					4					
+											
+Test Scenario	Thu ngân bấm vào tab Báo Cáo & Quản Trị trên thanh điều hướng									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Quan sát thanh điều hướng (Navbar) khi đăng nhập quyền Thu ngân.		Tab 'Báo Cáo & Quản Trị' phải bị ẩn hoặc vô hiệu hóa đối với Thu ngân.		Cả 3 tab Thu Ngân, Bếp, Quản Trị đều hiển thị công khai.			Fail		
+2	Thu ngân bấm vào tab 'Báo Cáo & Quản Trị'.		Hệ thống chặn truy cập; hiện thông báo 'Bạn không có quyền truy cập!'.		BUG: Thu ngân vào thẳng trang Quản trị, xem doanh thu và xóa tài khoản Admin!			Fail		
+
+
+### TAB_NAME: TC_PC_10 | TEST_CASE: TC_PC_010 ###
+Test Case ID		TC_PC_010	Test Case Description		Tự động tiếp nhận đơn mới theo cơ chế Observer thời gian thực (F19)					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Màn hình KitchenView đang mở trên máy Barista				1	Đơn hàng #104 (1 Cà phê đen L, 1 Trà sen vàng M)				
+2	Quầy thu ngân vừa tạo xong đơn hàng mới #104				2					
+3	Kết nối Observer thời gian thực hoạt động				3					
+4					4					
+											
+Test Scenario	Observer Pattern tiếp nhận đơn mới từ quầy thu ngân sang bếp									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Barista mở màn hình Kitchen KDS ở trạng thái chờ.		Màn hình hiển thị danh sách đơn hiện tại.		như mong đợi			Pass		
+2	Thu ngân nhấn 'Gửi đơn sang bếp' tại quầy POS.		Màn hình bếp tự động cập nhật ngay thẻ đơn #104 qua Observer (F19) không cần reload.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_PC_11 | TEST_CASE: TC_PC_011 ###
+Test Case ID		TC_PC_011	Test Case Description		Xem chi tiết thành phần món, kích thước (Size) và Topping đính kèm					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Đơn hàng #105 chứa thức uống tùy biến nhiều topping				1	1 Trà sữa Ô Long; Size L (+10.000 ₫); Topping: Trân châu đen, Thạch phô mai				
+2	Đơn đang hiển thị trên thẻ đơn bếp				2					
+3	Mỗi testcase dùng phiên riêng				3					
+4					4					
+											
+Test Scenario	Xem chi tiết món nước tùy biến sâu (Decorator Pattern)									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Barista nhấn nút 'Xem chi tiết' trên thẻ đơn #105.		Modal chi tiết món mở ra trên giao diện.		như mong đợi			Pass		
+2	Kiểm tra danh sách thành phần hiển thị.		Hiển thị đầy đủ: Món gốc, Size L, Topping Trân châu đen, Thạch phô mai.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_PC_12 | TEST_CASE: TC_PC_012 ###
+Test Case ID		TC_PC_012	Test Case Description		Hiển thị nổi bật ghi chú pha chế đặc biệt của khách hàng					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Khách hàng yêu cầu ghi chú riêng khi gọi món tại quầy				1	Ghi chú món: '50% đường, ít đá, nhiều bọt sữa'				
+2	Đơn hàng đã được đẩy sang quầy bếp				2					
+3	Mỗi testcase dùng phiên riêng				3					
+4					4					
+											
+Test Scenario	Hiển thị ghi chú tùy chỉnh khẩu vị của khách									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Mở thẻ đơn hàng có ghi chú của khách trên Kitchen KDS.		Dòng thông tin món hiển thị chi tiết.		như mong đợi			Pass		
+2	Quan sát vị trí hiển thị ghi chú pha chế.		Dòng ghi chú '50% đường, ít đá, nhiều bọt sữa' hiển thị màu cảnh báo nổi bật.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_PC_13 | TEST_CASE: TC_PC_013 ###
+Test Case ID		TC_PC_013	Test Case Description		Chuyển trạng thái đơn sang Đang pha chế (PREPARING) (F07)					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Đơn hàng #106 đang ở trạng thái PENDING trên hàng chờ bếp				1	Đơn hàng #106; Nút thao tác 'Bắt đầu làm'				
+2	Barista đang xem đơn				2					
+3	Kết nối hệ thống bình thường				3					
+4					4					
+											
+Test Scenario	Chuyển trạng thái đơn từ PENDING sang PREPARING									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Barista nhấn nút 'Bắt đầu làm' trên thẻ đơn hàng #106.		Hệ thống ghi nhận sự kiện chuyển trạng thái đơn (State Pattern).		như mong đợi			Pass		
+2	Kiểm tra giao diện thẻ đơn sau khi nhấn.		Trạng thái đơn chuyển sang PREPARING; viền thẻ đổi màu cam; đồng hồ đếm giờ chạy.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_PC_14 | TEST_CASE: TC_PC_014 ###
+Test Case ID		TC_PC_014	Test Case Description		Chặn thao tác trùng lặp khi đơn đã ở trạng thái PREPARING					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Đơn hàng #106 đã được barista ấn bắt đầu và đang ở PREPARING				1	Thẻ đơn hàng #106 đang trong trạng thái PREPARING				
+2	Giao diện bếp đang mở				2					
+3	Mỗi testcase dùng phiên riêng				3					
+4					4					
+											
+Test Scenario	Chặn nhấn lặp lại nút Bắt đầu khi đang PREPARING									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Quan sát các nút điều khiển trên thẻ đơn #106.		Nút 'Bắt đầu làm' bị vô hiệu hóa (disabled) hoặc ẩn đi.		như mong đợi			Pass		
+2	Cố tình click chuột liên tục vào vị trí nút.		Không phát sinh sự kiện chuyển trạng thái trùng lặp; giữ nguyên PREPARING.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_PC_15 | TEST_CASE: TC_PC_015 ###
+Test Case ID		TC_PC_015	Test Case Description		Hoàn tất pha chế, chuyển trạng thái sang Sẵn sàng phục vụ (READY) (F07)					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Đơn hàng #107 đang ở trạng thái PREPARING và đã làm xong các món				1	Đơn hàng #107; Nút thao tác 'Hoàn thành món'				
+2	Barista đang ở màn hình KDS				2					
+3	Hệ thống hoạt động bình thường				3					
+4					4					
+											
+Test Scenario	Chuyển trạng thái đơn từ PREPARING sang READY									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Barista nhấn nút 'Hoàn thành món' trên thẻ đơn hàng #107.		Hệ thống kích hoạt chuyển trạng thái sang READY.		như mong đợi			Pass		
+2	Kiểm tra hiển thị thẻ đơn trên màn hình bếp.		Trạng thái đơn chuyển sang READY; thẻ đổi màu xanh lá cây sẵn sàng phục vụ.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_PC_16 | TEST_CASE: TC_PC_016 ###
+Test Case ID		TC_PC_016	Test Case Description		Kích hoạt chuông thông báo và gửi tín hiệu sang thu ngân khi READY (F19)					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Barista vừa bấm hoàn thành đơn hàng #107 sang trạng thái READY				1	Sự kiện OrderStatusChangedEvent(status=READY, orderId=107)				
+2	Quầy thu ngân đang mở màn hình POS				2					
+3	Observer Pattern đang lắng nghe				3					
+4					4					
+											
+Test Scenario	Observer phát tín hiệu chuông và popup sang thu ngân khi đơn READY									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Chuyển trạng thái đơn #107 sang READY tại màn hình bếp.		Hệ thống bếp phát tín hiệu âm thanh thông báo 'Ting ting'.		như mong đợi			Pass		
+2	Quan sát màn hình POS của quầy thu ngân.		Màn hình thu ngân nhận thông báo Observer (F19): Popup hiển thị 'Đơn #107 đã pha chế xong!'.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_PC_17 | TEST_CASE: TC_PC_017 ###
+Test Case ID		TC_PC_017	Test Case Description		Chặn chuyển trạng thái sai quy trình (Từ PENDING nhảy cóc sang READY)					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Đơn hàng #108 đang ở trạng thái PENDING (chưa bắt đầu pha chế)				1	Thẻ đơn hàng #108 ở trạng thái PENDING				
+2	Barista đang ở màn hình KDS				2					
+3	Mỗi testcase dùng phiên riêng				3					
+4					4					
+											
+Test Scenario	Kiểm soát tính toàn vẹn vòng đời trạng thái đơn (State Pattern)									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Kiểm tra các nút thao tác khả dụng trên thẻ đơn hàng #108.		Chỉ có nút 'Bắt đầu làm' hiển thị; không hiển thị nút 'Hoàn thành'.		như mong đợi			Pass		
+2	Gọi hàm xử lý trực tiếp markAsReady() khi đang PENDING.		Hệ thống ném ngoại lệ IllegalStateException; từ chối chuyển trạng thái trực tiếp; giữ PENDING.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_PC_18 | TEST_CASE: TC_PC_018 ###
+Test Case ID		TC_PC_018	Test Case Description		Tự động gạch bỏ đơn hàng trên màn hình bếp khi Thu ngân hủy đơn (F19)					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Đơn hàng #109 đang chờ tại bếp (PENDING)				1	Đơn hàng #109 bị Thu ngân hủy với lý do 'Khách đổi món'				
+2	Khách hàng đổi ý muốn hủy đơn tại quầy thu ngân				2					
+3	Kết nối Observer hoạt động				3					
+4					4					
+											
+Test Scenario	Đồng bộ hủy đơn hàng qua cơ chế Observer thông báo thời gian thực									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Thu ngân bấm 'Hủy đơn hàng' cho đơn #109 tại quầy POS.		Đơn #109 chuyển sang trạng thái CANCELLED tại quầy thu ngân.		như mong đợi			Pass		
+2	Quan sát màn hình Kitchen KDS của Barista.		Màn hình KDS nhận thông báo Observer (F19); thẻ đơn #109 tự động biến mất.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_PC_19 | TEST_CASE: TC_PC_019 ###
+Test Case ID		TC_PC_019	Test Case Description		Kiểm tra hiển thị danh sách khi có tải lượng lớn (15 đơn hàng dồn dập)					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Pass	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Màn hình KitchenView đang hoạt động				1	15 đơn hàng PENDING liên tiếp từ #110 đến #124				
+2	Giả lập giờ cao điểm: Thu ngân tạo liên tục 15 đơn hàng trong 2 phút				2					
+3	CSDL hoạt động bình thường				3					
+4					4					
+											
+Test Scenario	Kiểm thử khả năng chịu tải hiển thị hàng chờ giờ cao điểm									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Tạo và gửi đồng loạt 15 đơn hàng sang bếp pha chế.		Hệ thống gửi liên tiếp 15 thông báo Observer sang KDS.		như mong đợi			Pass		
+2	Kiểm tra độ mượt và cách bố trí màn hình Kitchen KDS.		Toàn bộ 15 đơn hiển thị đầy đủ; thanh cuộn trơn tru; không vỡ bố cục.		như mong đợi			Pass		
+
+
+### TAB_NAME: TC_PC_20 | TEST_CASE: TC_PC_020 ###
+Test Case ID		TC_PC_020	Test Case Description		Chuyển đơn sang COMPLETED: Thiếu nút 'Đã giao khách' (BUG Kẹt Đơn Bếp)					
+Created By		Quân	Reviewed By		Thiện		Version		1.0	
+											
+QA Tester's Log											
+											
+Tester's Name		Quân	Date Tested		13/10/2026		Test Case (Pass/Fail/Not Executed)		Fail	
+											
+S #	Prerequisites:				S #	Test Data				
+1	Đơn hàng #125 đang ở trạng thái READY tại cột Đã xong				1	Đơn hàng #125; Trạng thái READY tại Màn Hình Bếp (KDS)				
+2	Barista hoặc nhân viên phục vụ muốn dọn đơn khỏi màn hình bếp				2					
+3	Mỗi testcase dùng phiên riêng				3					
+4					4					
+											
+Test Scenario	Hoàn tất đơn hàng và dọn dẹp hàng chờ bếp									
+											
+Step #	Step Details		Expected Results		Actual Results			Pass / Fail / Not executed / Suspended		
+1	Barista mở cột 'Đã xong / Sẵn sàng phục vụ' trên màn hình bếp KDS.		Thẻ đơn hàng có nút bấm 'Đã giao khách' hoặc 'Hoàn tất đơn' để chuyển sang COMPLETED.		BUG: Thẻ đơn chỉ hiển thị dòng chữ tĩnh 'Đã sẵn sàng phục vụ', HOÀN TOÀN KHÔNG CÓ NÚT 'Đã giao khách'!			Fail		
+2	Cố gắng tương tác để hoàn tất và dọn sạch đơn #125 khỏi màn hình.		Đơn hàng được dọn sạch khỏi hàng chờ bếp.		BUG: Đơn #125 bị kẹt lại vĩnh viễn ở màn hình Bếp, không thể dọn dẹp hàng chờ được.			Fail		
+
+

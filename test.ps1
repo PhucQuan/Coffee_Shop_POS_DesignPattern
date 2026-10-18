@@ -1,3 +1,7 @@
+param(
+    [string]$Type = "all"
+)
+
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $out = Join-Path $root "build\test-classes"
 $sourceList = Join-Path $root "build\test-sources.tmp"
@@ -11,4 +15,4 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 Remove-Item -LiteralPath $sourceList -ErrorAction SilentlyContinue
 $resources = Join-Path $root "src\main\resources"
 if (Test-Path $resources) { Copy-Item -Path (Join-Path $resources "*") -Destination $out -Recurse -Force }
-java -cp "$out;$libs" com.coffeeshop.TestRunner
+java -cp "$out;$libs" com.coffeeshop.TestRunner $Type

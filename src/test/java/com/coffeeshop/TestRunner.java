@@ -29,6 +29,7 @@ import com.coffeeshop.service.InventoryException;
 import com.coffeeshop.service.ReceiptService;
 import com.coffeeshop.service.ReceiptImageService;
 import com.coffeeshop.service.UserService;
+import com.coffeeshop.service.AuthService;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,48 +49,97 @@ import java.util.Random;
 
 public class TestRunner {
     private int passed = 0;
+    private int unitPassed = 0;
+    private int integrationPassed = 0;
 
     public static void main(String[] args) {
+        String mode = (args != null && args.length > 0) ? args[0].toLowerCase().trim() : "all";
         TestRunner runner = new TestRunner();
-        runner.tc01LoginByRole();
-        runner.tc02DecoratorPrice();
-        runner.tc03StrategyDiscount();
-        runner.tc04StateValidFlow();
-        runner.tc05InvalidStateTransition();
-        runner.tc06MomoSuccessPaid();
-        runner.tc07ObserverNotifyCashier();
-        runner.tc08AdminMenuCrud();
-        runner.tc09MenuValidation();
-        runner.tc10InventoryDeductAndRollback();
-        runner.tc11InventoryShortageBlocksKitchen();
-        runner.tc12ReceiptPreviewContent();
-        runner.tc13ReceiptImageExport();
-        runner.tc14AdminUserManagement();
-        runner.tc15CartQuantityWorkflow();
-        runner.tc16FactoryCreatesExpectedBeverages();
-        runner.tc17SingletonInstancesAreShared();
-        runner.tc18AdapterFailureDoesNotPayOrder();
-        runner.tc19SqliteOrderPersistence();
-        runner.tc20SqliteAdminCrudPersistence();
-        runner.tc21SqliteAuditTrailPersistence();
-        runner.tc22SqliteAuditQueriesExposeOperationsData();
-        runner.tc23SqliteBackupExportCreatesUsableSnapshot();
-        runner.tc24RecipeManagementPersistsToRepository();
-        System.out.println("All tests passed: " + runner.passed + "/24");
+
+        if ("unit".equals(mode)) {
+            System.out.println("================================================================================");
+            System.out.println("          COFFEE SHOP POS - BỘ KIỂM THỬ ĐƠN VỊ (UNIT TESTING)                   ");
+            System.out.println("================================================================================");
+            runner.runUnitTests();
+            System.out.println("================================================================================");
+            System.out.println(">>> KẾT QUẢ: " + runner.unitPassed + "/18 UNIT TEST CASES PASSED (100% ĐẠT TIÊU CHUẨN)");
+            System.out.println("================================================================================");
+        } else if ("integration".equals(mode)) {
+            System.out.println("================================================================================");
+            System.out.println("        COFFEE SHOP POS - BỘ KIỂM THỬ TÍCH HỢP (INTEGRATION TESTING)            ");
+            System.out.println("================================================================================");
+            runner.runIntegrationTests();
+            System.out.println("================================================================================");
+            System.out.println(">>> KẾT QUẢ: " + runner.integrationPassed + "/6 INTEGRATION TEST CASES PASSED (100% ĐẠT TIÊU CHUẨN)");
+            System.out.println("================================================================================");
+        } else {
+            System.out.println("================================================================================");
+            System.out.println("     COFFEE SHOP POS - TỔNG HỢP KIỂM THỬ TOÀN DIỆN (UNIT & INTEGRATION)         ");
+            System.out.println("================================================================================");
+            runner.runUnitTests();
+            System.out.println("\n--------------------------------------------------------------------------------");
+            runner.runIntegrationTests();
+            System.out.println("================================================================================");
+            System.out.println(">>> BÁO CÁO TỔNG KẾT KIỂM THỬ HỆ THỐNG:");
+            System.out.println("    1. KIỂM THỬ ĐƠN VỊ (UNIT TESTING)       : " + runner.unitPassed + "/18 PASSED (100%)");
+            System.out.println("    2. KIỂM THỬ TÍCH HỢP (INTEGRATION TESTING): " + runner.integrationPassed + "/6 PASSED (100%)");
+            System.out.println("    ----------------------------------------------------------------------------");
+            System.out.println("    => TỔNG CỘNG: " + runner.passed + "/24 TEST CASES PASSED HOÀN TOÀN!");
+            System.out.println("================================================================================");
+        }
+    }
+
+    public int runUnitTests() {
+        System.out.println("[PHẦN 1: BỘ KIỂM THỬ ĐƠN VỊ - UNIT TESTING (18 Test Cases)]");
+        System.out.println("Kiểm thử cô lập độc lập từng Class, Service, Logic Design Pattern với In-Memory Repository.");
+        tc01LoginByRole();
+        tc02DecoratorPrice();
+        tc03StrategyDiscount();
+        tc04StateValidFlow();
+        tc05InvalidStateTransition();
+        tc06MomoSuccessPaid();
+        tc07ObserverNotifyCashier();
+        tc08AdminMenuCrud();
+        tc09MenuValidation();
+        tc10InventoryDeductAndRollback();
+        tc11InventoryShortageBlocksKitchen();
+        tc12ReceiptPreviewContent();
+        tc13ReceiptImageExport();
+        tc14AdminUserManagement();
+        tc15CartQuantityWorkflow();
+        tc16FactoryCreatesExpectedBeverages();
+        tc17SingletonInstancesAreShared();
+        tc18AdapterFailureDoesNotPayOrder();
+        System.out.println(">> Hoàn thành 18/18 Unit Tests thành công.");
+        return unitPassed;
+    }
+
+    public int runIntegrationTests() {
+        System.out.println("[PHẦN 2: BỘ KIỂM THỬ TÍCH HỢP - INTEGRATION TESTING (6 Test Cases)]");
+        System.out.println("Kiểm thử tích hợp giữa Services, SqliteRepository, SQLite Database thật, Audit Logs & File I/O.");
+        tc19SqliteOrderPersistence();
+        tc20SqliteAdminCrudPersistence();
+        tc21SqliteAuditTrailPersistence();
+        tc22SqliteAuditQueriesExposeOperationsData();
+        tc23SqliteBackupExportCreatesUsableSnapshot();
+        tc24RecipeManagementPersistsToRepository();
+        System.out.println(">> Hoàn thành 6/6 Integration Tests thành công.");
+        return integrationPassed;
     }
 
     private void tc01LoginByRole() {
-        AppContext context = new AppContext();
-        String role = context.authService.login("cashier01", "123").orElseThrow().getRole();
+        InMemoryRepository repo = new InMemoryRepository();
+        AuthService authService = new AuthService(repo);
+        String role = authService.login("cashier01", "123").orElseThrow().getRole();
         assertEquals("CASHIER", role, "TC01 login should return cashier role");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc02DecoratorPrice() {
         // Decorator Pattern: base beverage is wrapped by PearlDecorator and LargeSizeDecorator.
         Beverage beverage = new LargeSizeDecorator(new PearlDecorator(new BaseCoffee("Ca phe sua", 30000)));
         assertEquals(47000.0, beverage.getPrice(), "TC02 decorator price");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc03StrategyDiscount() {
@@ -101,7 +151,7 @@ public class TestRunner {
         orderService.setDiscountStrategy(order, new PercentDiscountStrategy(10));
         orderService.recalculate(order);
         assertEquals(90000.0, order.getTotalAmount(), "TC03 final total after 10% discount");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc04StateValidFlow() {
@@ -112,7 +162,7 @@ public class TestRunner {
         orderService.sendToKitchen(order);
         orderService.markReady(order);
         assertEquals("READY", order.getStatus(), "TC04 state should be READY");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc05InvalidStateTransition() {
@@ -126,7 +176,7 @@ public class TestRunner {
         orderService.markReady(order);
         paymentService.pay(order, new MomoAdapter(new Random(1)));
         assertThrows(InvalidStateTransitionException.class, () -> order.getState().startPreparing(order), "TC05 paid -> preparing must fail");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc06MomoSuccessPaid() {
@@ -141,7 +191,7 @@ public class TestRunner {
         paymentService.pay(order, new MomoAdapter(new Random(1)));
         assertEquals("PAID", order.getStatus(), "TC06 order should be paid");
         assertTrue(order.getPayment().getTransactionCode().startsWith("MOMO-"), "TC06 transaction code");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc07ObserverNotifyCashier() {
@@ -155,7 +205,7 @@ public class TestRunner {
         orderService.sendToKitchen(order);
         orderService.markReady(order);
         assertTrue(cashier.getLastMessage().contains("ready"), "TC07 cashier should receive ready notification");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc08AdminMenuCrud() {
@@ -169,7 +219,7 @@ public class TestRunner {
         assertEquals(45000.0, item.getBasePrice(), "TC08 updated beverage price");
         menuService.disableBeverage(item);
         assertTrue(!item.isActive(), "TC08 beverage should be inactive after disable");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc09MenuValidation() {
@@ -180,7 +230,7 @@ public class TestRunner {
         assertThrows(IllegalArgumentException.class, () -> menuService.addBeverage("Test", -1, "COFFEE"), "TC09 negative beverage price");
         assertThrows(IllegalArgumentException.class, () -> menuService.addBeverage("Test", 10000, "INVALID"), "TC09 invalid category");
         assertThrows(IllegalArgumentException.class, () -> menuService.addTopping("Trân châu trắng", 10000), "TC09 duplicate topping");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc10InventoryDeductAndRollback() {
@@ -202,7 +252,7 @@ public class TestRunner {
                 .filter(item -> item.getName().equals("Coffee beans"))
                 .findFirst().orElseThrow().getQuantity();
         assertEquals(before, afterRollback, "TC10 coffee beans should be restored after cancel");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc11InventoryShortageBlocksKitchen() {
@@ -217,7 +267,7 @@ public class TestRunner {
         orderService.addItem(order, 1, new BaseCoffee("Ca phe sua", 30000), 1, "");
         assertThrows(InventoryException.class, () -> orderService.sendToKitchen(order), "TC11 shortage should block kitchen flow");
         assertEquals("PENDING", order.getStatus(), "TC11 order must remain pending after shortage");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc12ReceiptPreviewContent() {
@@ -235,7 +285,7 @@ public class TestRunner {
         assertTrue(receipt.contains("Ca phe sua"), "TC12 receipt should include item name");
         assertTrue(receipt.contains("30,000 VND"), "TC12 receipt should include total");
         assertTrue(receipt.contains("MOMO-"), "TC12 receipt should include transaction code");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc13ReceiptImageExport() {
@@ -252,7 +302,7 @@ public class TestRunner {
         File output = new File("build/test-receipt.png");
         new ReceiptImageService().saveReceiptPng(receipt, output);
         assertTrue(output.exists() && output.length() > 0, "TC13 receipt PNG should be created");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc14AdminUserManagement() {
@@ -265,7 +315,7 @@ public class TestRunner {
         userService.setActive(user, false);
         assertTrue(!user.isActive(), "TC14 user should be locked");
         assertThrows(IllegalArgumentException.class, () -> userService.addUser("cashier02", "123", "CASHIER"), "TC14 duplicate username");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc15CartQuantityWorkflow() {
@@ -283,7 +333,7 @@ public class TestRunner {
         assertThrows(InvalidStateTransitionException.class,
                 () -> orderService.updateItemQuantity(order, order.getItems().get(0).getId(), 1),
                 "TC15 update quantity after kitchen should fail");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc16FactoryCreatesExpectedBeverages() {
@@ -295,7 +345,7 @@ public class TestRunner {
         assertTrue(tea.getDescription().contains("Tra sua"), "TC16 tea factory description");
         assertTrue(matcha.getDescription().contains("Matcha latte"), "TC16 matcha factory description");
         assertEquals(42000.0, matcha.getPrice(), "TC16 factory price should preserve base price");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc17SingletonInstancesAreShared() {
@@ -304,7 +354,7 @@ public class TestRunner {
         assertTrue(DatabaseConnection.getInstance() == DatabaseConnection.getInstance(), "TC17 DatabaseConnection singleton identity");
         assertEquals("Coffee Shop POS", AppConfig.getInstance().getAppName(), "TC17 app config value");
         assertTrue(DatabaseConnection.getInstance().getConnectionString().contains("sqlite"), "TC17 connection string");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc18AdapterFailureDoesNotPayOrder() {
@@ -320,7 +370,7 @@ public class TestRunner {
         assertTrue(!result.isSuccess(), "TC18 fake gateway should fail");
         assertEquals("READY", order.getStatus(), "TC18 failed payment must not mark order paid");
         assertTrue(order.getPayment() == null, "TC18 failed payment must not create payment record");
-        passed++;
+        passed++; unitPassed++;
     }
 
     private void tc19SqliteOrderPersistence() {
@@ -346,7 +396,7 @@ public class TestRunner {
                         "TC19 persisted topping description");
                 assertTrue(persisted.getPayment() != null, "TC19 payment should be reloaded with order");
             }
-            passed++;
+            passed++; integrationPassed++;
         } catch (Exception ex) {
             throw new RuntimeException("TC19 sqlite persistence failed", ex);
         }
@@ -384,7 +434,7 @@ public class TestRunner {
                 assertTrue(!persistedTopping.isActive(), "TC20 topping disable should persist");
                 assertTrue(!persistedUser.isActive(), "TC20 user lock should persist");
             }
-            passed++;
+            passed++; integrationPassed++;
         } catch (Exception ex) {
             throw new RuntimeException("TC20 sqlite admin persistence failed", ex);
         }
@@ -432,7 +482,7 @@ public class TestRunner {
                 }
             }
 
-            passed++;
+            passed++; integrationPassed++;
         } catch (Exception ex) {
             throw new RuntimeException("TC21 sqlite audit persistence failed", ex);
         }
@@ -461,7 +511,7 @@ public class TestRunner {
 
             assertEquals("PAID", latestHistory.getStatus(), "TC22 latest history should show paid state");
             assertTrue(inventoryRecord.getChangeAmount() < 0, "TC22 inventory transaction should capture deduction");
-            passed++;
+            passed++; integrationPassed++;
         } catch (Exception ex) {
             throw new RuntimeException("TC22 operations audit query failed", ex);
         }
@@ -489,7 +539,7 @@ public class TestRunner {
                 assertEquals("PREPARING", persisted.getStatus(), "TC23 backup should contain saved order state");
             }
 
-            passed++;
+            passed++; integrationPassed++;
         } catch (Exception ex) {
             throw new RuntimeException("TC23 sqlite backup export failed", ex);
         }
@@ -524,7 +574,7 @@ public class TestRunner {
                         "TC24 recipe delete should persist");
             }
 
-            passed++;
+            passed++; integrationPassed++;
         } catch (Exception ex) {
             throw new RuntimeException("TC24 recipe management persistence failed", ex);
         }

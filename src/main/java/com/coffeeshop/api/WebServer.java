@@ -31,15 +31,15 @@ public class WebServer {
         server.createContext("/api/health", new HealthHandler());
         server.createContext("/api/menu", new MenuHandler(context));
 
-        // Static Frontend Files handler
-        server.createContext("/", new StaticFileHandler());
+        StaticFileHandler staticHandler = new StaticFileHandler();
+        server.createContext("/", staticHandler);
 
         server.setExecutor(null);
         server.start();
         System.out.println("=================================================");
         System.out.println("  Coffee Shop POS Web Server running!");
         System.out.println("  URL: http://localhost:" + port);
-        System.out.println("  Frontend directory: frontend/");
+        System.out.println("  Frontend directory: " + staticHandler.getFrontendRoot());
         System.out.println("=================================================");
     }
 
@@ -99,6 +99,10 @@ public class WebServer {
             } else {
                 this.frontendRoot = Paths.get("frontend").toAbsolutePath().normalize();
             }
+        }
+
+        public Path getFrontendRoot() {
+            return frontendRoot;
         }
 
         @Override

@@ -23,6 +23,14 @@ import {
   formatVND
 } from './data/mockData';
 
+const removeVietnameseTones = (str) => {
+  return (str || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D');
+};
+
 export default function App() {
   // Authentication State
   const [currentUser, setCurrentUser] = useState(() => {
@@ -95,6 +103,7 @@ export default function App() {
   const [discountType, setDiscountType] = useState('NONE');
   const [voucherCode, setVoucherCode] = useState('');
   const [voucherDiscount, setVoucherDiscount] = useState(0);
+  const [voucherMinOrder, setVoucherMinOrder] = useState(0);
 
   const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem('react_pos_orders');
@@ -269,6 +278,7 @@ export default function App() {
     const code = voucherCode.trim().toUpperCase();
     if (!code) {
       setVoucherDiscount(0);
+      setVoucherMinOrder(0);
       showToast('Đã xóa mã voucher.');
       return;
     }
@@ -290,16 +300,23 @@ export default function App() {
         calculated = foundVoucher.value;
       }
       setVoucherDiscount(calculated);
+      setVoucherMinOrder(foundVoucher.minOrder || 0);
       showToast(`Áp dụng mã ${foundVoucher.code}: Giảm ${formatVND(calculated)}!`);
       return;
     }
 
     // Fallbacks for demo shortcuts
     if (code === 'COFFEE20K') {
+      if (subtotal < 50000) {
+        showToast('Đơn hàng cần tối thiểu 50.000 ₫ để áp dụng mã này.');
+        return;
+      }
       setVoucherDiscount(20000);
+      setVoucherMinOrder(50000);
       showToast('Áp dụng mã COFFEE20K: Giảm 20.000 ₫!');
     } else if (code === 'CHAOBAN' || code === 'WELCOME') {
       setVoucherDiscount(15000);
+      setVoucherMinOrder(0);
       showToast('Áp dụng mã Chào bạn: Giảm 15.000 ₫!');
     } else {
       showToast('Mã voucher không hợp lệ hoặc đã hết hạn!');
@@ -307,13 +324,15 @@ export default function App() {
   };
 
   const subtotal = cart.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
+  const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
   let discountAmount = 0;
   if (discountType === 'PERCENT_10') discountAmount = Math.round(subtotal * 0.1);
   if (discountType === 'VIP') discountAmount = Math.round(subtotal * 0.15);
-  if (discountType === 'BOGO' && cart.length >= 2) {
+  if (discountType === 'BOGO' && totalQty >= 2) {
     discountAmount = Math.min(...cart.map(i => i.unitPrice));
   }
-  discountAmount += voucherDiscount;
+  const effectiveVoucherDiscount = (voucherMinOrder > 0 && subtotal < voucherMinOrder) ? 0 : voucherDiscount;
+  discountAmount += effectiveVoucherDiscount;
   discountAmount = Math.min(discountAmount, subtotal);
   const total = Math.max(0, subtotal - discountAmount);
 
@@ -388,7 +407,11 @@ export default function App() {
   const filteredMenu = menu.filter(item => {
     const isActive = item.active !== false;
     const matchCat = selectedCategory === 'ALL' || item.category === selectedCategory;
-    const matchSearch = !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const cleanQuery = (searchQuery || '').trim().toLowerCase();
+    const cleanItemName = (item.name || '').toLowerCase();
+    const matchSearch = !cleanQuery || 
+      cleanItemName.includes(cleanQuery) || 
+      removeVietnameseTones(cleanItemName).includes(removeVietnameseTones(cleanQuery));
     return isActive && matchCat && matchSearch;
   });
 
@@ -398,7 +421,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fffaf6]">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden flex flex-col bg-[#fffaf6]">
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -411,11 +434,11 @@ export default function App() {
         onChangePassword={handleChangePassword}
       />
 
-      <main className="flex-1 flex overflow-hidden">
+      <main className="flex-1 flex lg:min-h-0 overflow-x-hidden lg:overflow-hidden">
         {activeTab === 'pos' && (
-          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+          <div className="flex-1 flex flex-col lg:flex-row lg:min-h-0 overflow-visible lg:overflow-hidden">
             {/* Menu */}
-            <section className="flex-1 flex flex-col p-6 overflow-y-auto">
+            <section className="flex-1 flex flex-col p-6 lg:min-h-0 overflow-y-auto">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
                 <div className="relative flex-1 max-w-md">
                   <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a36538]" />

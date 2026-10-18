@@ -21,9 +21,9 @@ export default function CartSidebar({
   const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
 
   return (
-    <aside className="w-full lg:w-96 bg-white border-l border-[#ede4db] flex flex-col shadow-lg z-20">
+    <aside className="w-full lg:w-96 lg:h-full lg:min-h-0 bg-white border-l border-[#ede4db] flex flex-col shadow-lg z-20">
       {/* Header */}
-      <div className="p-5 border-b border-[#ede4db] flex items-center justify-between bg-[#fffaf6]">
+      <div className="shrink-0 p-5 border-b border-[#ede4db] flex items-center justify-between bg-[#fffaf6]">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-[#583115] text-white flex items-center justify-center font-bold text-xs">
             <ShoppingBag className="w-4 h-4" />
@@ -46,7 +46,7 @@ export default function CartSidebar({
       </div>
 
       {/* Items Scroll Area */}
-      <div className="flex-1 p-4 overflow-y-auto">
+      <div className="flex-1 min-h-0 p-4 overflow-y-auto">
         {cart.length === 0 ? (
           <div className="py-20 text-center text-[#a36538] flex flex-col items-center justify-center">
             <div className="w-16 h-16 rounded-full bg-[#f7ebe3] flex items-center justify-center mb-3 text-[#7d4924]">
@@ -113,7 +113,7 @@ export default function CartSidebar({
       </div>
 
       {/* Summary & Checkout */}
-      <div className="p-5 border-t border-[#ede4db] bg-[#fffaf6] space-y-3">
+      <div className="shrink-0 p-5 border-t border-[#ede4db] bg-[#fffaf6] space-y-3 shadow-[0_-8px_16px_rgba(62,32,10,0.04)]">
         {/* Strategy Pattern Discount Selector */}
         <div className="flex items-center justify-between text-xs">
           <span className="font-semibold text-[#583115] flex items-center gap-1">
@@ -138,6 +138,12 @@ export default function CartSidebar({
             type="text"
             value={voucherCode}
             onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                onApplyVoucher();
+              }
+            }}
             placeholder="Mã voucher (vd: COFFEE20K, CHAOBAN)"
             className="flex-1 px-3 py-1.5 bg-white border border-[#ede4db] rounded-xl text-xs font-semibold text-[#2b170c] uppercase outline-none focus:border-[#7d4924]"
           />

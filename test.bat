@@ -10,4 +10,4 @@ javac --release 17 -encoding UTF-8 -cp "libs\*" -d "%OUT%" @"%SOURCES%"
 if errorlevel 1 exit /b 1
 del "%SOURCES%"
 if exist "%ROOT%src\main\resources" xcopy "%ROOT%src\main\resources\*" "%OUT%\" /E /I /Y >nul
-java -cp "%OUT%;libs\*" com.coffeeshop.TestRunner
+java -cp "%OUT%;libs\*" com.coffeeshop.TestRunner %*

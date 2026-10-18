@@ -1,10 +1,11 @@
-# Coffee Shop POS - Design Patterns Desktop App
+# Coffee Shop POS - Design Patterns Application
 
-Java Swing desktop POS project focused on clean design patterns plus practical store operations.
+Coffee Shop POS project focused on clean design patterns plus practical store operations (Backend Java API + Frontend ReactJS).
 
-## Layers
+## Architecture & Layers
 
-- `presentation`: `LoginView`, `POSView`, `KitchenView`, `AdminView`
+- `frontend-react`: Modern React POS application (Vite, TailwindCSS, Lucide icons)
+- `api`: `WebServer` HTTP server serving endpoints (`/api/health`, `/api/menu`) and static React SPA bundle
 - `service`: `AuthService`, `OrderService`, `MenuService`, `PaymentService`, `ReportService`
 - `domain`: entities and Design Pattern classes
 - `infrastructure`: `DatabaseConnection`, `SqliteRepository`, in-memory fallback, SQL schema support
@@ -20,7 +21,6 @@ Java Swing desktop POS project focused on clean design patterns plus practical s
 - Adapter: Momo/VNPay payment gateways.
 - Inventory business logic: deduct ingredients when an order is sent to kitchen and roll back stock when an unpaid prepared order is cancelled.
 - Receipt preview: formatted bill shown after successful payment.
-- Async payment UX: payment runs with `SwingWorker` so the UI stays responsive.
 - Dashboard: Admin revenue card and top-selling bar chart.
 - Receipt image export: save bill preview as PNG for report/demo materials.
 - Payment QR simulation: receipt preview and receipt PNG include a VNPay/Momo-style QR block.
@@ -64,19 +64,36 @@ Login accounts:
 - `cashier01` / `123`
 - `kitchen01` / `123`
 
-## Test
+## Test (Unit Testing & Integration Testing)
 
+Hệ thống hỗ trợ thực thi linh hoạt cả hai cấp độ kiểm thử được giảng dạy trong học phần:
+
+### 1. Chạy toàn bộ bài test (18 Unit Tests + 6 Integration Tests):
 ```powershell
 .\test.ps1
-```
-
-If PowerShell blocks scripts, use:
-
-```bat
+# hoặc dùng file batch:
 test.bat
 ```
 
-The test runner currently covers TC01-TC24 without requiring Maven/JUnit.
+### 2. Chạy riêng Bộ kiểm thử đơn vị (Unit Testing - 18 Test Cases):
+```powershell
+.\test.ps1 -Type unit
+# hoặc 1-click batch:
+test-unit.bat
+# hoặc chạy trực tiếp Java class:
+java -cp "build\test-classes;libs\*" com.coffeeshop.UnitTestRunner
+```
+
+### 3. Chạy riêng Bộ kiểm thử tích hợp (Integration Testing - 6 Test Cases):
+```powershell
+.\test.ps1 -Type integration
+# hoặc 1-click batch:
+test-integration.bat
+# hoặc chạy trực tiếp Java class:
+java -cp "build\test-classes;libs\*" com.coffeeshop.IntegrationTestRunner
+```
+
+Toàn bộ 24 Test Cases đều vượt qua với tỷ lệ thành công 100% (18/18 Unit Tests, 6/6 Integration Tests).
 
 ## Generate report assets
 
