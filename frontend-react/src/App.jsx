@@ -209,7 +209,15 @@ export default function App() {
     }
     const updatedUser = { ...currentUser, password: newPass };
     setCurrentUser(updatedUser);
-    setUsers(prev => prev.map(u => (u.username === updatedUser.username ? updatedUser : u)));
+    setUsers(prev => {
+      const next = prev.map(u => (u.username === updatedUser.username ? updatedUser : u));
+      try {
+        localStorage.setItem('purr_pos_users_list', JSON.stringify(next));
+      } catch (err) {
+        console.error(err);
+      }
+      return next;
+    });
     showToast("Đổi mật khẩu thành công!");
     return true;
   };
@@ -410,10 +418,20 @@ export default function App() {
     setOrders(prev =>
       prev.map(o => (o.id === orderId ? { ...o, status: nextState } : o))
     );
-    showToast(`Đơn #${orderId} chuyển sang: ${nextState}`);
+    if (nextState === 'COMPLETED') {
+      showToast(`Đơn #${orderId} đã giao khách hoàn tất!`);
+    } else {
+      showToast(`Đơn #${orderId} chuyển sang: ${nextState}`);
+    }
   };
 
   const handleCancelOrder = (orderId) => {
+    const targetOrder = orders.find(o => o.id === orderId);
+    if (targetOrder && targetOrder.status === 'PAID') {
+      window.alert('Bạn không thể huỷ đơn hàng đã thanh toán!');
+      return;
+    }
+
     if (window.confirm(`Bạn có chắc chắn muốn hủy đơn hàng #${orderId}?`)) {
       setOrders(prev =>
         prev.map(o => (o.id === orderId ? { ...o, status: 'CANCELLED' } : o))

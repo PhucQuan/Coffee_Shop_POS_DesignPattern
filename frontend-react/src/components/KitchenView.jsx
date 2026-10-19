@@ -148,7 +148,13 @@ export default function KitchenView({ orders, onTransitionState }) {
             </div>
             <div className="space-y-3 flex-1 overflow-y-auto max-h-[650px] pr-1">
               {readyOrders.length ? (
-                readyOrders.map(o => renderCard(o, null, null, '', null))
+                readyOrders.map(o => renderCard(
+                  o,
+                  'Đã giao khách',
+                  'COMPLETED',
+                  'bg-emerald-600 hover:bg-emerald-700',
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                ))
               ) : (
                 <p className="text-center py-12 text-xs text-gray-400">Chưa có món xong</p>
               )}
@@ -223,6 +229,15 @@ export default function KitchenView({ orders, onTransitionState }) {
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   Hoàn thành món (Chuyển Giao Khách)
+                </button>
+              )}
+              {selectedOrder.status === 'READY' && (
+                <button
+                  onClick={() => onTransitionState(selectedOrder.id, 'COMPLETED')}
+                  className="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Đã giao khách (Hoàn tất đơn)
                 </button>
               )}
             </div>

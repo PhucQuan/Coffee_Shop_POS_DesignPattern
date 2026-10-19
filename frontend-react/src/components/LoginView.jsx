@@ -47,23 +47,24 @@ export default function LoginView({ onLoginSuccess }) {
     }
 
     const allUsers = getAllUsers();
-    const found = allUsers.find(
-      u => u.username.toLowerCase() === trimmedUser.toLowerCase() && u.password === password
+    // Prioritize registered/updated user record; do not fallback to old default password if updated
+    const targetUser = allUsers.find(
+      u => u.username.toLowerCase() === trimmedUser.toLowerCase()
     ) || DEFAULT_USERS.find(
-      u => u.username.toLowerCase() === trimmedUser.toLowerCase() && u.password === password
+      u => u.username.toLowerCase() === trimmedUser.toLowerCase()
     );
 
-    if (!found) {
+    if (!targetUser || targetUser.password !== password) {
       setErrorMsg('Invalid username or password.');
       return;
     }
 
-    if (found.active === false) {
+    if (targetUser.active === false) {
       setErrorMsg('Tài khoản đã bị tạm khóa. Vui lòng liên hệ Admin.');
       return;
     }
 
-    onLoginSuccess(found);
+    onLoginSuccess(targetUser);
   };
 
   const handleRegister = (e) => {
@@ -91,19 +92,22 @@ export default function LoginView({ onLoginSuccess }) {
       return;
     }
 
+    // Security: Only allow self-registration as CASHIER or KITCHEN (Privilege escalation prevention DN_02)
+    const assignedRole = regRole === 'KITCHEN' ? 'KITCHEN' : 'CASHIER';
+
     const newUser = {
       id: Date.now(),
       username: trimmedUser,
       password: regPassword,
       fullName: regFullName.trim() || trimmedUser,
-      role: regRole,
+      role: assignedRole,
       active: true
     };
 
     const updated = [...allUsers, newUser];
     localStorage.setItem('purr_pos_users_list', JSON.stringify(updated));
 
-    setSuccessMsg(`Đăng ký thành công tài khoản "${trimmedUser}" (${regRole})!`);
+    setSuccessMsg(`Đăng ký thành công tài khoản "${trimmedUser}" (${assignedRole})!`);
     setUsername(trimmedUser);
     setPassword(regPassword);
     setAuthMode('login');
@@ -112,6 +116,7 @@ export default function LoginView({ onLoginSuccess }) {
     setRegUsername('');
     setRegPassword('');
     setRegConfirmPassword('');
+    setRegRole('CASHIER');
   };
 
   const selectDemoAccount = (u, autoLogin = false) => {
@@ -312,7 +317,6 @@ export default function LoginView({ onLoginSuccess }) {
                 >
                   <option value="CASHIER">Thu Ngân (Cashier)</option>
                   <option value="KITCHEN">Pha Chế (Kitchen)</option>
-                  <option value="ADMIN">Quản Trị (Admin)</option>
                 </select>
               </div>
             </div>

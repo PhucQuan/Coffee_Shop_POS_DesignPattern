@@ -349,21 +349,52 @@ export default function AdminView({
 
   const handleSaveUser = (e) => {
     e.preventDefault();
-    if (!userForm.username.trim()) return;
+    const cleanUsername = userForm.username.trim();
+    if (!cleanUsername) return;
 
     if (editingUser) {
-      setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...u, ...userForm, active: true } : u));
+      const isDuplicate = users.some(
+        u => u.id !== editingUser.id && u.username.toLowerCase() === cleanUsername.toLowerCase()
+      );
+      if (isDuplicate) {
+        window.alert(`Tên đăng nhập "${cleanUsername}" đã tồn tại trong hệ thống! Vui lòng chọn tên khác.`);
+        return;
+      }
+      setUsers(prev => {
+        const next = prev.map(u => u.id === editingUser.id ? { ...u, ...userForm, username: cleanUsername, active: true } : u);
+        try {
+          localStorage.setItem('purr_pos_users_list', JSON.stringify(next));
+        } catch (err) {
+          console.error(err);
+        }
+        return next;
+      });
     } else {
+      const isDuplicate = users.some(
+        u => u.username.toLowerCase() === cleanUsername.toLowerCase()
+      );
+      if (isDuplicate) {
+        window.alert(`Tên đăng nhập "${cleanUsername}" đã tồn tại trong hệ thống! Vui lòng chọn tên khác.`);
+        return;
+      }
       const newId = Math.max(...users.map(u => u.id || 0), 0) + 1;
       const newUser = {
         id: newId,
-        username: userForm.username.trim(),
+        username: cleanUsername,
         password: userForm.password,
         role: userForm.role,
-        fullName: userForm.fullName || userForm.username,
+        fullName: userForm.fullName || cleanUsername,
         active: true
       };
-      setUsers(prev => [...prev, newUser]);
+      setUsers(prev => {
+        const next = [...prev, newUser];
+        try {
+          localStorage.setItem('purr_pos_users_list', JSON.stringify(next));
+        } catch (err) {
+          console.error(err);
+        }
+        return next;
+      });
     }
     setUserModalOpen(false);
   };
@@ -374,7 +405,15 @@ export default function AdminView({
       return;
     }
     if (window.confirm("Bạn có chắc chắn muốn xóa tài khoản này?")) {
-      setUsers(prev => prev.filter(u => u.id !== userId));
+      setUsers(prev => {
+        const next = prev.filter(u => u.id !== userId);
+        try {
+          localStorage.setItem('purr_pos_users_list', JSON.stringify(next));
+        } catch (err) {
+          console.error(err);
+        }
+        return next;
+      });
     }
   };
 
@@ -677,8 +716,8 @@ export default function AdminView({
                             </button>
                           )}
 
-                          {/* Hủy đơn hợp lệ */}
-                          {o.status !== 'CANCELLED' && (
+                          {/* Hủy đơn hợp lệ (Không cho phép hủy đơn đã thanh toán PAID) */}
+                          {o.status !== 'CANCELLED' && o.status !== 'PAID' && (
                             <button
                               onClick={() => onCancelOrder(o.id)}
                               className="px-2 py-1 rounded-lg text-xs font-semibold bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 transition-all cursor-pointer"
