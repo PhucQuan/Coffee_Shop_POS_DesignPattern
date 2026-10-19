@@ -13,6 +13,11 @@ export default function Navbar({
   onChangePassword
 }) {
   const role = currentUser?.role || 'ADMIN';
+  const canAccessTab = (tab) => (
+    role === 'ADMIN' ||
+    (role === 'CASHIER' && tab === 'pos') ||
+    (role === 'KITCHEN' && tab === 'kitchen')
+  );
   const [showNotifMenu, setShowNotifMenu] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
@@ -87,46 +92,46 @@ export default function Navbar({
             </div>
           </div>
 
-          {/* Tab Switcher - All 3 tabs visible so user or Playwright tests can navigate freely */}
+          {/* Only show workspaces allowed for the signed-in role. */}
           <nav className="flex items-center gap-1 bg-[#f7ebe3] p-1 rounded-2xl overflow-x-auto">
-            <button
-              data-tab-target="pos"
-              onClick={() => setActiveTab('pos')}
-              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === 'pos'
-                  ? 'bg-[#3e200a] text-white shadow-xs'
-                  : 'text-[#583115] hover:bg-[#ede4db]'
-              }`}
-            >
-              <Coffee className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>Thu Ngân (POS)</span>
-            </button>
+            {canAccessTab('pos') && (
+              <button
+                data-tab-target="pos"
+                onClick={() => setActiveTab('pos')}
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === 'pos' ? 'bg-[#3e200a] text-white shadow-xs' : 'text-[#583115] hover:bg-[#ede4db]'
+                }`}
+              >
+                <Coffee className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Thu Ngân (POS)</span>
+              </button>
+            )}
 
-            <button
-              data-tab-target="kitchen"
-              onClick={() => setActiveTab('kitchen')}
-              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === 'kitchen'
-                  ? 'bg-[#3e200a] text-white shadow-xs'
-                  : 'text-[#583115] hover:bg-[#ede4db]'
-              }`}
-            >
-              <UtensilsCrossed className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>Màn Hình Bếp (KDS)</span>
-            </button>
+            {canAccessTab('kitchen') && (
+              <button
+                data-tab-target="kitchen"
+                onClick={() => setActiveTab('kitchen')}
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === 'kitchen' ? 'bg-[#3e200a] text-white shadow-xs' : 'text-[#583115] hover:bg-[#ede4db]'
+                }`}
+              >
+                <UtensilsCrossed className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Màn Hình Bếp (KDS)</span>
+              </button>
+            )}
 
-            <button
-              data-tab-target="admin"
-              onClick={() => setActiveTab('admin')}
-              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === 'admin'
-                  ? 'bg-[#3e200a] text-white shadow-xs'
-                  : 'text-[#583115] hover:bg-[#ede4db]'
-              }`}
-            >
-              <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>Báo Cáo & Quản Trị</span>
-            </button>
+            {canAccessTab('admin') && (
+              <button
+                data-tab-target="admin"
+                onClick={() => setActiveTab('admin')}
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === 'admin' ? 'bg-[#3e200a] text-white shadow-xs' : 'text-[#583115] hover:bg-[#ede4db]'
+                }`}
+              >
+                <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Báo Cáo & Quản Trị</span>
+              </button>
+            )}
           </nav>
         </div>
 
