@@ -389,6 +389,11 @@ export default function AdminView({
 
   // Xuất file Báo cáo CSV theo khoảng thời gian đã chọn (Yêu cầu 6)
   const handleExportReportCSV = () => {
+    if (dateFrom > dateTo) {
+      window.alert('Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc.');
+      return;
+    }
+
     let csv = `\uFEFFBÁO CÁO DOANH THU PURRCOFFEE POS\n`;
     csv += `Thời gian báo cáo:,"Từ ngày ${dateFrom} Đến ngày ${dateTo}"\n`;
     csv += `Tổng doanh thu:,"${formatVND(periodRevenue)}"\n`;
