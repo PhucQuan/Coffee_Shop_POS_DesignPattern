@@ -31,6 +31,13 @@ const removeVietnameseTones = (str) => {
     .replace(/Đ/g, 'D');
 };
 
+const canAccessTab = (role, tab) => {
+  if (role === 'ADMIN') return true;
+  if (role === 'CASHIER') return tab === 'pos';
+  if (role === 'KITCHEN') return tab === 'kitchen';
+  return false;
+};
+
 export default function App() {
   // Authentication State
   const [currentUser, setCurrentUser] = useState(() => {
@@ -216,10 +223,22 @@ export default function App() {
     showToast(`Xin chào ${user.fullName || user.username}!`);
   };
 
+  const handleTabChange = (tab) => {
+    if (currentUser && canAccessTab(currentUser.role, tab)) {
+      setActiveTab(tab);
+    }
+  };
+
   const handleLogout = () => {
     setCurrentUser(null);
     showToast("Đã đăng xuất ca làm việc.");
   };
+
+  const visibleTab = currentUser && canAccessTab(currentUser.role, activeTab)
+    ? activeTab
+    : currentUser?.role === 'KITCHEN'
+      ? 'kitchen'
+      : 'pos';
 
   // Cart operations
   const handleAddToCart = (customizedItem) => {
@@ -423,8 +442,8 @@ export default function App() {
   return (
     <div className="min-h-screen lg:h-screen lg:overflow-hidden flex flex-col bg-[#fffaf6]">
       <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        activeTab={visibleTab}
+        setActiveTab={handleTabChange}
         currentUser={currentUser}
         onLogout={handleLogout}
         notifications={notifications}
@@ -435,7 +454,7 @@ export default function App() {
       />
 
       <main className="flex-1 flex lg:min-h-0 overflow-x-hidden lg:overflow-hidden">
-        {activeTab === 'pos' && (
+        {visibleTab === 'pos' && canAccessTab(currentUser.role, 'pos') && (
           <div className="flex-1 flex flex-col lg:flex-row lg:min-h-0 overflow-visible lg:overflow-hidden">
             {/* Menu */}
             <section className="flex-1 flex flex-col p-6 lg:min-h-0 overflow-y-auto">
@@ -524,11 +543,11 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'kitchen' && (
+        {visibleTab === 'kitchen' && canAccessTab(currentUser.role, 'kitchen') && (
           <KitchenView orders={orders} onTransitionState={handleTransitionState} />
         )}
 
-        {activeTab === 'admin' && (
+        {visibleTab === 'admin' && canAccessTab(currentUser.role, 'admin') && (
           <AdminView
             orders={orders}
             setOrders={setOrders}
