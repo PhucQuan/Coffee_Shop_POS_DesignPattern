@@ -5,209 +5,130 @@ CREATE DATABASE IF NOT EXISTS coffee_shop_pos
 USE coffee_shop_pos;
 
 CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY,
+    id INT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100),
     role VARCHAR(20) NOT NULL,
-    active BOOLEAN NOT NULL
-);
+    active BOOLEAN NOT NULL DEFAULT TRUE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS beverages (
-    id INTEGER PRIMARY KEY,
+    id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
-    base_price DECIMAL(12, 2) NOT NULL,
+    base_price DECIMAL(14,2) NOT NULL,
     category VARCHAR(30) NOT NULL,
-    active BOOLEAN NOT NULL
-);
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    image_url VARCHAR(255),
+    description VARCHAR(500)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS toppings (
-    id INTEGER PRIMARY KEY,
+    id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
-    extra_price DECIMAL(12, 2) NOT NULL,
-    active BOOLEAN NOT NULL
-);
+    extra_price DECIMAL(14,2) NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS inventory_items (
-    id INTEGER PRIMARY KEY,
+    id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     unit VARCHAR(20) NOT NULL,
-    quantity DECIMAL(12, 2) NOT NULL,
-    reorder_level DECIMAL(12, 2) NOT NULL
-);
+    quantity DECIMAL(14,2) NOT NULL,
+    reorder_level DECIMAL(14,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS recipe_items (
-    beverage_id INTEGER NOT NULL,
-    inventory_item_id INTEGER NOT NULL,
-    quantity_required DECIMAL(12, 2) NOT NULL,
+    beverage_id INT NOT NULL,
+    inventory_item_id INT NOT NULL,
+    quantity_required DECIMAL(14,2) NOT NULL,
     PRIMARY KEY (beverage_id, inventory_item_id),
-    FOREIGN KEY (beverage_id) REFERENCES beverages(id),
-    FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id)
-);
+    FOREIGN KEY (beverage_id) REFERENCES beverages(id) ON DELETE CASCADE,
+    FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS orders (
-    id INTEGER PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL,
+    id INT PRIMARY KEY,
+    created_at DATETIME NOT NULL,
+    created_at_label VARCHAR(20),
+    order_date DATE,
     status VARCHAR(30) NOT NULL,
     discount_type VARCHAR(50),
-    discount_amount DECIMAL(12, 2) DEFAULT 0,
-    total_amount DECIMAL(12, 2) NOT NULL,
-    inventory_deducted BOOLEAN NOT NULL DEFAULT 0
-);
+    subtotal DECIMAL(14,2) NOT NULL DEFAULT 0,
+    discount_amount DECIMAL(14,2) NOT NULL DEFAULT 0,
+    total_amount DECIMAL(14,2) NOT NULL DEFAULT 0,
+    payment_method VARCHAR(30),
+    order_type VARCHAR(30),
+    inventory_deducted BOOLEAN NOT NULL DEFAULT FALSE,
+    INDEX idx_orders_status (status),
+    INDEX idx_orders_date (order_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS order_items (
-    id INTEGER PRIMARY KEY,
-    order_id INTEGER NOT NULL,
-    beverage_id INTEGER NOT NULL,
+    id BIGINT PRIMARY KEY,
+    order_id INT NOT NULL,
+    beverage_id INT,
     beverage_description VARCHAR(255),
-    quantity INTEGER NOT NULL,
-    note VARCHAR(255),
-    unit_price DECIMAL(12, 2) NOT NULL,
-    item_price DECIMAL(12, 2) NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(id),
-    FOREIGN KEY (beverage_id) REFERENCES beverages(id)
-);
+    image_url VARCHAR(255),
+    size VARCHAR(10),
+    quantity INT NOT NULL,
+    note VARCHAR(500),
+    unit_price DECIMAL(14,2) NOT NULL DEFAULT 0,
+    item_price DECIMAL(14,2) NOT NULL DEFAULT 0,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (beverage_id) REFERENCES beverages(id),
+    INDEX idx_order_items_order (order_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS order_item_toppings (
-    order_item_id INTEGER NOT NULL,
-    topping_id INTEGER NOT NULL,
+    order_item_id BIGINT NOT NULL,
+    topping_id INT NOT NULL,
     PRIMARY KEY (order_item_id, topping_id),
-    FOREIGN KEY (order_item_id) REFERENCES order_items(id),
+    FOREIGN KEY (order_item_id) REFERENCES order_items(id) ON DELETE CASCADE,
     FOREIGN KEY (topping_id) REFERENCES toppings(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS payments (
-    id INTEGER PRIMARY KEY,
-    order_id INTEGER NOT NULL UNIQUE,
+    id INT PRIMARY KEY,
+    order_id INT NOT NULL UNIQUE,
     method VARCHAR(30) NOT NULL,
-    amount DECIMAL(12, 2) NOT NULL,
+    amount DECIMAL(14,2) NOT NULL,
     transaction_code VARCHAR(100),
     status VARCHAR(30) NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(id)
-);
+    created_at DATETIME NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Không đặt foreign key tới orders để giữ được lịch sử sau khi đơn bị xóa.
 CREATE TABLE IF NOT EXISTS order_status_history (
-    id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    order_id INTEGER NOT NULL,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
     status VARCHAR(30) NOT NULL,
     note VARCHAR(255),
-    changed_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(id)
-);
+    changed_at DATETIME NOT NULL,
+    INDEX idx_history_order (order_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS inventory_transactions (
-    id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    inventory_item_id INTEGER NOT NULL,
-    order_id INTEGER,
-    change_amount DECIMAL(12, 2) NOT NULL,
-    balance_after DECIMAL(12, 2) NOT NULL,
-    reason VARCHAR(50) NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id),
-    FOREIGN KEY (order_id) REFERENCES orders(id)
-);
+    id BIGINT PRIMARY KEY,
+    log_id VARCHAR(64),
+    inventory_item_id INT NOT NULL,
+    order_id INT,
+    change_amount DECIMAL(14,2) NOT NULL DEFAULT 0,
+    balance_after DECIMAL(14,2) NOT NULL DEFAULT 0,
+    delta_text VARCHAR(50),
+    balance_text VARCHAR(50),
+    display_time VARCHAR(50),
+    reason VARCHAR(255) NOT NULL,
+    created_at DATETIME NOT NULL,
+    FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id) ON DELETE CASCADE,
+    INDEX idx_inventory_tx_item (inventory_item_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS settings (
     `key` VARCHAR(50) PRIMARY KEY,
     value TEXT
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS web_app_state (
-    state_key VARCHAR(50) PRIMARY KEY,
-    payload JSON NOT NULL,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT IGNORE INTO users(id, username, password_hash, role, active) VALUES
-(1, 'admin', '123', 'ADMIN', 1),
-(2, 'cashier01', '123', 'CASHIER', 1),
-(3, 'kitchen01', '123', 'KITCHEN', 1);
-
-INSERT IGNORE INTO beverages(id, name, base_price, category, active) VALUES
-(1, 'Ca phe sua', 30000, 'COFFEE', 1),
-(2, 'Bac xiu', 32000, 'COFFEE', 1),
-(3, 'Tra dao', 35000, 'TEA', 1),
-(4, 'Tra sua', 38000, 'TEA', 1),
-(5, 'Matcha latte', 42000, 'MATCHA', 1),
-(6, 'Sinh to xoai', 45000, 'SMOOTHIE', 1),
-(7, 'Espresso', 28000, 'COFFEE', 1),
-(8, 'Americano', 30000, 'COFFEE', 1),
-(9, 'Latte', 42000, 'COFFEE', 1),
-(10, 'Cappuccino', 42000, 'COFFEE', 1),
-(11, 'Cold brew', 45000, 'COFFEE', 1),
-(12, 'Tra vai', 39000, 'TEA', 1),
-(13, 'Tra tac mat ong', 34000, 'TEA', 1),
-(14, 'Matcha da xay', 52000, 'MATCHA', 1),
-(15, 'Sinh to dau', 48000, 'SMOOTHIE', 1),
-(16, 'Cacao nong', 36000, 'COFFEE', 1),
-(17, 'Vanilla latte', 46000, 'COFFEE', 1),
-(18, 'Caramel macchiato', 49000, 'COFFEE', 1),
-(19, 'Mocha', 47000, 'COFFEE', 1),
-(20, 'Hong tra sua', 39000, 'TEA', 1),
-(21, 'Oolong sua', 41000, 'TEA', 1),
-(22, 'Tra sen vang', 42000, 'TEA', 1),
-(23, 'Matcha cream cheese', 55000, 'MATCHA', 1),
-(24, 'Sinh to bo', 52000, 'SMOOTHIE', 1);
-
-INSERT IGNORE INTO toppings(id, name, extra_price, active) VALUES
-(1, 'Tran chau', 10000, 1),
-(2, 'Pudding', 9000, 1),
-(3, 'Kem cheese', 12000, 1),
-(4, 'Extra shot', 8000, 1),
-(5, 'Size L', 7000, 1),
-(6, 'Thach cafe', 9000, 1),
-(7, 'Kem vani', 11000, 1),
-(8, 'Duong den', 6000, 1);
-
-INSERT IGNORE INTO inventory_items(id, name, unit, quantity, reorder_level) VALUES
-(1, 'Coffee beans', 'g', 5000, 500),
-(2, 'Fresh milk', 'ml', 10000, 1000),
-(3, 'Tea leaves', 'g', 3000, 300),
-(4, 'Peach syrup', 'ml', 2500, 300),
-(5, 'Matcha powder', 'g', 2000, 200),
-(6, 'Mango', 'g', 5000, 500),
-(7, 'Pearl', 'g', 4000, 400),
-(8, 'Cup L', 'pcs', 300, 30),
-(9, 'Cream cheese', 'g', 2500, 250),
-(10, 'Avocado', 'g', 4500, 450),
-(11, 'Brown sugar syrup', 'ml', 3000, 300),
-(12, 'Vanilla syrup', 'ml', 2500, 250);
-
-INSERT IGNORE INTO recipe_items(beverage_id, inventory_item_id, quantity_required) VALUES
-(1, 1, 18),
-(2, 1, 15),
-(2, 2, 80),
-(3, 3, 8),
-(3, 4, 40),
-(4, 3, 10),
-(4, 2, 100),
-(5, 5, 12),
-(5, 2, 120),
-(6, 6, 150),
-(7, 1, 18),
-(8, 1, 16),
-(9, 1, 18),
-(9, 2, 120),
-(10, 1, 18),
-(10, 2, 120),
-(11, 1, 22),
-(12, 3, 8),
-(12, 4, 20),
-(13, 3, 8),
-(14, 5, 15),
-(14, 2, 100),
-(15, 6, 120),
-(16, 2, 150),
-(17, 1, 10),
-(18, 1, 10),
-(19, 1, 10),
-(20, 1, 10),
-(21, 1, 10),
-(22, 1, 10),
-(23, 1, 10),
-(24, 1, 10);
-
-INSERT IGNORE INTO settings(`key`, value) VALUES
-('store_name', 'PurrCoffee POS'),
-('tax_rate', '0.10'),
-('address', '123 Coffee Street');
+-- Dữ liệu mẫu được frontend gửi qua PUT /api/state trong lần chạy đầu.
+-- Nếu bảng web_app_state cũ tồn tại, backend sẽ tự di chuyển dữ liệu rồi xóa bảng đó.
