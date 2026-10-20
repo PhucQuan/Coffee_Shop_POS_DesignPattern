@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo Cáo Kiểm Thử Tự Động Playwright - 40 Test Cases Của Tú</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased p-4 sm:p-8 font-sans">
+  <div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- Header Section -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              ● 100% PASSED (5/5 SUITES)
+            </span>
+            <span class="text-xs font-medium text-slate-500">Playwright Chromium / 1280x720 HD Video</span>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            BÁO CÁO KIỂM THỬ PLAYWRIGHT - 40 TEST CASES
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            Dự án: Coffee Shop POS | Người thực hiện: Tú | Người soát xét: Huy | Nhóm 15
+          </p>
+        </div>
+        <div class="flex items-center gap-3 self-start md:self-auto">
+          <div class="text-right">
+            <p class="text-xs text-slate-400">Tổng thời gian chạy</p>
+            <p class="text-base font-bold text-slate-800">2 phút 42 giây</p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center font-black text-xl shadow-md">
+            ✓
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Summary Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-5">
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <p class="text-xs text-slate-500 uppercase font-semibold">Tổng Kịch Bản</p>
+          <p class="text-2xl font-black text-slate-900 mt-1">40 <span class="text-xs font-normal text-slate-400">TCs</span></p>
+          <p class="text-xs text-emerald-600 font-medium mt-0.5">5 Phân hệ Quản trị</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <p class="text-xs text-slate-500 uppercase font-semibold">Test Suites</p>
+          <p class="text-2xl font-black text-emerald-600 mt-1">5 / 5</p>
+          <p class="text-xs text-emerald-600 font-medium mt-0.5">100% Pass</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <p class="text-xs text-slate-500 uppercase font-semibold">Bugs Xác Nhận</p>
+          <p class="text-2xl font-black text-amber-600 mt-1">3 <span class="text-xs font-normal text-slate-400">Bugs</span></p>
+          <p class="text-xs text-amber-600 font-medium mt-0.5">Đã xác minh xử lý</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <p class="text-xs text-slate-500 uppercase font-semibold">Video Đã Xuất</p>
+          <p class="text-2xl font-black text-blue-600 mt-1">5 <span class="text-xs font-normal text-slate-400">HD Video</span></p>
+          <p class="text-xs text-blue-600 font-medium mt-0.5">Format .webm chuẩn</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bugs Analysis Section -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+      <h2 class="text-base font-extrabold text-slate-900 mb-1 flex items-center gap-2">
+        <span>🔍</span> Phân Tích Các Lỗi Được Ghi Nhận Trong Bộ Testcase Của Tú
+      </h2>
+      <p class="text-xs text-slate-500 mb-4">
+        Tú đánh dấu 3 testcase có trạng thái <strong>FAIL</strong> trong bản kiểm thử thủ công ban đầu. Dưới đây là đối chiếu thực tế với hệ thống hiện tại:
+      </p>
+
+      <div class="space-y-3">
+        <!-- Bug 1 -->
+        <div class="p-4 rounded-xl border border-red-200 bg-red-50/50">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-black text-red-700 bg-red-100 px-2 py-0.5 rounded-md">TC_DH_007 • Logic Hủy Đơn</span>
+            <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">✓ Đã Khắc Phục Trên Web</span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900">Cố gắng hủy đơn hàng đã thanh toán (PAID)</h3>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            <strong>Kỳ vọng của Tú:</strong> Hệ thống phải chặn và báo lỗi <em>"Bạn không thể huỷ đơn hàng này"</em>.<br>
+            <strong>Thực tế trước đây:</strong> Hệ thống vẫn hiện hộp thoại xác nhận hủy đơn.<br>
+            <strong>Hiện trạng kiểm thử tự động:</strong> Trong code React, giao diện đã ẩn hoàn toàn nút <code>Hủy</code> đối với đơn có trạng thái PAID (dòng 720 <code>AdminView.jsx</code>), đồng thời hàm <code>handleCancelOrder</code> có cơ chế alert chặn cứng. Testcase đã được bảo vệ thành công.
+          </p>
+        </div>
+
+        <!-- Bug 2 -->
+        <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/50">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-black text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md">TC_BC_004 • Validate Date Range</span>
+            <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">✓ Đã Khắc Phục Trên Web</span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900">Nhập khoảng thời gian ngược (Ngày bắt đầu > Ngày kết thúc)</h3>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            <strong>Kỳ vọng của Tú:</strong> Hệ thống phải báo lỗi ngày không hợp lệ.<br>
+            <strong>Thực tế trước đây:</strong> Hệ thống vẫn tải về file CSV rỗng hoặc sai dữ liệu.<br>
+            <strong>Hiện trạng kiểm thử tự động:</strong> Khi Playwright set ngày bắt đầu 31/12/2026 và ngày kết thúc 01/01/2026, hàm <code>handleExportReportCSV</code> đã bật cảnh báo Alert: <em>"Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc."</em> và ngắt tiến trình tải file.
+          </p>
+        </div>
+
+        <!-- Bug 3 -->
+        <div class="p-4 rounded-xl border border-purple-200 bg-purple-50/50">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-black text-purple-700 bg-purple-100 px-2 py-0.5 rounded-md">TC_BC_005 • Broken Access Control</span>
+            <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">✓ Đã Khắc Phục Trên Web</span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900">Kiểm tra quyền truy cập Quản trị của Thu ngân (Cashier)</h3>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            <strong>Kỳ vọng của Tú:</strong> Tài khoản Thu ngân không được xem Báo cáo doanh thu & Quản trị trung tâm.<br>
+            <strong>Thực tế trước đây:</strong> Thu ngân vẫn click được tab "Báo Cáo & Quản Trị" trên Navbar.<br>
+            <strong>Hiện trạng kiểm thử tự động:</strong> Phân quyền RBAC (Role-Based Access Control) tại <code>Navbar.jsx</code> đã áp dụng điều kiện <code>canAccessTab('admin')</code> chỉ mở cho vai trò <code>ADMIN</code>. Tài khoản <code>cashier01</code> không còn nhìn thấy nút truy cập này.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Execution Details Table -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+      <h2 class="text-base font-extrabold text-slate-900 mb-1 flex items-center justify-between">
+        <span>📋 Chi Tiết 5 Test Suite Thực Thi Tự Động</span>
+        <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-lg">5/5 Passed</span>
+      </h2>
+      <p class="text-xs text-slate-500 mb-4">
+        Tất cả 5 suite đã được thực thi tự động bằng Playwright Chromium Headless và quay video HD toàn bộ thao tác:
+      </p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+              <th class="py-2.5 px-3">Suite Kiểm Thử</th>
+              <th class="py-2.5 px-3">Phân Hệ</th>
+              <th class="py-2.5 px-3">Bao Phủ TCs</th>
+              <th class="py-2.5 px-3">Thời Gian</th>
+              <th class="py-2.5 px-3">Trạng Thái</th>
+              <th class="py-2.5 px-3 text-right">Video Ghi Hình</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="py-3 px-3 font-bold text-slate-900">PHAN_1_TC_DH</td>
+              <td class="py-3 px-3 text-slate-500">Quản lý Đơn hàng</td>
+              <td class="py-3 px-3 font-semibold text-slate-700">TC_DH_001 → TC_DH_007 (7 TCs)</td>
+              <td class="py-3 px-3 font-mono text-slate-500">22.5s</td>
+              <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">PASS</span></td>
+              <td class="py-3 px-3 text-right font-mono text-blue-600 font-medium">VIDEO_01_TC_DH_QuanLyDonHang.webm</td>
+            </tr>
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="py-3 px-3 font-bold text-slate-900">PHAN_2_TC_KH</td>
+              <td class="py-3 px-3 text-slate-500">Kho & Tồn kho</td>
+              <td class="py-3 px-3 font-semibold text-slate-700">TC_KH_001 → TC_KH_009 (8 TCs)</td>
+              <td class="py-3 px-3 font-mono text-slate-500">23.2s</td>
+              <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">PASS</span></td>
+              <td class="py-3 px-3 text-right font-mono text-blue-600 font-medium">VIDEO_02_TC_KH_QuanLyKhoTonKho.webm</td>
+            </tr>
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="py-3 px-3 font-bold text-slate-900">PHAN_3_TC_TD</td>
+              <td class="py-3 px-3 text-slate-500">Thực đơn & Giá bán</td>
+              <td class="py-3 px-3 font-semibold text-slate-700">TC_TD_001 → TC_TD_009 (9 TCs)</td>
+              <td class="py-3 px-3 font-mono text-slate-500">36.2s</td>
+              <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">PASS</span></td>
+              <td class="py-3 px-3 text-right font-mono text-blue-600 font-medium">VIDEO_03_TC_TD_QuanLyThucDon.webm</td>
+            </tr>
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="py-3 px-3 font-bold text-slate-900">PHAN_4_TC_BC</td>
+              <td class="py-3 px-3 text-slate-500">Báo cáo doanh thu & CSV</td>
+              <td class="py-3 px-3 font-semibold text-slate-700">TC_BC_001 → TC_BC_011 (11 TCs)</td>
+              <td class="py-3 px-3 font-mono text-slate-500">25.5s</td>
+              <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">PASS</span></td>
+              <td class="py-3 px-3 text-right font-mono text-blue-600 font-medium">VIDEO_04_TC_BC_BaoCaoDoanhThu.webm</td>
+            </tr>
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="py-3 px-3 font-bold text-slate-900">PHAN_5_TC_TO</td>
+              <td class="py-3 px-3 text-slate-500">Topping Decorator</td>
+              <td class="py-3 px-3 font-semibold text-slate-700">TC_TO_001 → TC_TO_005 (5 TCs)</td>
+              <td class="py-3 px-3 font-mono text-slate-500">26.5s</td>
+              <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">PASS</span></td>
+              <td class="py-3 px-3 text-right font-mono text-blue-600 font-medium">VIDEO_05_TC_TO_QuanLyToppingDecorator.webm</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Video Directory Location -->
+    <div class="p-5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs">
+      <p class="font-bold text-sm mb-1">📂 Thư Mục Lưu Trữ Trọn Bộ Video Kiểm Thử:</p>
+      <code class="bg-white px-2 py-1 rounded border border-amber-300 font-mono text-xs">e2e-tests\videos\tu-testcases\</code>
+      <p class="mt-2 text-slate-600">
+        Bạn có thể mở trực tiếp thư mục này trong Windows Explorer để xem toàn bộ 5 video quay thao tác màn hình với độ phân giải HD 1280x720.
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
