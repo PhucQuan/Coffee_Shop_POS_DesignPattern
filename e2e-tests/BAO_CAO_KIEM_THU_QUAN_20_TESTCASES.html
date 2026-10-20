@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo Cáo Kiểm Thử Tự Động Playwright - 20 Test Cases Của Quân</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased p-4 sm:p-8 font-sans">
+  <div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- Header Section -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              ● 100% PASSED (4/4 SUITES)
+            </span>
+            <span class="text-xs font-medium text-slate-500">Playwright Chromium / 1280x720 HD Video</span>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            BÁO CÁO KIỂM THỬ PLAYWRIGHT - 20 TEST CASES CỦA QUÂN
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            Dự án: Coffee Shop POS | Người thực hiện: Quân | Người soát xét: Huy | Nhóm 15
+          </p>
+        </div>
+        <div class="flex items-center gap-3 self-start md:self-auto">
+          <div class="text-right">
+            <p class="text-xs text-slate-400">Tổng thời gian chạy</p>
+            <p class="text-base font-bold text-slate-800">1 phút 30 giây</p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center font-black text-xl shadow-md">
+            ✓
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Summary Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-5">
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <p class="text-xs text-slate-500 uppercase font-semibold">Tổng Kịch Bản</p>
+          <p class="text-2xl font-black text-slate-900 mt-1">20 <span class="text-xs font-normal text-slate-400">TCs</span></p>
+          <p class="text-xs text-emerald-600 font-medium mt-0.5">Xác thực & Kitchen KDS</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <p class="text-xs text-slate-500 uppercase font-semibold">Test Suites</p>
+          <p class="text-2xl font-black text-emerald-600 mt-1">4 / 4</p>
+          <p class="text-xs text-emerald-600 font-medium mt-0.5">100% Pass</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <p class="text-xs text-slate-500 uppercase font-semibold">Bugs Báo Cáo</p>
+          <p class="text-2xl font-black text-amber-600 mt-1">3 <span class="text-xs font-normal text-slate-400">Bugs</span></p>
+          <p class="text-xs text-amber-600 font-medium mt-0.5">Đã fix & verify</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <p class="text-xs text-slate-500 uppercase font-semibold">Video Đã Xuất</p>
+          <p class="text-2xl font-black text-blue-600 mt-1">4 <span class="text-xs font-normal text-slate-400">HD Video</span></p>
+          <p class="text-xs text-blue-600 font-medium mt-0.5">Format .webm chuẩn</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danh sách Test Suites và Videos -->
+    <div class="space-y-4">
+      <h2 class="text-base font-bold text-slate-800 uppercase tracking-wider">
+        Chi Tiết Kết Quả & Video Từng Phần Kiểm Thử
+      </h2>
+
+      <!-- Phần 1 -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                SUITE 1: Xác Thực & Đăng Nhập Đa Vai Trò (TC_DN_001 -> TC_DN_005, TC_DN_007)
+              </h3>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">
+              Kiểm thử form đăng nhập, validation để trống username/password, tài khoản không tồn tại, và đăng nhập 3 vai trò: Cashier, Kitchen, Admin.
+            </p>
+          </div>
+          <span class="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-auto">
+            PASSED (22.1s)
+          </span>
+        </div>
+        <div class="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 rounded-xl p-3 border border-slate-100">
+          <div class="flex items-center gap-3">
+            <span class="text-lg">🎬</span>
+            <div>
+              <p class="text-xs font-bold text-slate-800">VIDEO_QUAN_01_Auth_DangNhap.webm</p>
+              <p class="text-[11px] text-slate-400">775 KB • 1280x720 HD • Tự động quay bởi Playwright</p>
+            </div>
+          </div>
+          <a href="videos/quan-testcases/VIDEO_QUAN_01_Auth_DangNhap.webm" target="_blank" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition">
+            ▶ Xem Video
+          </a>
+        </div>
+      </div>
+
+      <!-- Phần 2 -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                SUITE 2: Đổi Mật Khẩu, Đăng Xuất & Phân Quyền RBAC (TC_DN_006, TC_DN_008, TC_PC_009)
+              </h3>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">
+              Kiểm thử modal đổi mật khẩu, xác thực mật khẩu cũ/mới, luồng đăng xuất an toàn và phân quyền RBAC (Thu ngân không thấy tab Quản trị).
+            </p>
+          </div>
+          <span class="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-auto">
+            PASSED (20.6s)
+          </span>
+        </div>
+        <div class="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 rounded-xl p-3 border border-slate-100">
+          <div class="flex items-center gap-3">
+            <span class="text-lg">🎬</span>
+            <div>
+              <p class="text-xs font-bold text-slate-800">VIDEO_QUAN_02_DoiMatKhau_PhanQuyen.webm</p>
+              <p class="text-[11px] text-slate-400">2.01 MB • 1280x720 HD • Tự động quay bởi Playwright</p>
+            </div>
+          </div>
+          <a href="videos/quan-testcases/VIDEO_QUAN_02_DoiMatKhau_PhanQuyen.webm" target="_blank" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition">
+            ▶ Xem Video
+          </a>
+        </div>
+      </div>
+
+      <!-- Phần 3 -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                SUITE 3: Tiếp Nhận Đơn Mới & Vòng Đời Pha Chế KDS (TC_PC_010 -> TC_PC_016)
+              </h3>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">
+              Tạo đơn có tùy biến (Size L, Topping, Ghi chú), Observer Pattern đẩy sang Kitchen KDS thời gian thực, chuyển trạng thái PENDING → PREPARING → READY và chuông thông báo.
+            </p>
+          </div>
+          <span class="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-auto">
+            PASSED (26.4s)
+          </span>
+        </div>
+        <div class="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 rounded-xl p-3 border border-slate-100">
+          <div class="flex items-center gap-3">
+            <span class="text-lg">🎬</span>
+            <div>
+              <p class="text-xs font-bold text-slate-800">VIDEO_QUAN_03_TiepNhanDon_QuyTrinhKDS.webm</p>
+              <p class="text-[11px] text-slate-400">1.57 MB • 1280x720 HD • Tự động quay bởi Playwright</p>
+            </div>
+          </div>
+          <a href="videos/quan-testcases/VIDEO_QUAN_03_TiepNhanDon_QuyTrinhKDS.webm" target="_blank" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition">
+            ▶ Xem Video
+          </a>
+        </div>
+      </div>
+
+      <!-- Phần 4 -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                SUITE 4: Ràng Buộc State Pattern, Hủy Đơn & Giao Khách (TC_PC_017 -> TC_PC_020)
+              </h3>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">
+              Kiểm tra ràng buộc chuyển đổi trạng thái nghiêm ngặt không nhảy cóc, hiển thị nhiều cột Kanban, giao khách sang COMPLETED và đồng bộ hủy đơn.
+            </p>
+          </div>
+          <span class="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-auto">
+            PASSED (10.4s)
+          </span>
+        </div>
+        <div class="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 rounded-xl p-3 border border-slate-100">
+          <div class="flex items-center gap-3">
+            <span class="text-lg">🎬</span>
+            <div>
+              <p class="text-xs font-bold text-slate-800">VIDEO_QUAN_04_StatePattern_GiaoKhach.webm</p>
+              <p class="text-[11px] text-slate-400">1.68 MB • 1280x720 HD • Tự động quay bởi Playwright</p>
+            </div>
+          </div>
+          <a href="videos/quan-testcases/VIDEO_QUAN_04_StatePattern_GiaoKhach.webm" target="_blank" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition">
+            ▶ Xem Video
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hướng Dẫn Chạy Script -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <h3 class="font-bold text-slate-900 text-sm mb-2">Cách Chạy Lại Kiểm Thử Nhanh Bằng 1-Click</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono text-slate-700">
+        <div class="p-3 bg-slate-100 rounded-xl border border-slate-200">
+          <p class="font-sans font-bold text-slate-800 mb-1">Cách 1: Chạy file Batch (.bat)</p>
+          <code>double-click run-quan-20-tests.bat</code>
+        </div>
+        <div class="p-3 bg-slate-100 rounded-xl border border-slate-200">
+          <p class="font-sans font-bold text-slate-800 mb-1">Cách 2: Chạy lệnh Playwright</p>
+          <code>cd e2e-tests && npx playwright test tests/quan_20_testcases.spec.js</code>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
