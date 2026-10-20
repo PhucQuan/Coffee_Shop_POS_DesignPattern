@@ -30,7 +30,7 @@ img_map = {
     24: '/assets/drinks/sinh-to-xoai.png',
 }
 
-js_content = f"""// Dữ liệu đồng bộ chuẩn 100% từ SQLite Database pos_data.db gốc của Bản Desktop App
+js_content = f"""// Dữ liệu khởi tạo cho frontend web, đồng bộ từ SQLite Database pos_data.db.
 
 export const DEFAULT_USERS = {json.dumps(d['users'], ensure_ascii=False, indent=2)};
 

@@ -1,7 +1,9 @@
 package com.coffeeshop.api;
 
 import com.coffeeshop.AppContext;
+import com.coffeeshop.infrastructure.DatabaseConnection;
 import com.coffeeshop.infrastructure.MenuItemRecord;
+import com.coffeeshop.infrastructure.MySqlStateRepository;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -13,33 +15,42 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.sql.SQLException;
 
 public class WebServer {
     private final AppContext context;
     private final int port;
+    private final Path frontendRoot;
+    private final MySqlStateRepository stateRepository;
     private HttpServer server;
 
-    public WebServer(AppContext context, int port) {
+    public WebServer(AppContext context, int port) throws SQLException {
         this.context = context;
         this.port = port;
+        this.frontendRoot = Paths.get("frontend-react", "dist").toAbsolutePath().normalize();
+        this.stateRepository = new MySqlStateRepository(DatabaseConnection.getInstance());
     }
 
     public void start() throws IOException {
+        if (!Files.exists(frontendRoot.resolve("index.html"))) {
+            throw new IOException("React build not found. Run npm install and npm run build in frontend-react first.");
+        }
         server = HttpServer.create(new InetSocketAddress(port), 0);
 
         // API Endpoints
-        server.createContext("/api/health", new HealthHandler());
+        server.createContext("/api/health", new HealthHandler(stateRepository));
         server.createContext("/api/menu", new MenuHandler(context));
+        server.createContext("/api/state", new StateHandler(stateRepository));
 
         // Static Frontend Files handler
-        server.createContext("/", new StaticFileHandler());
+        server.createContext("/", new StaticFileHandler(frontendRoot));
 
         server.setExecutor(null);
         server.start();
         System.out.println("=================================================");
         System.out.println("  Coffee Shop POS Web Server running!");
         System.out.println("  URL: http://localhost:" + port);
-        System.out.println("  Frontend directory: frontend/");
+        System.out.println("  Frontend directory: " + frontendRoot);
         System.out.println("=================================================");
     }
 
@@ -47,9 +58,16 @@ public class WebServer {
         if (server != null) {
             server.stop(0);
         }
+        stateRepository.close();
     }
 
     private static class HealthHandler implements HttpHandler {
+        private final MySqlStateRepository stateRepository;
+
+        HealthHandler(MySqlStateRepository stateRepository) {
+            this.stateRepository = stateRepository;
+        }
+
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             addCors(exchange);
@@ -57,8 +75,54 @@ public class WebServer {
                 exchange.sendResponseHeaders(204, -1);
                 return;
             }
-            String response = "{\"status\":\"ok\",\"service\":\"CoffeeShopPOS\"}";
-            sendJsonResponse(exchange, 200, response);
+            boolean databaseReady = stateRepository.ping();
+            String response = "{\"status\":\"" + (databaseReady ? "ok" : "degraded")
+                    + "\",\"service\":\"CoffeeShopPOS\",\"database\":\"mysql\"}";
+            sendJsonResponse(exchange, databaseReady ? 200 : 503, response);
+        }
+    }
+
+    private static class StateHandler implements HttpHandler {
+        private static final int MAX_STATE_BYTES = 5 * 1024 * 1024;
+        private final MySqlStateRepository repository;
+
+        StateHandler(MySqlStateRepository repository) {
+            this.repository = repository;
+        }
+
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            addCors(exchange);
+            String method = exchange.getRequestMethod().toUpperCase();
+            if ("OPTIONS".equals(method)) {
+                exchange.sendResponseHeaders(204, -1);
+                return;
+            }
+
+            try {
+                switch (method) {
+                    case "GET" -> sendJsonResponse(exchange, 200, repository.load().orElse("null"));
+                    case "PUT" -> {
+                        byte[] body = exchange.getRequestBody().readNBytes(MAX_STATE_BYTES + 1);
+                        if (body.length > MAX_STATE_BYTES) {
+                            sendJsonResponse(exchange, 413, "{\"error\":\"State payload is too large.\"}");
+                            return;
+                        }
+                        repository.save(new String(body, StandardCharsets.UTF_8));
+                        sendJsonResponse(exchange, 200, "{\"saved\":true}");
+                    }
+                    case "DELETE" -> {
+                        repository.clear();
+                        exchange.sendResponseHeaders(204, -1);
+                    }
+                    default -> sendJsonResponse(exchange, 405, "{\"error\":\"Method not allowed.\"}");
+                }
+            } catch (IllegalArgumentException exception) {
+                sendJsonResponse(exchange, 400, "{\"error\":\"Invalid JSON state.\"}");
+            } catch (RuntimeException exception) {
+                exception.printStackTrace();
+                sendJsonResponse(exchange, 500, "{\"error\":\"MySQL persistence failed.\"}");
+            }
         }
     }
 
@@ -92,13 +156,8 @@ public class WebServer {
     private static class StaticFileHandler implements HttpHandler {
         private final Path frontendRoot;
 
-        StaticFileHandler() {
-            Path reactDist = Paths.get("frontend-react", "dist").toAbsolutePath().normalize();
-            if (Files.exists(reactDist)) {
-                this.frontendRoot = reactDist;
-            } else {
-                this.frontendRoot = Paths.get("frontend").toAbsolutePath().normalize();
-            }
+        StaticFileHandler(Path frontendRoot) {
+            this.frontendRoot = frontendRoot;
         }
 
         @Override
@@ -135,7 +194,7 @@ public class WebServer {
 
     private static void addCors(HttpExchange exchange) {
         exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
-        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type, Authorization");
     }
 
@@ -167,6 +226,7 @@ public class WebServer {
 
     public static void main(String[] args) {
         try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
             int port = 8088;
             if (args.length > 0) {
                 try { port = Integer.parseInt(args[0]); } catch (Exception ignored) {}
@@ -175,14 +235,8 @@ public class WebServer {
             WebServer server = new WebServer(context, port);
             server.start();
 
-            // Try opening browser
-            try {
-                if (java.awt.Desktop.isDesktopSupported() && java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.BROWSE)) {
-                    java.awt.Desktop.getDesktop().browse(new java.net.URI("http://localhost:" + port));
-                }
-            } catch (Exception ignored) {}
-
         } catch (Exception e) {
+            System.err.println("Cannot start Coffee Shop POS. Check that MySQL is running and that MYSQL_* variables are correct.");
             e.printStackTrace();
         }
     }

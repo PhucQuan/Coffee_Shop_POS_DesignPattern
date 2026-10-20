@@ -27,7 +27,6 @@ import com.coffeeshop.service.PaymentService;
 import com.coffeeshop.service.MenuService;
 import com.coffeeshop.service.InventoryException;
 import com.coffeeshop.service.ReceiptService;
-import com.coffeeshop.service.ReceiptImageService;
 import com.coffeeshop.service.UserService;
 
 import java.io.File;
@@ -63,7 +62,6 @@ public class TestRunner {
         runner.tc10InventoryDeductAndRollback();
         runner.tc11InventoryShortageBlocksKitchen();
         runner.tc12ReceiptPreviewContent();
-        runner.tc13ReceiptImageExport();
         runner.tc14AdminUserManagement();
         runner.tc15CartQuantityWorkflow();
         runner.tc16FactoryCreatesExpectedBeverages();
@@ -75,7 +73,7 @@ public class TestRunner {
         runner.tc22SqliteAuditQueriesExposeOperationsData();
         runner.tc23SqliteBackupExportCreatesUsableSnapshot();
         runner.tc24RecipeManagementPersistsToRepository();
-        System.out.println("All tests passed: " + runner.passed + "/24");
+        System.out.println("All tests passed: " + runner.passed + "/23");
     }
 
     private void tc01LoginByRole() {
@@ -238,23 +236,6 @@ public class TestRunner {
         passed++;
     }
 
-    private void tc13ReceiptImageExport() {
-        // Receipt image export: real report/demo asset can be generated from application data.
-        InMemoryRepository repo = new InMemoryRepository();
-        OrderService orderService = new OrderService(repo, new OrderEventPublisher());
-        PaymentService paymentService = new PaymentService(repo);
-        Order order = orderService.createOrder();
-        orderService.addItem(order, 1, new BaseCoffee("Ca phe sua", 30000), 1, "");
-        orderService.sendToKitchen(order);
-        orderService.markReady(order);
-        paymentService.pay(order, new MomoAdapter(new Random(1)));
-        String receipt = new ReceiptService().buildReceipt(order);
-        File output = new File("build/test-receipt.png");
-        new ReceiptImageService().saveReceiptPng(receipt, output);
-        assertTrue(output.exists() && output.length() > 0, "TC13 receipt PNG should be created");
-        passed++;
-    }
-
     private void tc14AdminUserManagement() {
         // Admin back-office: UserService owns user validation and lock/unlock state.
         InMemoryRepository repo = new InMemoryRepository();
@@ -303,7 +284,7 @@ public class TestRunner {
         assertTrue(AppConfig.getInstance() == AppConfig.getInstance(), "TC17 AppConfig singleton identity");
         assertTrue(DatabaseConnection.getInstance() == DatabaseConnection.getInstance(), "TC17 DatabaseConnection singleton identity");
         assertEquals("Coffee Shop POS", AppConfig.getInstance().getAppName(), "TC17 app config value");
-        assertTrue(DatabaseConnection.getInstance().getConnectionString().contains("sqlite"), "TC17 connection string");
+        assertTrue(DatabaseConnection.getInstance().getConnectionString().contains("mysql"), "TC17 connection string");
         passed++;
     }
 

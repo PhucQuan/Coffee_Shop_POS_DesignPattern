@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-10-15T00:00:00.000Z" agent="Codex" version="24.7.17" type="device" compressed="false">
+  <diagram id="overview" name="01 - Tổng quan">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="ov-title" value="LƯỢC ĐỒ USE CASE TỔNG QUAN - COFFEE SHOP POS" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#3E200A;" vertex="1" parent="1">
+          <mxGeometry x="360" y="10" width="680" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-system" value="HỆ THỐNG COFFEE SHOP POS (ReactJS + Java)" style="swimlane;horizontal=1;startSize=38;rounded=1;html=1;whiteSpace=wrap;fillColor=#FFF8F0;strokeColor=#7D4924;fontColor=#3E200A;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="220" y="65" width="960" height="690" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ov-cashier" value="Thu ngân" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;fontStyle=1;fontColor=#3E200A;" vertex="1" parent="1">
+          <mxGeometry x="45" y="170" width="90" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-kitchen" value="Nhân viên bếp" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;fontStyle=1;fontColor=#3E200A;" vertex="1" parent="1">
+          <mxGeometry x="45" y="440" width="90" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-admin" value="Quản trị viên" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;fontStyle=1;fontColor=#3E200A;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="250" width="90" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-gateway" value="Cổng thanh toán&#xa;MoMo / VNPay" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;fontStyle=1;fontColor=#3E200A;" vertex="1" parent="1">
+          <mxGeometry x="1235" y="515" width="100" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ov-login" value="Đăng nhập" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F7EBE3;strokeColor=#A36538;fontColor=#2B170C;fontSize=13;" vertex="1" parent="ov-system">
+          <mxGeometry x="350" y="55" width="180" height="62" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-logout" value="Đăng xuất" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F7EBE3;strokeColor=#A36538;fontColor=#2B170C;fontSize=13;" vertex="1" parent="ov-system">
+          <mxGeometry x="610" y="55" width="180" height="62" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-pos" value="Bán hàng tại POS" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="ov-system">
+          <mxGeometry x="110" y="175" width="210" height="72" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-payment" value="Thanh toán đơn hàng" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="ov-system">
+          <mxGeometry x="375" y="175" width="210" height="72" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-receipt" value="Xem / in / lưu hóa đơn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#2B170C;fontSize=13;" vertex="1" parent="ov-system">
+          <mxGeometry x="640" y="175" width="210" height="72" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-kds" value="Theo dõi bảng bếp KDS" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontColor=#2B170C;fontSize=13;" vertex="1" parent="ov-system">
+          <mxGeometry x="110" y="340" width="210" height="72" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-process" value="Tiếp nhận và pha chế đơn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="ov-system">
+          <mxGeometry x="375" y="340" width="210" height="72" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-status" value="Cập nhật trạng thái đơn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontColor=#2B170C;fontSize=13;" vertex="1" parent="ov-system">
+          <mxGeometry x="640" y="340" width="210" height="72" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-dashboard" value="Xem dashboard vận hành" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#2B170C;fontSize=13;" vertex="1" parent="ov-system">
+          <mxGeometry x="75" y="505" width="210" height="72" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-orders" value="Quản lý đơn hàng" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#2B170C;fontSize=13;" vertex="1" parent="ov-system">
+          <mxGeometry x="310" y="505" width="185" height="72" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-master" value="Quản lý dữ liệu nghiệp vụ" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#2B170C;fontSize=13;" vertex="1" parent="ov-system">
+          <mxGeometry x="520" y="505" width="210" height="72" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-report" value="Báo cáo và xuất dữ liệu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#2B170C;fontSize=13;" vertex="1" parent="ov-system">
+          <mxGeometry x="755" y="505" width="185" height="72" as="geometry"/>
+        </mxCell>
+        <mxCell id="ov-backup" value="Sao lưu / khôi phục dữ liệu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#2B170C;fontSize=13;" vertex="1" parent="ov-system">
+          <mxGeometry x="415" y="605" width="210" height="62" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ov-e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-cashier" target="ov-login"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-cashier" target="ov-logout"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-cashier" target="ov-pos"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-cashier" target="ov-payment"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-cashier" target="ov-receipt"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-kitchen" target="ov-login"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-kitchen" target="ov-kds"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-kitchen" target="ov-process"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-kitchen" target="ov-status"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-admin" target="ov-login"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-admin" target="ov-dashboard"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-admin" target="ov-orders"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-admin" target="ov-master"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-admin" target="ov-report"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-admin" target="ov-backup"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ov-e16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ov-gateway" target="ov-payment"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram id="pos-kitchen" name="02 - POS và Bếp">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="pk-title" value="CHI TIẾT USE CASE BÁN HÀNG, THANH TOÁN VÀ BẾP" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#3E200A;" vertex="1" parent="1">
+          <mxGeometry x="355" y="10" width="690" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="pk-system" value="HỆ THỐNG COFFEE SHOP POS" style="swimlane;horizontal=1;startSize=38;rounded=1;html=1;whiteSpace=wrap;fillColor=#FFF8F0;strokeColor=#7D4924;fontColor=#3E200A;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="190" y="60" width="1010" height="770" as="geometry"/>
+        </mxCell>
+        <mxCell id="pk-cashier" value="Thu ngân" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;fontStyle=1;fontColor=#3E200A;" vertex="1" parent="1">
+          <mxGeometry x="35" y="205" width="90" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="pk-kitchen" value="Nhân viên bếp" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;fontStyle=1;fontColor=#3E200A;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="250" width="90" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="pk-gateway" value="Cổng thanh toán&#xa;MoMo / VNPay" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;fontStyle=1;fontColor=#3E200A;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="610" width="105" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="pk-login" value="Đăng nhập" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F7EBE3;strokeColor=#A36538;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="35" y="50" width="160" height="56" as="geometry"/></mxCell>
+        <mxCell id="pk-search" value="Xem / tìm kiếm / lọc thực đơn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="35" y="150" width="190" height="62" as="geometry"/></mxCell>
+        <mxCell id="pk-create" value="Tạo đơn hàng" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="pk-system"><mxGeometry x="300" y="150" width="190" height="62" as="geometry"/></mxCell>
+        <mxCell id="pk-type" value="Chọn loại đơn&#xa;Tại quán / Mang đi" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="565" y="85" width="190" height="62" as="geometry"/></mxCell>
+        <mxCell id="pk-custom" value="Tùy biến món&#xa;size, topping, đường, đá, ghi chú" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="565" y="175" width="220" height="70" as="geometry"/></mxCell>
+        <mxCell id="pk-cart" value="Quản lý giỏ hàng&#xa;thêm, xóa, đổi số lượng" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="300" y="270" width="190" height="65" as="geometry"/></mxCell>
+        <mxCell id="pk-discount" value="Áp dụng giảm giá / voucher" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="565" y="280" width="210" height="62" as="geometry"/></mxCell>
+        <mxCell id="pk-total" value="Tính tạm tính, giảm giá và tổng tiền" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="300" y="385" width="205" height="65" as="geometry"/></mxCell>
+        <mxCell id="pk-pay" value="Thanh toán đơn hàng" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="pk-system"><mxGeometry x="565" y="390" width="200" height="62" as="geometry"/></mxCell>
+        <mxCell id="pk-transaction" value="Xử lý và lưu giao dịch" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="805" y="390" width="180" height="62" as="geometry"/></mxCell>
+        <mxCell id="pk-send" value="Gửi đơn xuống bếp" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="pk-system"><mxGeometry x="300" y="505" width="190" height="62" as="geometry"/></mxCell>
+        <mxCell id="pk-deduct" value="Trừ kho theo công thức" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="50" y="510" width="190" height="62" as="geometry"/></mxCell>
+        <mxCell id="pk-kds" value="Xem bảng bếp KDS" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="565" y="510" width="185" height="62" as="geometry"/></mxCell>
+        <mxCell id="pk-start" value="Bắt đầu pha chế" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="805" y="500" width="175" height="62" as="geometry"/></mxCell>
+        <mxCell id="pk-ready" value="Đánh dấu sẵn sàng" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="805" y="590" width="175" height="62" as="geometry"/></mxCell>
+        <mxCell id="pk-status" value="Cập nhật và lưu lịch sử trạng thái" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="545" y="625" width="220" height="65" as="geometry"/></mxCell>
+        <mxCell id="pk-receipt" value="Tạo hóa đơn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="300" y="645" width="180" height="58" as="geometry"/></mxCell>
+        <mxCell id="pk-export-receipt" value="Xem / in / lưu hóa đơn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#2B170C;fontSize=12;" vertex="1" parent="pk-system"><mxGeometry x="50" y="650" width="190" height="58" as="geometry"/></mxCell>
+
+        <mxCell id="pk-a1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="pk-cashier" target="pk-login"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-a2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="pk-cashier" target="pk-create"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-a3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="pk-cashier" target="pk-cart"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-a4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="pk-cashier" target="pk-pay"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-a5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="pk-cashier" target="pk-export-receipt"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-a6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="pk-kitchen" target="pk-login"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-a7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="pk-kitchen" target="pk-kds"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-a8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="pk-kitchen" target="pk-start"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-a9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="pk-kitchen" target="pk-ready"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-a10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="pk-gateway" target="pk-transaction"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="pk-r1" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="pk-create" target="pk-search"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-r2" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="pk-create" target="pk-type"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-r3" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="pk-create" target="pk-cart"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-r4" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#D79B00;fontSize=11;" edge="1" parent="1" source="pk-custom" target="pk-create"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-r5" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#D79B00;fontSize=11;" edge="1" parent="1" source="pk-discount" target="pk-create"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-r6" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="pk-pay" target="pk-total"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-r7" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="pk-pay" target="pk-transaction"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-r8" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="pk-pay" target="pk-receipt"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-r9" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="pk-send" target="pk-deduct"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-r10" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="pk-send" target="pk-status"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-r11" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="pk-start" target="pk-status"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-r12" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="pk-ready" target="pk-status"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pk-r13" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#D79B00;fontSize=11;" edge="1" parent="1" source="pk-export-receipt" target="pk-receipt"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram id="admin" name="03 - Quản trị">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="950" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="ad-title" value="CHI TIẾT USE CASE QUẢN TRỊ HỆ THỐNG" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#3E200A;" vertex="1" parent="1">
+          <mxGeometry x="400" y="10" width="600" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="ad-system" value="PHÂN HỆ QUẢN TRỊ COFFEE SHOP POS" style="swimlane;horizontal=1;startSize=38;rounded=1;html=1;whiteSpace=wrap;fillColor=#FFF8F0;strokeColor=#7D4924;fontColor=#3E200A;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="190" y="60" width="1090" height="820" as="geometry"/>
+        </mxCell>
+        <mxCell id="ad-admin" value="Quản trị viên" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;fontStyle=1;fontColor=#3E200A;" vertex="1" parent="1">
+          <mxGeometry x="35" y="360" width="100" height="125" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ad-login" value="Đăng nhập" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F7EBE3;strokeColor=#A36538;fontColor=#2B170C;fontSize=12;" vertex="1" parent="ad-system"><mxGeometry x="40" y="50" width="170" height="58" as="geometry"/></mxCell>
+        <mxCell id="ad-dashboard" value="Xem dashboard tổng quan" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="ad-system"><mxGeometry x="40" y="145" width="210" height="65" as="geometry"/></mxCell>
+        <mxCell id="ad-order" value="Quản lý đơn hàng" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="ad-system"><mxGeometry x="40" y="265" width="200" height="65" as="geometry"/></mxCell>
+        <mxCell id="ad-order-filter" value="Tìm kiếm / lọc đơn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="ad-system"><mxGeometry x="300" y="235" width="180" height="58" as="geometry"/></mxCell>
+        <mxCell id="ad-order-action" value="Xem hóa đơn / cập nhật / hủy đơn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="ad-system"><mxGeometry x="300" y="310" width="210" height="62" as="geometry"/></mxCell>
+
+        <mxCell id="ad-report" value="Lập báo cáo kinh doanh" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="ad-system"><mxGeometry x="40" y="405" width="210" height="65" as="geometry"/></mxCell>
+        <mxCell id="ad-period" value="Chọn khoảng thời gian" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="ad-system"><mxGeometry x="300" y="390" width="190" height="58" as="geometry"/></mxCell>
+        <mxCell id="ad-metrics" value="Xem doanh thu, số đơn, món bán chạy" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="ad-system"><mxGeometry x="300" y="465" width="220" height="62" as="geometry"/></mxCell>
+        <mxCell id="ad-export" value="Xuất CSV / in báo cáo" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontColor=#2B170C;fontSize=12;" vertex="1" parent="ad-system"><mxGeometry x="300" y="540" width="190" height="58" as="geometry"/></mxCell>
+
+        <mxCell id="ad-catalog" value="Quản lý danh mục bán hàng" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="ad-system"><mxGeometry x="575" y="80" width="220" height="65" as="geometry"/></mxCell>
+        <mxCell id="ad-beverage" value="CRUD / bật tắt đồ uống" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="ad-system"><mxGeometry x="855" y="55" width="190" height="58" as="geometry"/></mxCell>
+        <mxCell id="ad-topping" value="CRUD / bật tắt topping" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="ad-system"><mxGeometry x="855" y="130" width="190" height="58" as="geometry"/></mxCell>
+
+        <mxCell id="ad-inventory" value="Quản lý kho nguyên liệu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="ad-system"><mxGeometry x="575" y="225" width="220" height="65" as="geometry"/></mxCell>
+        <mxCell id="ad-stock" value="Tìm kiếm / cảnh báo sắp hết" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="ad-system"><mxGeometry x="855" y="205" width="200" height="58" as="geometry"/></mxCell>
+        <mxCell id="ad-restock" value="Nhập thêm hàng" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="ad-system"><mxGeometry x="855" y="280" width="180" height="58" as="geometry"/></mxCell>
+        <mxCell id="ad-ledger" value="Xem nhật ký xuất / nhập kho" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="ad-system"><mxGeometry x="855" y="355" width="205" height="58" as="geometry"/></mxCell>
+
+        <mxCell id="ad-recipe" value="Quản lý công thức định lượng" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="ad-system"><mxGeometry x="575" y="385" width="230" height="65" as="geometry"/></mxCell>
+        <mxCell id="ad-user" value="Quản lý tài khoản và vai trò" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="ad-system"><mxGeometry x="575" y="500" width="230" height="65" as="geometry"/></mxCell>
+        <mxCell id="ad-user-crud" value="Thêm / sửa / xóa nhân viên" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="ad-system"><mxGeometry x="855" y="500" width="205" height="58" as="geometry"/></mxCell>
+
+        <mxCell id="ad-ops" value="Xem nhật ký vận hành" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="ad-system"><mxGeometry x="40" y="655" width="205" height="62" as="geometry"/></mxCell>
+        <mxCell id="ad-audit" value="Xem lịch sử trạng thái đơn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="ad-system"><mxGeometry x="300" y="650" width="205" height="58" as="geometry"/></mxCell>
+        <mxCell id="ad-backup" value="Sao lưu / khôi phục dữ liệu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#2B170C;fontSize=13;fontStyle=1;" vertex="1" parent="ad-system"><mxGeometry x="575" y="650" width="230" height="62" as="geometry"/></mxCell>
+        <mxCell id="ad-storage" value="Tạo bản sao SQLite / khôi phục dữ liệu gốc" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#2B170C;fontSize=12;" vertex="1" parent="ad-system"><mxGeometry x="855" y="645" width="215" height="65" as="geometry"/></mxCell>
+
+        <mxCell id="ad-a1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ad-admin" target="ad-login"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-a2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ad-admin" target="ad-dashboard"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-a3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ad-admin" target="ad-order"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-a4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ad-admin" target="ad-report"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-a5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ad-admin" target="ad-catalog"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-a6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ad-admin" target="ad-inventory"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-a7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ad-admin" target="ad-recipe"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-a8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ad-admin" target="ad-user"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-a9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ad-admin" target="ad-ops"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-a10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#6C5B50;" edge="1" parent="1" source="ad-admin" target="ad-backup"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="ad-r1" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="ad-order" target="ad-order-filter"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-r2" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="ad-order" target="ad-order-action"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-r3" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="ad-report" target="ad-period"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-r4" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="ad-report" target="ad-metrics"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-r5" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#D79B00;fontSize=11;" edge="1" parent="1" source="ad-export" target="ad-report"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-r6" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="ad-catalog" target="ad-beverage"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-r7" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="ad-catalog" target="ad-topping"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-r8" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="ad-inventory" target="ad-stock"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-r9" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="ad-inventory" target="ad-restock"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-r10" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="ad-inventory" target="ad-ledger"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-r11" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="ad-user" target="ad-user-crud"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-r12" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="ad-ops" target="ad-audit"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ad-r13" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#9673A6;fontSize=11;" edge="1" parent="1" source="ad-backup" target="ad-storage"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

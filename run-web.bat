@@ -1,5 +1,12 @@
 @echo off
 set ROOT=%~dp0
+echo Building React frontend...
+cd /d "%ROOT%frontend-react"
+if not exist "node_modules" call npm install
+call npm run build
+if errorlevel 1 exit /b 1
+cd /d "%ROOT%"
+
 set OUT=%ROOT%build\classes
 set SOURCES=%ROOT%build\run-sources.tmp
 if not exist "%OUT%" mkdir "%OUT%"

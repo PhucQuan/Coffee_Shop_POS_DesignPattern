@@ -416,7 +416,7 @@ export default function AdminView({
             { id: 'inventory', label: '📦 Kho & Nhập Hàng' },
             { id: 'recipes', label: '🧪 Công Thức Định Lượng' },
             { id: 'users', label: '👥 Nhân Viên' },
-            { id: 'backup', label: '💾 Sao Lưu SQLite' }
+            { id: 'backup', label: '💾 Sao Lưu MySQL' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -1425,7 +1425,7 @@ export default function AdminView({
       {adminTab === 'backup' && (
         <div className="pos-card rounded-3xl p-6 space-y-6">
           <div>
-            <h3 className="font-extrabold text-[#2b170c] text-lg">Hệ Thống Sao Lưu & Phục Hồi Dữ Liệu SQLite</h3>
+            <h3 className="font-extrabold text-[#2b170c] text-lg">Hệ Thống Sao Lưu & Phục Hồi Dữ Liệu MySQL</h3>
             <p className="text-xs text-[#8a7668] mt-1">
               Xuất tệp sao lưu dữ liệu toàn diện (JSON) hoặc đặt lại dữ liệu gốc của hệ thống.
             </p>
@@ -1459,13 +1459,18 @@ export default function AdminView({
               <div>
                 <span className="text-2xl mb-2 block">🔄</span>
                 <h4 className="font-bold text-sm text-[#2b170c]">Khôi Phục Về Dữ Liệu Gốc</h4>
-                <p className="text-xs text-[#8a7668] mt-1">Xóa bộ nhớ đệm và nạp lại toàn bộ dữ liệu SQLite pos_data.db ban đầu.</p>
+                <p className="text-xs text-[#8a7668] mt-1">Xóa trạng thái hiện tại trong MySQL và nạp lại dữ liệu mặc định.</p>
               </div>
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (window.confirm("Bạn có chắc chắn muốn đặt lại toàn bộ hệ thống về dữ liệu mặc định ban đầu?")) {
-                    localStorage.clear();
-                    window.location.reload();
+                    try {
+                      const response = await fetch('/api/state', { method: 'DELETE' });
+                      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                      window.location.reload();
+                    } catch {
+                      window.alert('Không thể đặt lại dữ liệu trong MySQL.');
+                    }
                   }
                 }}
                 className="mt-4 w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"

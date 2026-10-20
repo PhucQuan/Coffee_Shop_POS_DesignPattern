@@ -156,7 +156,7 @@ export default function KitchenView({ orders, onTransitionState }) {
           </div>
         </div>
 
-        {/* Selected Order Detail Sidebar (4 cols - Exact match to Java Swing KitchenView detail panel) */}
+        {/* Selected Order Detail Sidebar */}
         <div className="lg:col-span-4 bg-white rounded-3xl p-5 border border-[#ede4db] shadow-xs flex flex-col justify-between">
           <div>
             <div className="border-b border-[#f4eae3] pb-4 mb-4">

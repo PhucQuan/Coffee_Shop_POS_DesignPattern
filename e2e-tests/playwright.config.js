@@ -16,7 +16,7 @@ module.exports = defineConfig({
     trace: 'on',
     screenshot: 'on',
     video: {
-      mode: 'on',
+      mode: 'off',
       size: { width: 1280, height: 720 },
     },
     viewport: { width: 1280, height: 720 },

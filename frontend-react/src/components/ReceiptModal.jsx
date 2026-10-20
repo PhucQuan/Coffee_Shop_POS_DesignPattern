@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Printer, X, Download } from 'lucide-react';
 import { formatVND } from '../data/mockData';
 
-export default function ReceiptModal({ order, onClose }) {
+export default function ReceiptModal({ order, demoDefects, onClose }) {
   const receiptRef = useRef(null);
   if (!order) return null;
 
@@ -24,7 +24,7 @@ export default function ReceiptModal({ order, onClose }) {
     });
     receiptTxt += `----------------------------------------\n`;
     receiptTxt += `Tam tinh: ${order.subtotal} VND\n`;
-    receiptTxt += `Giam gia: -${order.discountAmount} VND\n`;
+    if (!demoDefects?.has('TC15')) receiptTxt += `Giam gia: -${order.discountAmount} VND\n`;
     receiptTxt += `TONG CONG: ${order.total} VND\n`;
     receiptTxt += `========================================\n`;
     receiptTxt += `Cam on quy khach va hen gap lai!\n`;
@@ -76,10 +76,12 @@ export default function ReceiptModal({ order, onClose }) {
           {/* Total */}
           <div className="py-2.5 border-t border-dashed border-gray-300 space-y-1 text-[11px]">
             <div className="flex justify-between text-gray-600"><span>Tạm tính:</span><span>{formatVND(order.subtotal)}</span></div>
-            <div className="flex justify-between text-gray-600">
-              <span>Giảm giá:</span>
-              <span>{order.discountAmount > 0 ? `-${formatVND(order.discountAmount)}` : '0 ₫'}</span>
-            </div>
+            {!demoDefects?.has('TC15') && (
+              <div className="flex justify-between text-gray-600">
+                <span>Giảm giá:</span>
+                <span>{order.discountAmount > 0 ? `-${formatVND(order.discountAmount)}` : '0 ₫'}</span>
+              </div>
+            )}
             <div className="flex justify-between text-sm font-extrabold text-black pt-1 border-t border-gray-300">
               <span>TỔNG CỘNG:</span>
               <span>{formatVND(order.total)}</span>

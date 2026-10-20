@@ -1,4 +1,10 @@
-CREATE TABLE users (
+CREATE DATABASE IF NOT EXISTS coffee_shop_pos
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+USE coffee_shop_pos;
+
+CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
@@ -6,7 +12,7 @@ CREATE TABLE users (
     active BOOLEAN NOT NULL
 );
 
-CREATE TABLE beverages (
+CREATE TABLE IF NOT EXISTS beverages (
     id INTEGER PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     base_price DECIMAL(12, 2) NOT NULL,
@@ -14,14 +20,14 @@ CREATE TABLE beverages (
     active BOOLEAN NOT NULL
 );
 
-CREATE TABLE toppings (
+CREATE TABLE IF NOT EXISTS toppings (
     id INTEGER PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     extra_price DECIMAL(12, 2) NOT NULL,
     active BOOLEAN NOT NULL
 );
 
-CREATE TABLE inventory_items (
+CREATE TABLE IF NOT EXISTS inventory_items (
     id INTEGER PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     unit VARCHAR(20) NOT NULL,
@@ -29,7 +35,7 @@ CREATE TABLE inventory_items (
     reorder_level DECIMAL(12, 2) NOT NULL
 );
 
-CREATE TABLE recipe_items (
+CREATE TABLE IF NOT EXISTS recipe_items (
     beverage_id INTEGER NOT NULL,
     inventory_item_id INTEGER NOT NULL,
     quantity_required DECIMAL(12, 2) NOT NULL,
@@ -38,7 +44,7 @@ CREATE TABLE recipe_items (
     FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id)
 );
 
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     id INTEGER PRIMARY KEY,
     created_at TIMESTAMP NOT NULL,
     status VARCHAR(30) NOT NULL,
@@ -48,7 +54,7 @@ CREATE TABLE orders (
     inventory_deducted BOOLEAN NOT NULL DEFAULT 0
 );
 
-CREATE TABLE order_items (
+CREATE TABLE IF NOT EXISTS order_items (
     id INTEGER PRIMARY KEY,
     order_id INTEGER NOT NULL,
     beverage_id INTEGER NOT NULL,
@@ -61,7 +67,7 @@ CREATE TABLE order_items (
     FOREIGN KEY (beverage_id) REFERENCES beverages(id)
 );
 
-CREATE TABLE order_item_toppings (
+CREATE TABLE IF NOT EXISTS order_item_toppings (
     order_item_id INTEGER NOT NULL,
     topping_id INTEGER NOT NULL,
     PRIMARY KEY (order_item_id, topping_id),
@@ -69,7 +75,7 @@ CREATE TABLE order_item_toppings (
     FOREIGN KEY (topping_id) REFERENCES toppings(id)
 );
 
-CREATE TABLE payments (
+CREATE TABLE IF NOT EXISTS payments (
     id INTEGER PRIMARY KEY,
     order_id INTEGER NOT NULL UNIQUE,
     method VARCHAR(30) NOT NULL,
@@ -80,8 +86,8 @@ CREATE TABLE payments (
     FOREIGN KEY (order_id) REFERENCES orders(id)
 );
 
-CREATE TABLE order_status_history (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE IF NOT EXISTS order_status_history (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
     order_id INTEGER NOT NULL,
     status VARCHAR(30) NOT NULL,
     note VARCHAR(255),
@@ -89,8 +95,8 @@ CREATE TABLE order_status_history (
     FOREIGN KEY (order_id) REFERENCES orders(id)
 );
 
-CREATE TABLE inventory_transactions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE IF NOT EXISTS inventory_transactions (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
     inventory_item_id INTEGER NOT NULL,
     order_id INTEGER,
     change_amount DECIMAL(12, 2) NOT NULL,
@@ -101,17 +107,23 @@ CREATE TABLE inventory_transactions (
     FOREIGN KEY (order_id) REFERENCES orders(id)
 );
 
-CREATE TABLE settings (
-    key VARCHAR(50) PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS settings (
+    `key` VARCHAR(50) PRIMARY KEY,
     value TEXT
 );
 
-INSERT INTO users(id, username, password_hash, role, active) VALUES
+CREATE TABLE IF NOT EXISTS web_app_state (
+    state_key VARCHAR(50) PRIMARY KEY,
+    payload JSON NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO users(id, username, password_hash, role, active) VALUES
 (1, 'admin', '123', 'ADMIN', 1),
 (2, 'cashier01', '123', 'CASHIER', 1),
 (3, 'kitchen01', '123', 'KITCHEN', 1);
 
-INSERT INTO beverages(id, name, base_price, category, active) VALUES
+INSERT IGNORE INTO beverages(id, name, base_price, category, active) VALUES
 (1, 'Ca phe sua', 30000, 'COFFEE', 1),
 (2, 'Bac xiu', 32000, 'COFFEE', 1),
 (3, 'Tra dao', 35000, 'TEA', 1),
@@ -137,7 +149,7 @@ INSERT INTO beverages(id, name, base_price, category, active) VALUES
 (23, 'Matcha cream cheese', 55000, 'MATCHA', 1),
 (24, 'Sinh to bo', 52000, 'SMOOTHIE', 1);
 
-INSERT INTO toppings(id, name, extra_price, active) VALUES
+INSERT IGNORE INTO toppings(id, name, extra_price, active) VALUES
 (1, 'Tran chau', 10000, 1),
 (2, 'Pudding', 9000, 1),
 (3, 'Kem cheese', 12000, 1),
@@ -147,7 +159,7 @@ INSERT INTO toppings(id, name, extra_price, active) VALUES
 (7, 'Kem vani', 11000, 1),
 (8, 'Duong den', 6000, 1);
 
-INSERT INTO inventory_items(id, name, unit, quantity, reorder_level) VALUES
+INSERT IGNORE INTO inventory_items(id, name, unit, quantity, reorder_level) VALUES
 (1, 'Coffee beans', 'g', 5000, 500),
 (2, 'Fresh milk', 'ml', 10000, 1000),
 (3, 'Tea leaves', 'g', 3000, 300),
@@ -161,7 +173,7 @@ INSERT INTO inventory_items(id, name, unit, quantity, reorder_level) VALUES
 (11, 'Brown sugar syrup', 'ml', 3000, 300),
 (12, 'Vanilla syrup', 'ml', 2500, 250);
 
-INSERT INTO recipe_items(beverage_id, inventory_item_id, quantity_required) VALUES
+INSERT IGNORE INTO recipe_items(beverage_id, inventory_item_id, quantity_required) VALUES
 (1, 1, 18),
 (2, 1, 15),
 (2, 2, 80),
@@ -195,7 +207,7 @@ INSERT INTO recipe_items(beverage_id, inventory_item_id, quantity_required) VALU
 (23, 1, 10),
 (24, 1, 10);
 
-INSERT INTO settings(key, value) VALUES
+INSERT IGNORE INTO settings(`key`, value) VALUES
 ('store_name', 'PurrCoffee POS'),
 ('tax_rate', '0.10'),
 ('address', '123 Coffee Street');

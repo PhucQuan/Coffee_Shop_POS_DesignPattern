@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Coffee, Lock, User, ArrowRight, ShieldCheck, Sparkles, ChefHat, LayoutDashboard, Monitor } from 'lucide-react';
-import { DEFAULT_USERS } from '../data/mockData';
 
 /**
- * LoginView - Tái hiện 100% giao diện HeroLoginPanel & AppTheme của bản Desktop Java Swing
+ * LoginView - Màn hình đăng nhập cho Coffee Shop POS Web.
  * - Hero background: /assets/backgrounds/coffee-hero.jpg
  * - Gradient veil: Warm cream fade (FDFBF7)
  * - Frosted left card (24px radius, soft shadow, AppTheme colors)
@@ -11,7 +10,7 @@ import { DEFAULT_USERS } from '../data/mockData';
  * - Form: Username (cashier01), Password (123), Sign in (#C2917A), Exit button
  * - Demo accounts panel matching desktop card layout
  */
-export default function LoginView({ onLoginSuccess }) {
+export default function LoginView({ users, onLoginSuccess }) {
   const [username, setUsername] = useState('cashier01');
   const [password, setPassword] = useState('123');
   const [errorMsg, setErrorMsg] = useState('');
@@ -26,7 +25,7 @@ export default function LoginView({ onLoginSuccess }) {
       return;
     }
 
-    const found = DEFAULT_USERS.find(
+    const found = users.find(
       u => u.username.toLowerCase() === trimmedUser.toLowerCase() && u.password === password
     );
 
@@ -156,7 +155,7 @@ export default function LoginView({ onLoginSuccess }) {
           </div>
         </form>
 
-        {/* Demo Accounts Card - Đúng định dạng demoAccountsPanel() của Java Swing */}
+        {/* Demo Accounts Card */}
         <div className="mt-6 pt-5 border-t border-[#f2eae2]">
           <div className="p-3.5 rounded-2xl bg-[#fffcf8] border border-[#e5dad0] space-y-2">
             <div className="flex items-center justify-between mb-1">
@@ -165,7 +164,7 @@ export default function LoginView({ onLoginSuccess }) {
             </div>
 
             <div className="space-y-1.5">
-              {DEFAULT_USERS.map((u) => {
+              {users.map((u) => {
                 const isSelected = username === u.username;
                 const roleBadge = 
                   u.role === 'ADMIN' ? { label: 'Admin dashboard', icon: LayoutDashboard } :

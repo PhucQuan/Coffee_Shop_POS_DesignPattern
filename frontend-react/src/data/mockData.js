@@ -1,4 +1,4 @@
-// Dữ liệu đồng bộ chuẩn 100% từ SQLite Database pos_data.db gốc của Bản Desktop App
+// Dữ liệu mẫu dùng để khởi tạo MySQL khi hệ thống chưa có snapshot.
 
 export const DEFAULT_USERS = [
   {

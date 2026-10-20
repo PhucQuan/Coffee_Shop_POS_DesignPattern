@@ -85,25 +85,35 @@ export default function CustomizeModal({ drink, toppings, onClose, onConfirm }) 
             </label>
             <div className="grid grid-cols-2 gap-3">
               <label
-                onClick={() => setSize('M')}
                 className={`flex items-center justify-between p-3 rounded-2xl border cursor-pointer transition-all ${
                   size === 'M' ? 'border-[#7d4924] bg-[#fffaf6]' : 'border-[#ede4db] bg-white'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <input type="radio" checked={size === 'M'} readOnly className="w-4 h-4 text-[#7d4924]" />
+                  <input
+                    type="radio"
+                    name="modalSize"
+                    checked={size === 'M'}
+                    onChange={() => setSize('M')}
+                    className="w-4 h-4 text-[#7d4924]"
+                  />
                   <span className="text-sm font-bold text-[#2b170c]">Size M (Vừa)</span>
                 </div>
                 <span className="text-xs font-semibold text-gray-500">+0 ₫</span>
               </label>
               <label
-                onClick={() => setSize('L')}
                 className={`flex items-center justify-between p-3 rounded-2xl border cursor-pointer transition-all ${
                   size === 'L' ? 'border-[#7d4924] bg-[#fffaf6]' : 'border-[#ede4db] bg-white'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <input type="radio" checked={size === 'L'} readOnly className="w-4 h-4 text-[#7d4924]" />
+                  <input
+                    type="radio"
+                    name="modalSize"
+                    checked={size === 'L'}
+                    onChange={() => setSize('L')}
+                    className="w-4 h-4 text-[#7d4924]"
+                  />
                   <span className="text-sm font-bold text-[#2b170c]">Size L (Lớn)</span>
                 </div>
                 <span className="text-xs font-bold text-[#7d4924]">+10.000 ₫</span>
@@ -164,13 +174,17 @@ export default function CustomizeModal({ drink, toppings, onClose, onConfirm }) 
                 return (
                   <label
                     key={top.id}
-                    onClick={() => handleToggleTopping(top)}
                     className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-all ${
                       isSelected ? 'border-[#7d4924] bg-[#fffaf6]' : 'border-[#ede4db] bg-white'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <input type="checkbox" checked={isSelected} readOnly className="w-4 h-4 text-[#7d4924] rounded-sm" />
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleToggleTopping(top)}
+                        className="w-4 h-4 text-[#7d4924] rounded-sm"
+                      />
                       <span className="text-sm font-medium text-[#3e200a]">{top.name}</span>
                     </div>
                     <span className="text-xs font-bold text-[#a36538]">+{formatVND(top.price)}</span>

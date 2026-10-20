@@ -1,0 +1,9 @@
+# Sao chep file nay thanh mysql.properties va sua thong tin mot lan.
+# Bien moi truong MYSQL_* (neu co) se duoc uu tien hon file nay.
+mysql.host=localhost
+mysql.port=3306
+mysql.database=coffee_shop_pos
+mysql.user=root
+mysql.password=your_mysql_password
+
+# mysql.url=jdbc:mysql://localhost:3306/coffee_shop_pos?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Ho_Chi_Minh

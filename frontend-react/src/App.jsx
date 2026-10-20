@@ -35,8 +35,7 @@ export default function App() {
     if (params.get('autologin') === 'true') {
       return DEFAULT_USERS[1];
     }
-    const saved = localStorage.getItem('purr_pos_user');
-    return saved ? JSON.parse(saved) : null; // Mặc định mở màn hình LoginView nếu chưa đăng nhập
+    return null;
   });
 
   const [activeTab, setActiveTab] = useState('pos');
@@ -45,49 +44,22 @@ export default function App() {
   const [orderType, setOrderType] = useState('DINE_IN');
 
   // Master Data State (Synced across POS, Admin, Kitchen)
-  const [menu, setMenu] = useState(() => {
-    const saved = localStorage.getItem('purr_pos_menu');
-    return saved ? JSON.parse(saved) : DEFAULT_MENU;
-  });
-
-  const [toppings, setToppings] = useState(() => {
-    const saved = localStorage.getItem('purr_pos_toppings');
-    return saved ? JSON.parse(saved) : DEFAULT_TOPPINGS;
-  });
-
-  const [inventory, setInventory] = useState(() => {
-    const saved = localStorage.getItem('purr_pos_inventory');
-    return saved ? JSON.parse(saved) : DEFAULT_INVENTORY;
-  });
-
-  const [inventoryLogs, setInventoryLogs] = useState(() => {
-    const saved = localStorage.getItem('purr_pos_inv_logs');
-    return saved ? JSON.parse(saved) : INITIAL_INVENTORY_LOGS;
-  });
-
-  const [users, setUsers] = useState(() => {
-    const saved = localStorage.getItem('purr_pos_users_list');
-    return saved ? JSON.parse(saved) : DEFAULT_USERS;
-  });
-
-  const [recipes, setRecipes] = useState(() => {
-    const saved = localStorage.getItem('purr_pos_recipes');
-    return saved ? JSON.parse(saved) : DEFAULT_RECIPES;
-  });
+  const [menu, setMenu] = useState(DEFAULT_MENU);
+  const [toppings, setToppings] = useState(DEFAULT_TOPPINGS);
+  const [inventory, setInventory] = useState(DEFAULT_INVENTORY);
+  const [inventoryLogs, setInventoryLogs] = useState(INITIAL_INVENTORY_LOGS);
+  const [users, setUsers] = useState(DEFAULT_USERS);
+  const [recipes, setRecipes] = useState(DEFAULT_RECIPES);
+  const [dataReady, setDataReady] = useState(false);
+  const [dataError, setDataError] = useState('');
 
   // Cart & Orders State
-  const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem('react_pos_cart');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [cart, setCart] = useState([]);
   const [discountType, setDiscountType] = useState('NONE');
   const [voucherCode, setVoucherCode] = useState('');
   const [voucherDiscount, setVoucherDiscount] = useState(0);
 
-  const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('react_pos_orders');
-    return saved ? JSON.parse(saved) : INITIAL_ORDERS;
-  });
+  const [orders, setOrders] = useState(INITIAL_ORDERS);
   const [orderCounter, setOrderCounter] = useState(1003);
 
   // Modals & Notifications
@@ -96,42 +68,53 @@ export default function App() {
   const [receiptOrder, setReceiptOrder] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
-  // Save to localStorage
+  // MySQL is the durable source of truth. Session/login/cart state intentionally
+  // stays in memory and is not shared between cashier terminals.
   useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem('purr_pos_user', JSON.stringify(currentUser));
-    } else {
-      localStorage.removeItem('purr_pos_user');
+    const controller = new AbortController();
+    async function loadState() {
+      try {
+        const response = await fetch('/api/state', { signal: controller.signal });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const state = await response.json();
+        if (state) {
+          if (Array.isArray(state.menu)) setMenu(state.menu);
+          if (Array.isArray(state.toppings)) setToppings(state.toppings);
+          if (Array.isArray(state.inventory)) setInventory(state.inventory);
+          if (Array.isArray(state.inventoryLogs)) setInventoryLogs(state.inventoryLogs);
+          if (Array.isArray(state.users)) setUsers(state.users);
+          if (Array.isArray(state.recipes)) setRecipes(state.recipes);
+          if (Array.isArray(state.orders)) setOrders(state.orders);
+          if (Number.isInteger(state.orderCounter)) setOrderCounter(state.orderCounter);
+        }
+        setDataReady(true);
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          setDataError('Không thể kết nối MySQL qua máy chủ. Hãy kiểm tra MySQL và cấu hình MYSQL_* rồi tải lại trang.');
+        }
+      }
     }
-  }, [currentUser]);
+    loadState();
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem('purr_pos_menu', JSON.stringify(menu));
-  }, [menu]);
-
-  useEffect(() => {
-    localStorage.setItem('purr_pos_toppings', JSON.stringify(toppings));
-  }, [toppings]);
-
-  useEffect(() => {
-    localStorage.setItem('purr_pos_inventory', JSON.stringify(inventory));
-  }, [inventory]);
-
-  useEffect(() => {
-    localStorage.setItem('purr_pos_inv_logs', JSON.stringify(inventoryLogs));
-  }, [inventoryLogs]);
-
-  useEffect(() => {
-    localStorage.setItem('purr_pos_users_list', JSON.stringify(users));
-  }, [users]);
-
-  useEffect(() => {
-    localStorage.setItem('react_pos_cart', JSON.stringify(cart));
-  }, [cart]);
-
-  useEffect(() => {
-    localStorage.setItem('react_pos_orders', JSON.stringify(orders));
-  }, [orders]);
+    if (!dataReady) return undefined;
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        const response = await fetch('/api/state', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ menu, toppings, inventory, inventoryLogs, users, recipes, orders, orderCounter })
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        setDataError('');
+      } catch {
+        setDataError('Không thể lưu thay đổi vào MySQL. Dữ liệu mới chưa được lưu bền vững.');
+      }
+    }, 300);
+    return () => window.clearTimeout(timeoutId);
+  }, [dataReady, menu, toppings, inventory, inventoryLogs, users, recipes, orders, orderCounter]);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -310,9 +293,25 @@ export default function App() {
     return isActive && matchCat && matchSearch;
   });
 
+  if (!dataReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#fffaf6] p-6 text-center">
+        <div className="max-w-lg rounded-3xl border border-[#ede4db] bg-white p-8 shadow-lg">
+          <h1 className="text-xl font-black text-[#2b170c]">{dataError ? 'Không thể tải dữ liệu' : 'Đang kết nối MySQL...'}</h1>
+          <p className="mt-3 text-sm text-[#8a7668]">{dataError || 'PurrCoffee đang tải dữ liệu dùng chung từ máy chủ.'}</p>
+          {dataError && (
+            <button onClick={() => window.location.reload()} className="mt-5 rounded-xl bg-[#3e200a] px-5 py-2.5 text-sm font-bold text-white">
+              Thử lại
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // If not logged in, render Login View
   if (!currentUser) {
-    return <LoginView onLoginSuccess={handleLoginSuccess} />;
+    return <LoginView users={users} onLoginSuccess={handleLoginSuccess} />;
   }
 
   return (
@@ -468,6 +467,12 @@ export default function App() {
         <div className="fixed bottom-5 right-5 z-50 bg-[#2b170c] text-white px-5 py-3 rounded-2xl shadow-xl text-sm font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-5">
           <Check className="w-4 h-4 text-emerald-400" />
           <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {dataError && (
+        <div className="fixed bottom-5 left-5 z-50 max-w-md rounded-2xl bg-red-700 px-5 py-3 text-sm font-semibold text-white shadow-xl">
+          {dataError}
         </div>
       )}
     </div>

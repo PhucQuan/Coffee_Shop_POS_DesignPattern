@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { X, Check } from 'lucide-react';
 import { formatVND } from '../data/mockData';
 
-export default function CheckoutModal({ total, onClose, onConfirmPayment }) {
-  const [gateway, setGateway] = useState('CASH');
+export default function CheckoutModal({ total, demoDefects, onClose, onConfirmPayment }) {
+  // Test-report demo only: TC05 starts on VNPay instead of the required Cash option.
+  const [gateway, setGateway] = useState(() => demoDefects?.has('TC05') ? 'VNPAY' : 'CASH');
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">

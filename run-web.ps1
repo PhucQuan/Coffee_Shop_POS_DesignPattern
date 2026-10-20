@@ -1,4 +1,15 @@
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$reactDir = Join-Path $root "frontend-react"
+Write-Host "Building React frontend..." -ForegroundColor Cyan
+Push-Location $reactDir
+try {
+    if (-not (Test-Path "node_modules")) { npm install }
+    npm run build
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+} finally {
+    Pop-Location
+}
+
 $out = Join-Path $root "build\classes"
 $sourceList = Join-Path $root "build\run-sources.tmp"
 $libs = (Get-ChildItem -Path (Join-Path $root "libs\*.jar") | ForEach-Object { $_.FullName }) -join ";"
